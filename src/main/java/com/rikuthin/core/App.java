@@ -9,7 +9,7 @@ public class App {
     /**
      * How often the various threads should update themselves (milliseconds).
      */
-    public static final int TICK_SPEED_MS = 10;
+    public static final double TICK_SPEED_MS = 16.7;    // 16.7 ms is approx. 60 FPS
 
     /**
      * The entry point for the application. This method schedules the creation
