@@ -44,7 +44,7 @@ public final class GameFrame extends JFrame {
         gameLoopTimer = new Timer((int) TICK_SPEED_MS, e -> {
             updateGame();
             renderGame();
-            repaint();
+            currentScreen.repaint();
         });
         gameLoopTimer.start();
     }

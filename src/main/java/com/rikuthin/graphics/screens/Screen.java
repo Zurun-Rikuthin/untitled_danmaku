@@ -1,6 +1,7 @@
 package com.rikuthin.graphics.screens;
 
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 import javax.swing.JPanel;
@@ -33,6 +34,19 @@ public abstract class Screen extends JPanel {
         setPreferredSize(panelSize);
         setMinimumSize(panelSize);
         setMaximumSize(panelSize);
+    }
+
+    /**
+     * Override the paintComponent method to render the game on the screen.
+     * This is where custom rendering will occur.
+     */
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        if (g instanceof Graphics2D g2d) {
+            render(g2d);
+        }
     }
 
     /**
