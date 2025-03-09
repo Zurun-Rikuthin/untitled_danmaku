@@ -3,9 +3,10 @@ package com.rikuthin.graphics.screens;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -15,7 +16,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import com.rikuthin.graphics.GameFrame;
-import com.rikuthin.core.GameManager;
+import com.rikuthin.graphics.ImageManager;
+import com.rikuthin.graphics.UIConstants;
 import static com.rikuthin.utility.ButtonUtil.createButton;
 
 /**
@@ -28,6 +30,8 @@ public class MainMenuScreen extends Screen {
     private final JPanel buttonPanel;
     private final JPanel centreWrapper;
     private final JPanel titlePanel;
+    private final String backgroundImageURL;
+    private BufferedImage backgroundImage;
 
     // TODO: Implement mute functionality
     // private final JToggleButton muteMusicButton;
@@ -35,19 +39,25 @@ public class MainMenuScreen extends Screen {
      * Constructs the main menu screen panel with buttons for starting the game,
      * viewing how to play, settings, high scores, and quitting.
      *
-     * @param gameFrame The GameFrame object that manages panel transitions.
+     * @param gameFrame The parent {@link GameFrame} to which this screen
+     * belongs.
      */
     public MainMenuScreen(GameFrame gameFrame) {
         super(gameFrame);
         setBackground(new Color(87, 73, 100));
         setLayout(new BorderLayout());
 
+        System.out.println("before loading image");
+        backgroundImageURL = "/images/backgrounds/main_menu.png";
+        backgroundImage = ImageManager.loadBufferedImage(backgroundImageURL);
+        System.out.println("after loading image" + backgroundImage);
+
         // ----- Title Section (Centered at the top) -----
         titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         titlePanel.setOpaque(false);
 
-        titleLabel = new JLabel("Thread the Needle", SwingConstants.CENTER);
-        titleLabel.setFont(new Font(GameFrame.BODY_TYPEFACE, Font.BOLD, 36));
+        titleLabel = new JLabel(gameFrame.getTitle(), SwingConstants.CENTER);
+        titleLabel.setFont(UIConstants.TITLE_FONT);
         titleLabel.setForeground(Color.WHITE);
 
         titlePanel.add(Box.createVerticalStrut(100));  // Add space above the title
@@ -61,7 +71,6 @@ public class MainMenuScreen extends Screen {
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
         buttonPanel.setOpaque(false);
 
-        final Font buttonFont = new Font(GameFrame.BODY_TYPEFACE, Font.PLAIN, 16);
         buttonPanel.add(Box.createVerticalStrut(100));  // Add space above buttons
 
         // Button labels and their corresponding actions
@@ -70,8 +79,8 @@ public class MainMenuScreen extends Screen {
 
         // Create and add buttons
         for (int i = 0; i < labels.length; i++) {
-            // Only enable "START GAME" and "QUIT GAME" for now
-            JButton button = createButton(labels[i], buttonFont, 180, 40, i != 1 && i != 2 && i != 3, actions[i]);
+            final boolean enabled = i == 0 || i == 4; // Only enable "START GAME" and "QUIT GAME" for now
+            JButton button = createButton(labels[i], UIConstants.BUTTON_FONT, 180, 40, enabled, actions[i]);
             buttonPanel.add(button);
             buttonPanel.add(Box.createVerticalStrut(10));  // Space between buttons
         }
@@ -91,6 +100,20 @@ public class MainMenuScreen extends Screen {
         // add(muteButtonPanel, BorderLayout.NORTH);  // Add to the left side
     }
 
+    @Override
+    public void update() {
+        // Not needed right now (no animations, button effects, etc.)
+    }
+
+    @Override
+    public void render(Graphics2D g2d) {
+        if (backgroundImage != null && g2d != null) {
+            g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
+        } else {
+            System.err.println(String.format("%s: Could not load background image <'%s'>.", this.getClass().getName(), backgroundImageURL));
+        }
+    }
+
     // TODO: Implement mute functionality
     // private void onMuteMusic(ActionEvent e) {
     //     System.out.println("Mute functionality is not yet implemented.");
@@ -102,8 +125,7 @@ public class MainMenuScreen extends Screen {
      * @param e The action event triggered by the button.
      */
     private void onStartGame(ActionEvent e) {
-        gameFrame.switchToPanel(PanelName.GAMEPLAY);
-        GameManager.getInstance().startGame();
+        gameFrame.setScreen(new GameplayScreen(gameFrame));
     }
 
     // TODO: Implement the functionality for viewing how to play
@@ -129,4 +151,5 @@ public class MainMenuScreen extends Screen {
     private void onQuitGame(ActionEvent e) {
         System.exit(0);
     }
+
 }

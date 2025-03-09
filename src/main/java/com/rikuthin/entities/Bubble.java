@@ -1,4 +1,4 @@
-package com.rikuthin.game_objects;
+package com.rikuthin.entities;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -6,9 +6,8 @@ import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.util.List;
 
-import com.rikuthin.App;
-import com.rikuthin.GameManager;
-import com.rikuthin.screen_panels.gameplay_subpanels.BubblePanel;
+import com.rikuthin.core.App;
+import com.rikuthin.core.GameManager;
 import com.rikuthin.utility.Bearing2D;
 
 /**

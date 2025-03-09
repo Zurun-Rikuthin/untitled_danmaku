@@ -5,6 +5,7 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -14,45 +15,83 @@ import javax.swing.ImageIcon;
  */
 public class ImageManager {
 
-    public ImageManager() {
-
+    private ImageManager() {
     }
 
+    /**
+     * Loads an image from a file path (using ImageIcon).
+     *
+     * @param fileName The path to the image.
+     * @return The Image object.
+     */
     public static Image loadImage(String fileName) {
         return new ImageIcon(fileName).getImage();
     }
 
-    public static BufferedImage loadBufferedImage(String filename) {
-        BufferedImage bi = null;
+    /**
+     * Loads a BufferedImage from the provided file path. If the image is
+     * bundled in the JAR (or the classpath), use a URL. Otherwise, load it as a
+     * regular file.
+     *
+     * @param filepath The file path (relative or absolute).
+     * @return The BufferedImage object.
+     */
+    public static BufferedImage loadBufferedImage(String filepath) {
+        BufferedImage bufferedImage = null;
 
-        File file = new File(filename);
         try {
-            bi = ImageIO.read(file);
-        } catch (IOException ioe) {
-            System.out.println("Error opening file " + filename + ":" + ioe);
+            System.out.println("entered try");
+            // Try loading as a resource (for classpath resources, e.g., inside JAR file)
+            URL imageUrl = ImageManager.class.getResource(filepath);
+            if (imageUrl != null) {
+                System.out.println("imgUrl is not null");
+                // If URL is found (i.e., resource exists in classpath), load it
+                bufferedImage = ImageIO.read(imageUrl);
+            } else {
+                System.out.println("imgUrl is null");
+                // If URL is not found, try loading as a normal file (e.g., file system)
+                File file = new File(filepath);
+                if (file.exists()) {
+                    bufferedImage = ImageIO.read(file);
+                    System.out.println("loaded image");
+                } else {
+                    System.out.println("Image not found: " + filepath);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error opening file " + filepath + ": " + e.getMessage());
         }
-        return bi;
+
+        System.out.println("returning buffered image");
+        return bufferedImage;
     }
 
-    // make a copy of the BufferedImage src
-    public static BufferedImage copyImage(BufferedImage src) {
-        if (src == null) {
+    /**
+     * Makes a copy of the given BufferedImage.
+     *
+     * @param source The source BufferedImage to copy.
+     * @return The copied BufferedImage.
+     */
+    public static BufferedImage copyImage(BufferedImage source) {
+        if (source == null) {
             return null;
         }
 
-        int imWidth = src.getWidth();
-        int imHeight = src.getHeight();
+        int imageWidth = source.getWidth();
+        int imageHeight = source.getHeight();
 
-        BufferedImage copy = new BufferedImage(imWidth, imHeight,
-                BufferedImage.TYPE_INT_ARGB);
+        BufferedImage copy = new BufferedImage(
+                imageWidth,
+                imageHeight,
+                BufferedImage.TYPE_INT_ARGB
+        );
 
         Graphics2D g2d = copy.createGraphics();
 
-        // copy image
-        g2d.drawImage(src, 0, 0, null);
+        // Copy the image content
+        g2d.drawImage(source, 0, 0, null);
         g2d.dispose();
 
         return copy;
     }
-
 }

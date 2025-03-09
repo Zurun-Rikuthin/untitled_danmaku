@@ -14,7 +14,7 @@ import com.rikuthin.effects.ImageFX;
 import com.rikuthin.effects.TintFX;
 import com.rikuthin.entities.Alien;
 import com.rikuthin.entities.Bat;
-import com.rikuthin.entities.environment.Background;
+import com.rikuthin.entities.backgrounds.OldBackground;
 
 /**
  * A component that displays all the game entities
@@ -36,7 +36,7 @@ public class GamePanel extends JPanel
     private BufferedImage image;
     //private Image backgroundImage;
 
-    private Background background;
+    private OldBackground background;
 
     private ImageFX imageFX;
     private ImageFX imageFX2;
@@ -61,7 +61,7 @@ public class GamePanel extends JPanel
 
 //		background = new Background(this, "images/Scroll-Background.png", 96);
 //		background = new Background(this, "images/PurpleNebula.png", 96);
-        background = new Background(this, "images/VerticalBackground.png", 96);
+        background = new OldBackground(this, "images/VerticalBackground.png", 96);
 
         bat = new Bat(this, 175, 350);
         aliens = new Alien[3];

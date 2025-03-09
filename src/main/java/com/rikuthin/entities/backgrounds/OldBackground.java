@@ -1,4 +1,4 @@
-package com.rikuthin.entities.environment;
+package com.rikuthin.entities.backgrounds;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -6,7 +6,7 @@ import java.awt.Image;
 import com.rikuthin.graphics.GamePanel;
 import com.rikuthin.graphics.ImageManager;
 
-public class Background {
+public class OldBackground {
 
     private final Image bgImage;
 
@@ -27,7 +27,7 @@ public class Background {
     private int bg2Y;			// Y-coordinate of second background
     private int bgDY;			// size of the background move (in pixels)
 
-    public Background(GamePanel panel, String imageFile, int bgDX) {
+    public OldBackground(GamePanel panel, String imageFile, int bgDX) {
 
         this.panel = panel;
         this.bgImage = ImageManager.loadImage(imageFile);

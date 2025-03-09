@@ -1,4 +1,4 @@
-package com.rikuthin.game_objects;
+package com.rikuthin.entities;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -6,7 +6,7 @@ import java.awt.Point;
 import java.awt.geom.Rectangle2D;
 import java.util.Objects;
 
-import com.rikuthin.GameManager;
+import com.rikuthin.core.GameManager;
 import com.rikuthin.utility.Bearing2D;
 
 /**
