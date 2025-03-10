@@ -26,7 +26,7 @@ public class GamePanel extends JPanel {
     public GamePanel() {
         // Background colour used as a backup in case the image deosn't load.
         setBackground(new Color(200, 170, 170));
-        setPreferredSize(new Dimension(700, GameFrame.FRAME_HEIGHT));
+        setPreferredSize(new Dimension(GameFrame.FRAME_HEIGHT, GameFrame.FRAME_HEIGHT));
         // setLayout(null);
 
         backgroundImageURL = "/images/backgrounds/game_panel.png";

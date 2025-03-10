@@ -36,7 +36,7 @@ public final class InfoPanel extends JPanel {
     public InfoPanel() {
         // Background colour used as a backup in case the image deosn't load.
         setBackground(new Color(87, 73, 100));
-        setPreferredSize(new Dimension(324, GameFrame.FRAME_HEIGHT));
+        setPreferredSize(new Dimension(GameFrame.FRAME_WIDTH - GameFrame.FRAME_HEIGHT, GameFrame.FRAME_HEIGHT));
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
         backgroundImageURL = "/images/backgrounds/info_panel.png";
