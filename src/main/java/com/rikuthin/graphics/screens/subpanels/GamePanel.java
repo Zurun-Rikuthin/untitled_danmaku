@@ -6,13 +6,10 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
-import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import com.rikuthin.core.GameManager;
 import com.rikuthin.graphics.GameFrame;
 import com.rikuthin.graphics.ImageManager;
-import com.rikuthin.utility.ButtonUtil;
 
 /**
  * A component that displays all the game entities
@@ -20,22 +17,15 @@ import com.rikuthin.utility.ButtonUtil;
 public class GamePanel extends JPanel {
 
     private final String backgroundImageURL;
-    private final JButton pauseButton;
     private BufferedImage backgroundImage;
 
     public GamePanel() {
         // Background colour used as a backup in case the image deosn't load.
         setBackground(new Color(200, 170, 170));
         setPreferredSize(new Dimension(GameFrame.FRAME_HEIGHT, GameFrame.FRAME_HEIGHT));
-        // setLayout(null);
 
         backgroundImageURL = "/images/backgrounds/game_panel.png";
         backgroundImage = ImageManager.loadBufferedImage(backgroundImageURL);
-
-        pauseButton = ButtonUtil.createButtonWithIcon("/images/icons/pause-button.png", 64, 64, false, GameManager.getInstance()::onPause);
-        add(pauseButton);
-
-        pauseButton.setLocation(40, 40);
     }
 
     /**
