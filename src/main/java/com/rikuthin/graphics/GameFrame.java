@@ -17,8 +17,8 @@ public final class GameFrame extends JFrame {
     public static final int FRAME_HEIGHT = 720;
 
     private final Timer gameLoopTimer;
+    private final Graphics2D g2d;
     private BufferedImage backBuffer;
-    private Graphics2D g2d;
     private Screen currentScreen;
 
     /**
@@ -27,7 +27,7 @@ public final class GameFrame extends JFrame {
      * instance and sets the blaster and bubble panels.
      */
     public GameFrame() {
-        setTitle("Untitled Danmaku");
+        setTitle("<Untitled Danmaku>");
         setSize(FRAME_WIDTH, FRAME_HEIGHT);
         setResizable(false);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

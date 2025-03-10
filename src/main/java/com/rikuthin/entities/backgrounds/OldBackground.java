@@ -3,8 +3,8 @@ package com.rikuthin.entities.backgrounds;
 import java.awt.Graphics2D;
 import java.awt.Image;
 
-import com.rikuthin.graphics.GamePanel;
 import com.rikuthin.graphics.ImageManager;
+import com.rikuthin.graphics.screens.subpanels.GamePanel;
 
 public class OldBackground {
 

@@ -33,8 +33,6 @@ public class MainMenuScreen extends Screen {
     private final String backgroundImageURL;
     private BufferedImage backgroundImage;
 
-    // TODO: Implement mute functionality
-    // private final JToggleButton muteMusicButton;
     /**
      * Constructs the main menu screen panel with buttons for starting the game,
      * viewing how to play, settings, high scores, and quitting.
@@ -47,10 +45,8 @@ public class MainMenuScreen extends Screen {
         setBackground(new Color(87, 73, 100));
         setLayout(new BorderLayout());
 
-        System.out.println("before loading image");
         backgroundImageURL = "/images/backgrounds/main_menu.png";
         backgroundImage = ImageManager.loadBufferedImage(backgroundImageURL);
-        System.out.println("after loading image" + backgroundImage);
 
         // ----- Title Section (Centered at the top) -----
         titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -60,9 +56,9 @@ public class MainMenuScreen extends Screen {
         titleLabel.setFont(UIConstants.TITLE_FONT);
         titleLabel.setForeground(Color.WHITE);
 
-        titlePanel.add(Box.createVerticalStrut(100));  // Add space above the title
+        titlePanel.add(Box.createVerticalStrut(200));  // Add space above the title
         titlePanel.add(titleLabel);
-        titlePanel.add(Box.createVerticalStrut(100));  // Add space below the title
+        titlePanel.add(Box.createVerticalStrut(80));  // Add space below the title
 
         add(titlePanel, BorderLayout.NORTH);
 
@@ -74,13 +70,13 @@ public class MainMenuScreen extends Screen {
         buttonPanel.add(Box.createVerticalStrut(100));  // Add space above buttons
 
         // Button labels and their corresponding actions
-        final String[] labels = {"START GAME", "HOW TO PLAY", "SETTINGS", "HIGHSCORES", "QUIT GAME"};
-        final ActionListener[] actions = {this::onStartGame, this::onHowToPlay, this::onSettings, this::onHighscores, this::onQuitGame};
+        final String[] labels = {"START GAME", "HIGHSCORES", "HOW TO PLAY", "SETTINGS", "EXIT GAME"};
+        final ActionListener[] actions = {this::onStartGame, this::onHighscores, this::onHowToPlay, this::onSettings, this::onExitGame};
 
         // Create and add buttons
         for (int i = 0; i < labels.length; i++) {
             final boolean enabled = i == 0 || i == 4; // Only enable "START GAME" and "QUIT GAME" for now
-            JButton button = createButton(labels[i], UIConstants.BUTTON_FONT, 180, 40, enabled, actions[i]);
+            JButton button = createButton(labels[i], UIConstants.BUTTON_FONT, 200, 40, enabled, actions[i]);
             buttonPanel.add(button);
             buttonPanel.add(Box.createVerticalStrut(10));  // Space between buttons
         }
@@ -91,13 +87,6 @@ public class MainMenuScreen extends Screen {
         centreWrapper.add(buttonPanel);
 
         add(centreWrapper, BorderLayout.CENTER);
-
-        // TODO: Implement Mute Music Button
-        // muteButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        // muteButtonPanel.setOpaque(false);
-        // muteMusicButton = createToggleButton("MUTE", buttonFont, 90, 40, false, this::onMuteMusic);
-        // muteButtonPanel.add(muteMusicButton);
-        // add(muteButtonPanel, BorderLayout.NORTH);  // Add to the left side
     }
 
     @Override
@@ -114,18 +103,18 @@ public class MainMenuScreen extends Screen {
         }
     }
 
-    // TODO: Implement mute functionality
-    // private void onMuteMusic(ActionEvent e) {
-    //     System.out.println("Mute functionality is not yet implemented.");
-    // }
     /**
-     * Starts the game by switching to the gameplay panel and initializing the
-     * game.
+     * Starts the game by switching to the gameplay screen.
      *
      * @param e The action event triggered by the button.
      */
     private void onStartGame(ActionEvent e) {
         gameFrame.setScreen(new GameplayScreen(gameFrame));
+    }
+
+    // TODO: Implement the functionality for high scores
+    private void onHighscores(ActionEvent e) {
+        System.out.println("High scores screen is not implemented yet.");
     }
 
     // TODO: Implement the functionality for viewing how to play
@@ -138,17 +127,12 @@ public class MainMenuScreen extends Screen {
         System.out.println("Settings menu is not implemented yet.");
     }
 
-    // TODO: Implement the functionality for high scores
-    private void onHighscores(ActionEvent e) {
-        System.out.println("High scores screen is not implemented yet.");
-    }
-
     /**
-     * Exits the game when the quit button is pressed.
+     * Exits the game (closes the application).
      *
      * @param e The action event triggered by the button.
      */
-    private void onQuitGame(ActionEvent e) {
+    private void onExitGame(ActionEvent e) {
         System.exit(0);
     }
 

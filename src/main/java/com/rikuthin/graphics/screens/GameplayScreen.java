@@ -1,55 +1,35 @@
 package com.rikuthin.graphics.screens;
 
+import java.awt.BorderLayout;
 import java.awt.Graphics2D;
 
-import javax.swing.BoxLayout;
-
 import com.rikuthin.graphics.GameFrame;
-// import com.rikuthin.screen_panels.gameplay_subpanels.BlasterPanel;
-// import com.rikuthin.screen_panels.gameplay_subpanels.BubblePanel;
-// import com.rikuthin.screen_panels.gameplay_subpanels.StatusPanel;
+import com.rikuthin.graphics.screens.subpanels.GamePanel;
+import com.rikuthin.graphics.screens.subpanels.InfoPanel;
 
 public final class GameplayScreen extends Screen {
-
-    // private final StatusPanel statusPanel;
-    // private final BubblePanel bubblePanel;
-    // private final BlasterPanel blasterPanel;
+    private final GamePanel gamePanel;
+    private final InfoPanel infoPanel;
 
     public GameplayScreen(GameFrame gameFrame) {
         super(gameFrame);
 
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setLayout(new BorderLayout());
+        gamePanel = new GamePanel();
+        infoPanel = new InfoPanel();
 
-        // statusPanel = new StatusPanel();
-        // bubblePanel = new BubblePanel();
-        // blasterPanel = new BlasterPanel();
-
-        // add(statusPanel);
-        // add(bubblePanel);
-        // add(blasterPanel);
+        add(gamePanel, BorderLayout.CENTER);
+        add(infoPanel, BorderLayout.LINE_END);
     }
 
     @Override
     public void update() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'update'");
+        // Does nothing atm
     }
 
     @Override
     public void render(Graphics2D g) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'render'");
+        gamePanel.render(g);
+        infoPanel.render(g);
     }
-
-    // public StatusPanel getStatusPanel() {
-    //     return statusPanel;
-    // }
-
-    // public BubblePanel getBubblePanel() {
-    //     return bubblePanel;
-    // }
-
-    // public BlasterPanel getBlasterPanel() {
-    //     return blasterPanel;
-    // }
 }

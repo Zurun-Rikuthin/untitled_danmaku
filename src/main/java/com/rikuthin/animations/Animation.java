@@ -3,7 +3,7 @@ package com.rikuthin.animations;
 import java.awt.Image;
 import java.util.ArrayList;
 
-import com.rikuthin.graphics.GamePanel;
+import com.rikuthin.graphics.screens.subpanels.GamePanel;
 
 /**
  * The Animation class manages a series of images (frames) and the amount of

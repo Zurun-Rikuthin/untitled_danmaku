@@ -5,8 +5,8 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
-import com.rikuthin.graphics.GamePanel;
 import com.rikuthin.graphics.ImageManager;
+import com.rikuthin.graphics.screens.subpanels.GamePanel;
 
 public class DisappearFX implements ImageFX {
 

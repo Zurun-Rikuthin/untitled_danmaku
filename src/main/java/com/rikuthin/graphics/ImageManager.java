@@ -40,29 +40,22 @@ public class ImageManager {
         BufferedImage bufferedImage = null;
 
         try {
-            System.out.println("entered try");
             // Try loading as a resource (for classpath resources, e.g., inside JAR file)
             URL imageUrl = ImageManager.class.getResource(filepath);
             if (imageUrl != null) {
-                System.out.println("imgUrl is not null");
                 // If URL is found (i.e., resource exists in classpath), load it
                 bufferedImage = ImageIO.read(imageUrl);
             } else {
-                System.out.println("imgUrl is null");
                 // If URL is not found, try loading as a normal file (e.g., file system)
                 File file = new File(filepath);
                 if (file.exists()) {
                     bufferedImage = ImageIO.read(file);
-                    System.out.println("loaded image");
-                } else {
-                    System.out.println("Image not found: " + filepath);
                 }
             }
         } catch (IOException e) {
             System.out.println("Error opening file " + filepath + ": " + e.getMessage());
         }
 
-        System.out.println("returning buffered image");
         return bufferedImage;
     }
 
