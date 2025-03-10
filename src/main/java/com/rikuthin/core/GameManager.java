@@ -1,10 +1,13 @@
 package com.rikuthin.core;
 
-import java.awt.Color;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 
 import javax.swing.Timer;
+
+import com.rikuthin.graphics.GameFrame;
+import com.rikuthin.graphics.dialogue.PauseMenuDialogue;
+import com.rikuthin.graphics.screens.subpanels.GamePanel;
+import com.rikuthin.graphics.screens.subpanels.InfoPanel;
 
 // import com.rikuthin.dialogue_panels.PauseMenuDialogue;
 // import com.rikuthin.game_objects.Blaster;
@@ -18,10 +21,9 @@ public class GameManager {
 
     private static GameManager instance;
 
-    // private BlasterPanel blasterPanel;
-    // private BubblePanel bubblePanel;
-    // private StatusPanel statusPanel;
-    private Timer gameTimer;
+    private GamePanel gamePanel;
+    private InfoPanel infoPanel;
+    private Timer gameplayTimer;
     private int remainingBubbles;
     private int elapsedSeconds;
     private int score;
@@ -50,38 +52,21 @@ public class GameManager {
         return instance;
     }
 
-    /**
-     * Returns the remaining number of bubbles left that the player can shoot.
-     *
-     * @return The remaining number of bubbles
-     */
-    // public int getRemainingBubbles() {
-    //     return remainingBubbles;
-    // }
+    public GamePanel getGamePanel() {
+        return gamePanel;
+    }
 
-    // public BlasterPanel getBlasterPanel() {
-    //     return blasterPanel;
-    // }
+    public InfoPanel getInfoPanel() {
+        return infoPanel;
+    }
 
-    // public BubblePanel getBubblePanel() {
-    //     return bubblePanel;
-    // }
+    public void setGamePanel(GamePanel gamePanel) {
+        this.gamePanel = gamePanel;
+    }
 
-    // public StatusPanel getStatusPanel() {
-    //     return statusPanel;
-    // }
-
-    // public void setBlasterPanel(BlasterPanel blasterPanel) {
-    //     this.blasterPanel = blasterPanel;
-    // }
-
-    // public void setBubblePanel(BubblePanel bubblePanel) {
-    //     this.bubblePanel = bubblePanel;
-    // }
-
-    // public void setStatusPanel(StatusPanel statusPanel) {
-    //     this.statusPanel = statusPanel;
-    // }
+    public void setInfoPanel(InfoPanel infoPanel) {
+        this.infoPanel = infoPanel;
+    }
 
     // /**
     //  * Starts a new game by resetting/initialising game values/objects.
@@ -178,9 +163,9 @@ public class GameManager {
     //     statusPanel.updateTimerDisplay(elapsedSeconds);
     // }
 
-    // public boolean isPaused() {
-    //     return isPaused;  // This should be updated when the pause menu is opened/closed
-    // }
+    public boolean isPaused() {
+        return isPaused;  // This should be updated when the pause menu is opened/closed
+    }
 
     // /**
     //  * Action invoked by the game timer every second. Increments the elapsed
@@ -193,34 +178,34 @@ public class GameManager {
     //     updateTimerDisplay();
     // }
 
-    // /**
-    //  * Pauses the game when the pause button is clicked. Stops the timer and
-    //  * displays the pause menu dialogue.
-    //  *
-    //  * @param e The action event triggered by clicking the pause button.
-    //  */
-    // public void onPause(ActionEvent e) {
-    //     isPaused = true;
-    //     gameTimer.stop();
-    //     showPauseMenu();
-    // }
+    /**
+     * Pauses the game when the pause button is clicked. Stops the timer and
+     * displays the pause menu dialogue.
+     *
+     * @param e The action event triggered by clicking the pause button.
+     */
+    public void onPause(ActionEvent e) {
+        isPaused = true;
+        gameplayTimer.stop();
+        showPauseMenu();
+    }
 
-    // /**
-    //  * Displays the pause menu dialogue.
-    //  */
-    // private void showPauseMenu() {
-    //     PauseMenuDialogue pauseMenuDialogue = new PauseMenuDialogue(
-    //             (GameFrame) statusPanel.getTopLevelAncestor(),
-    //             this::onResume
-    //     );
-    //     pauseMenuDialogue.setVisible(true);
-    // }
+    /**
+     * Displays the pause menu dialogue.
+     */
+    private void showPauseMenu() {
+        PauseMenuDialogue pauseMenuDialogue = new PauseMenuDialogue(
+                (GameFrame) gamePanel.getTopLevelAncestor(),
+                this::onResume
+        );
+        pauseMenuDialogue.setVisible(true);
+    }
 
-    // /**
-    //  * Resumes the game by restarting the game timer.
-    //  */
-    // private void onResume() {
-    //     gameTimer.start();
-    //     isPaused = false;
-    // }
+    /**
+     * Resumes the game by restarting the game timer.
+     */
+    private void onResume() {
+        gameplayTimer.start();
+        isPaused = false;
+    }
 }

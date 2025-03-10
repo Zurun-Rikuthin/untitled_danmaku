@@ -46,12 +46,12 @@
 //      * Constructs a new InfiniteScrollingBackground object.
 //      *
 //      * @param panel The parent JPanel of the background.
-//      * @param imageFilePath The path to the image file.
+//      * @param imageFilepath The path to the image file.
 //      * @param x The fixed x coordinate of the images.
 //      * @param y The initial y coordinate of the first image.
 //      */
-//     public VerticalScrollingBackground(String imageFilePath, int x, int y) {
-//         setImage(imageFilePath, x, y);
+//     public VerticalScrollingBackground(String imageFilepath, int x, int y) {
+//         setImage(imageFilepath, x, y);
 
 //         image1_x = x; // Fixed x-position
 //         image2_x = x; // Fixed x-position
@@ -62,12 +62,12 @@
 //     /**
 //      * Sets the image for the background.
 //      *
-//      * @param imageFilePath The path to the image file.
+//      * @param imageFilepath The path to the image file.
 //      * @param x The fixed x coordinate of the images.
 //      * @param y The initial y coordinate of the first image.
 //      */
-//     public final void setImage(String imageFilePath, int x, int y) {
-//         image = ImageManager.loadImage(imageFilePath);
+//     public final void setImage(String imageFilepath, int x, int y) {
+//         image = ImageManager.loadImage(imageFilepath);
 //         imageHeight = image.getHeight(null);
 //     }
 

@@ -36,7 +36,7 @@ public class ImageManager {
      * @param filepath The file path (relative or absolute).
      * @return The BufferedImage object.
      */
-    public static BufferedImage loadBufferedImage(String filepath) {
+    public static BufferedImage loadBufferedImage(final String filepath) {
         BufferedImage bufferedImage = null;
 
         try {

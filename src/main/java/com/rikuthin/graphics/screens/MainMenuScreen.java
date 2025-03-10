@@ -18,7 +18,7 @@ import javax.swing.SwingConstants;
 import com.rikuthin.graphics.GameFrame;
 import com.rikuthin.graphics.ImageManager;
 import com.rikuthin.graphics.UIConstants;
-import static com.rikuthin.utility.ButtonUtil.createButton;
+import static com.rikuthin.utility.ButtonUtil.createButtonWithText;
 
 /**
  * Main menu screen of the game. Provides options to start a new game, view
@@ -76,7 +76,7 @@ public class MainMenuScreen extends Screen {
         // Create and add buttons
         for (int i = 0; i < labels.length; i++) {
             final boolean enabled = i == 0 || i == 4; // Only enable "START GAME" and "QUIT GAME" for now
-            JButton button = createButton(labels[i], UIConstants.BUTTON_FONT, 200, 40, enabled, actions[i]);
+            JButton button = createButtonWithText(labels[i], UIConstants.BUTTON_FONT, 200, 40, enabled, actions[i]);
             buttonPanel.add(button);
             buttonPanel.add(Box.createVerticalStrut(10));  // Space between buttons
         }
