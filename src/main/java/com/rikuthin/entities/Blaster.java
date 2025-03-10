@@ -149,10 +149,10 @@ public class Blaster extends Rectangle2D.Double implements Runnable {
      *
      * @param target the mouse position where the bubble should travel
      * @param bubbleColour the colour of the bubble
-     * @return the newly created {@link Bubble} instance
+     * @return the newly created {@link Bullet} instance
      * @throws IllegalArgumentException if the target is null
      */
-    public Bubble shootBubble(final Point target, final Color bubbleColour) {
+    public Bullet shootBubble(final Point target, final Color bubbleColour) {
         if (target == null) {
             throw new IllegalArgumentException("Target position cannot be null");
         }
@@ -163,7 +163,7 @@ public class Blaster extends Rectangle2D.Double implements Runnable {
         final int startX = (int) Math.floor(getCenterX());
         final int startY = (int) Math.floor(getCenterY()) + bubblePanelHeight;
 
-        Bubble bubble = new Bubble(startX, startY, bubbleColour);
+        Bullet bubble = new Bullet(startX, startY, bubbleColour);
         bubble.setBearing(new Bearing2D(startX, startY, target.x, target.y));
         bubble.setSpeed(shotSpeed);
         bubble.setIsMoving(true);

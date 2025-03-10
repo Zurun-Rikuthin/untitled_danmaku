@@ -15,7 +15,7 @@ import com.rikuthin.utility.Bearing2D;
  * specified bearing (angle in degrees) at a defined speed (pixels per tick) and
  * bounces off the edges and walls, stopping at the roof.
  */
-public class Bubble extends Ellipse2D.Double implements Runnable {
+public class Bullet extends Ellipse2D.Double implements Runnable {
 
     public static final double SIZE = 30; // Size of the bubble in pixels
 
@@ -31,7 +31,7 @@ public class Bubble extends Ellipse2D.Double implements Runnable {
      * @param initialY The initial y-coordinate.
      * @param colour The color.
      */
-    public Bubble(final int initialX, final int initialY, final Color colour) {
+    public Bullet(final int initialX, final int initialY, final Color colour) {
         super(initialX, initialY, SIZE, SIZE);
 
         if (GameManager.getInstance().getBubblePanel() == null) {

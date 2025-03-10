@@ -1,5 +1,7 @@
 package com.rikuthin.graphics.screens;
 
+import java.awt.Graphics2D;
+
 import javax.swing.BoxLayout;
 
 import com.rikuthin.graphics.GameFrame;
@@ -25,6 +27,18 @@ public final class GameplayScreen extends Screen {
         // add(statusPanel);
         // add(bubblePanel);
         // add(blasterPanel);
+    }
+
+    @Override
+    public void update() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'update'");
+    }
+
+    @Override
+    public void render(Graphics2D g) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'render'");
     }
 
     // public StatusPanel getStatusPanel() {
