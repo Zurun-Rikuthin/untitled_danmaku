@@ -28,6 +28,10 @@ public class GamePanel extends Subpanel {
         player.move();
     }
 
+    public Player getPlayer() {
+        return player;
+    }
+
     /**
      * Renders the screen's graphical components.
      */
@@ -41,15 +45,12 @@ public class GamePanel extends Subpanel {
 
     private void initialisePlayer(final int panelWidth, final int panelHeight) {
         player = new Player(this, 0, 0, "/images/sprites/white-queen.png", 5);
-        
+
         int x = Math.divideExact(panelWidth, 2) - Math.divideExact(player.getSpriteWidth(), 2);
         int y = Math.divideExact(panelHeight, 2);
-        player.setPosition(x, y);        
+        player.setPosition(x, y);
     }
 
-    public Player getPlayer() {
-        return player;
-    }
 }
 
 //     private static int NUM_ALIENS = 3;

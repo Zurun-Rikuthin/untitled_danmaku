@@ -16,24 +16,30 @@ import com.rikuthin.interfaces.Renderable;
  */
 public abstract class Entity implements Renderable {
 
+    // ----- INSTANCE VARIABLES -----
     /**
      * The parent {@link JPanel} to which the entity belongs.
      */
     protected JPanel panel;
     /**
-     * The x-coordinate of the entity (left-most edge).
+     * The x-coordinate of the entity's top-left corner.
      */
     protected int x;
     /**
-     * The y-coordinate of the entity (upper-most edge).
+     * The y-coordinate of the entity's top-left corner.
      */
     protected int y;
+    /**
+     * Determines if the entity is invisible, meaning any sprite set is not
+     * rendered.
+     */
+    protected boolean isInvisible;
     /**
      * The URL for the entity's sprite;
      */
     protected String spriteUrl;
     /**
-     * The entity's sprite;
+     * The entity's sprite image.
      */
     protected BufferedImage sprite;
     /**
@@ -45,79 +51,92 @@ public abstract class Entity implements Renderable {
      */
     protected int spriteHeight;
     /**
-     * The x-coordinate of the entity's hitbox (left-most edge).
+     * The x-coordinate of the entity hitbox's top-left corner.
      */
     protected int hitboxX;
     /**
-     * The y-coordinate of the entity's hitbox (upper-most edge).
+     * The y-coordinate of the entity hitbox's top-left corner.
      */
     protected int hitboxY;
     /**
-     * Width of the entity's hitbox in pixels. Default value is the same as
-     * spriteWidth.
+     * Width of the entity's hitbox in pixels. Defaults to the sprite height.
      */
     protected int hitboxWidth;
     /**
-     * Height of the entity's hitbox in pixels. Default value is the same as
-     * spriteHeight.
+     * Height of the entity's hitbox in pixels. Defaults to the sprite width.
      */
     protected int hitboxHeight;
 
+    // ----- CONSTRUCTORS -----
     /**
-     * Constructor to initialize the entity's parent panel, position (upper
-     * left-most corner of sprite), and sprite.
+     * Constructs an entity with the specified properties.
      *
-     * The hitbox position defaults to the entity's position.
-     *
-     * If a spriteUrl is provided and the sprite can be successfully loaded,
-     * then the sprite height/width are set accordingly, with the hitbox
-     * height/width being set to the same values.
-     *
-     * If no spriteURL is provided or the sprite cannot be loaded, then the
-     * sprite height/width and hitbox height/width default to 0;
+     * The entity's hitbox defaults to the sprite dimensions and position if a
+     * sprite is loaded.
      *
      * @param panel The parent {@link JPanel} to which the entity belongs.
-     * @param x The initial x-coordinate of the entity.
-     * @param y The initial y-coordinate of the entity.
-     * @param sprite The URL for the entity's sprite.
+     * @param x The initial x-coordinate.
+     * @param y The initial y-coordinate.
+     * @param isInvisible Whether the entity is invisible and does not render
+     * its sprite (even if one is set).
+     * @param spriteUrl The URL for the entity's sprite.
      */
-    protected Entity(final JPanel panel, final int x, final int y, final String spriteUrl) {
+    protected Entity(final JPanel panel, final int x, final int y, final boolean isInvisible, final String spriteUrl) {
         this.panel = panel;
+
+        if (panel == null) {
+            throw new IllegalArgumentException(String.format(
+                    "%s: Panel cannot be null",
+                    this.getClass().getName()
+            ));
+        }
+
         setPosition(x, y);
-        setHitboxPosition(x, y);
+        this.isInvisible = isInvisible;
         setSprite(spriteUrl);
+        setHitboxPosition(x, y);
         setHitboxSize(spriteWidth, spriteHeight);
     }
 
+    // ----- GETTERS -----
     /**
      * Returns the parent {@link JPanel} to which the entity belongs.
      *
-     * @return The parent panel
+     * @return The parent panel.
      */
     public JPanel getPanel() {
         return panel;
     }
 
     /**
-     * Returns the x-coordinate (left-most edge) of the entity's position.
+     * Returns the x-coordinate of the entity's top-left corner.
      *
-     * @return The x-coordinate
+     * @return The x-coordinate.
      */
     public int getX() {
         return x;
     }
 
     /**
-     * Returns the y-coordinate (top-most edge) of the entity's position.
+     * Returns the y-coordinate of the entity's top-left corner.
      *
-     * @return The y-coordinate
+     * @return The y-coordinate.
      */
     public int getY() {
         return y;
     }
 
     /**
-     * Returns the URL for the entity's sprite.
+     * Returns whether the entity is invisible.
+     *
+     * @return {@code true} if the entity is invisible, otherwise {@code false}.
+     */
+    public boolean isInvisible() {
+        return isInvisible;
+    }
+
+    /**
+     * Returns the URL for the entity's sprite image.
      *
      * @return The sprite URL.
      */
@@ -126,16 +145,16 @@ public abstract class Entity implements Renderable {
     }
 
     /**
-     * Returns the entity's sprite.
+     * Returns the entity's sprite image.
      *
-     * @return The sprite.
+     * @return The sprite image.
      */
     public BufferedImage getSprite() {
         return sprite;
     }
 
     /**
-     * Returns the width of the entity's sprite.
+     * Returns the width of the entity's sprite in pixels.
      *
      * @return The sprite width.
      */
@@ -144,7 +163,7 @@ public abstract class Entity implements Renderable {
     }
 
     /**
-     * Returns the height of the entity's sprite.
+     * Returns the height of the entity's sprite in pixels.
      *
      * @return The sprite height.
      */
@@ -153,18 +172,18 @@ public abstract class Entity implements Renderable {
     }
 
     /**
-     * Returns the x-coordinate (top-most edge) of the entity's hitbox.
+     * Returns the x-coordinate of the entity hitbox's top-left corner.
      *
-     * @return The x-coordinate
+     * @return The x-coordinate.
      */
     public int getHitboxX() {
         return hitboxX;
     }
 
     /**
-     * Returns the y-coordinate (top-most edge) of the entity's hitbox.
+     * Returns the y-coordinate of the entity hitbox's top-left corner.
      *
-     * @return The y-coordinate
+     * @return The y-coordinate.
      */
     public int getHitboxY() {
         return hitboxY;
@@ -173,7 +192,7 @@ public abstract class Entity implements Renderable {
     /**
      * Returns the width of the entity's hitbox in pixels.
      *
-     * @return The width.
+     * @return The hitbox width.
      */
     public int getHitboxWidth() {
         return hitboxWidth;
@@ -188,33 +207,12 @@ public abstract class Entity implements Renderable {
         return hitboxHeight;
     }
 
+    // ----- SETTERS -----
     /**
-     * Sets the position of the upper-left-most corner of the entity's hitbox.
+     * Sets the position of the entity's top-left corner.
      *
-     * @param x The x-coordinate of the entity's hitbox.
-     * @param y The y-coordinate of the entity's hitbox.
-     */
-    public final void setHitboxPosition(final int x, final int y) {
-        this.hitboxX = x;
-        this.hitboxY = y;
-    }
-
-    /**
-     * Sets the position of the upper-left-most corner of the entity's hitbox.
-     *
-     * @param width The width of the entity's hitbox in pixels.
-     * @param height The height of the entity's hitbox in pixels.
-     */
-    public final void setHitboxSize(final int width, final int height) {
-        this.hitboxWidth = width;
-        this.hitboxHeight = height;
-    }
-
-    /**
-     * Sets the position of the upper-left-most corner of the entity.
-     *
-     * @param x The entity's x-coordinate.
-     * @param y The entity's y-coordinate;
+     * @param x The new x-coordinate.
+     * @param y The new y-coordinate.
      */
     public final void setPosition(final int x, final int y) {
         this.x = x;
@@ -222,23 +220,44 @@ public abstract class Entity implements Renderable {
     }
 
     /**
-     * Updates the entity's sprite.
+     * Sets the entity's sprite and updates its dimensions.
      *
      * If a URL is provided and the sprite can be successfully loaded, then the
      * sprite height/width are set according to the width and height of the
      * loaded image.
      *
-     * If no spriteURL is provided or the sprite cannot be loaded, then the
-     * sprite height/width default to 0;
+     * Note: If isInvisible is set to true, the sprite will still be set, just
+     * not rendered.
      *
      * @param spriteUrl The URL for the entity's sprite.
      */
     public final void setSprite(final String spriteUrl) {
         this.spriteUrl = spriteUrl;
         sprite = ImageManager.loadBufferedImage(this.spriteUrl);
-
         spriteWidth = sprite != null ? sprite.getWidth() : 0;
         spriteHeight = sprite != null ? sprite.getHeight() : 0;
+    }
+
+    /**
+     * Sets the position of the entity hitbox's top-left corner.
+     *
+     * @param x The new hitbox x-coordinate.
+     * @param y The new hitbox y-coordinate.
+     */
+    public final void setHitboxPosition(final int x, final int y) {
+        this.hitboxX = x;
+        this.hitboxY = y;
+    }
+
+    /**
+     * Sets the size of the entity's hitbox.
+     *
+     * @param width The new hitbox width in pixels.
+     * @param height The new hitbox height in pixels.
+     */
+    public final void setHitboxSize(final int width, final int height) {
+        this.hitboxWidth = Math.abs(width);
+        this.hitboxHeight = Math.abs(height);
     }
 
     // ----- OVERRIDDEN METHODS -----
@@ -254,7 +273,7 @@ public abstract class Entity implements Renderable {
      * @return {@code true} if the entities are equal; {@code false} otherwise
      */
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }
@@ -265,8 +284,8 @@ public abstract class Entity implements Renderable {
         return panel.equals(other.getPanel())
                 && Integer.compare(x, other.getX()) == 0
                 && Integer.compare(y, other.getY()) == 0
-                && spriteUrl.equals(other.getSpriteUrl())
-                && sprite.equals(other.getSprite())
+                && Objects.equals(spriteUrl, other.getSpriteUrl())
+                && Objects.equals(sprite, other.getSprite())
                 && Integer.compare(spriteWidth, other.getSpriteWidth()) == 0
                 && Integer.compare(spriteHeight, other.getSpriteHeight()) == 0
                 && Integer.compare(hitboxX, other.getHitboxX()) == 0
@@ -287,9 +306,11 @@ public abstract class Entity implements Renderable {
     @Override
     public int hashCode() {
         return Objects.hash(
+                panel,
                 x,
                 y,
                 spriteUrl,
+                sprite,
                 spriteWidth,
                 spriteHeight,
                 hitboxX,
@@ -300,23 +321,34 @@ public abstract class Entity implements Renderable {
     }
 
     /**
-     * Renders the entity's sprite at its current x and y position. Can be
-     * overridden to provide additional functionality.
+     * Renders the entity's sprite at its current x and y position.
      *
      * @param g2 The Graphics2D object used for rendering the entity.
      */
     @Override
     public void render(final Graphics2D g2d) {
-        if (sprite != null && g2d != null) {
+        if (isInvisible) {
+            return;
+        }
+
+        if (g2d == null) {
+            System.err.println(
+                    String.format(
+                            "%s: Could not render sprite '<%s>' due to missing graphics context. Ensure the rendering context is properly initialized.",
+                            this.getClass().getName(),
+                            spriteUrl
+                    ));
+            return;
+        }
+
+        if (sprite != null) {
             g2d.drawImage(sprite, x, y, spriteWidth, spriteHeight, null);
-        } else {
-            System.err.println(String.format("%s: Could not load sprite <'%s'>.", this.getClass().getName(), spriteUrl));
         }
     }
 
+    // ----- ABSTRACT METHODS -----
     /**
-     * Abstract method to update the entity's behavior.
+     * Updates the entity's behaviour.
      */
     public abstract void update();
-
 }
