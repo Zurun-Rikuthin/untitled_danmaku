@@ -8,6 +8,7 @@ import com.rikuthin.graphics.screens.subpanels.GamePanel;
 import com.rikuthin.graphics.screens.subpanels.InfoPanel;
 
 public final class GameplayScreen extends Screen {
+
     private final GamePanel gamePanel;
     private final InfoPanel infoPanel;
 

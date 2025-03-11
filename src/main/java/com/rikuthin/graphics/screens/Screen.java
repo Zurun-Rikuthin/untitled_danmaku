@@ -7,12 +7,13 @@ import java.awt.Graphics2D;
 import javax.swing.JPanel;
 
 import com.rikuthin.graphics.GameFrame;
+import com.rikuthin.interfaces.Renderable;
 
 /**
  * Abstract base class for all game screens (e.g., main menu, gameplay).
  * Provides a structure for updating and rendering screens.
  */
-public abstract class Screen extends JPanel {
+public abstract class Screen extends JPanel implements Renderable {
 
     /**
      * The parent {@link GameFrame} to which this screen belongs

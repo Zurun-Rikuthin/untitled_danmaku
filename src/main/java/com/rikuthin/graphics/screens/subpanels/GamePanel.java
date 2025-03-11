@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
+import com.rikuthin.entities.Player;
 import com.rikuthin.graphics.GameFrame;
 import com.rikuthin.graphics.ImageManager;
 
@@ -18,6 +19,7 @@ public class GamePanel extends JPanel {
 
     private final String backgroundImageURL;
     private BufferedImage backgroundImage;
+    private Player player;
 
     public GamePanel() {
         // Background colour used as a backup in case the image deosn't load.
@@ -26,6 +28,8 @@ public class GamePanel extends JPanel {
 
         backgroundImageURL = "/images/backgrounds/game_panel.png";
         backgroundImage = ImageManager.loadBufferedImage(backgroundImageURL);
+
+        player = new Player(this, 14, 72, "/images/sprites/white-queen.png");
     }
 
     /**
@@ -54,7 +58,14 @@ public class GamePanel extends JPanel {
         } else {
             System.err.println(String.format("%s: Could not load background image <'%s'>.", this.getClass().getName(), backgroundImageURL));
         }
+
+        if (player != null) {
+            player.render(g2d);
+        }
     }
+}
+
+
 
 //     private static int NUM_ALIENS = 3;
 //     private SoundManager soundManager;
@@ -221,4 +232,3 @@ public class GamePanel extends JPanel {
 //     public boolean isOnBat(int x, int y) {
 //         return bat.isOnBat(x, y);
 //     }
-}

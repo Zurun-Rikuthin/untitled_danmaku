@@ -1,8 +1,12 @@
 # 🎮 Game Project Credits
 
-(Example CREDITS.md file generalted by ChatGPT. Will update with the actual credits later.)
-
 This project includes assets created by various artists and developers. Below is a list of attributions for graphics, sound, fonts, and other resources used in the game.
+
+---
+
+## 📚 Tutorials & Learning Resources  
+
+- **"Collision Detection (An Overview) (UPDATED!)"** by *MacroPixel* ([YouTube](https://www.youtube.com/watch?v=oOEnWQZIePs))
 
 ---
 
@@ -11,9 +15,7 @@ This project includes assets created by various artists and developers. Below is
 - **Main Menu Background** generated using [Pixel Space Background Generator](https://deep-fold.itch.io/space-background-generator) by [Deep-Fold](https://deep-fold.itch.io).
 
 
-<!-- - **[Background Image](https://example.com)** by *Artist Name* (License: CC-BY 4.0)  
-- **Character Sprites** by *Artist Name* (License: Free for non-commercial use)  
-- **Icons & UI Elements** from [Game-Icons.net](https://game-icons.net) (License: CC-BY 3.0)   -->
+<!-- - **[Background Image](https://example.com)** by *Artist Name* (License: CC-BY 4.0)
 
 ---
 
@@ -34,25 +36,19 @@ This project includes assets created by various artists and developers. Below is
 
 ## 📚 Libraries & Frameworks  
 
-<!-- - **LWJGL (Lightweight Java Game Library)** - [LWJGL.org](https://www.lwjgl.org)  
-- **JLayer MP3 Decoder** (License: LGPL)  
-- **Swing & Java AWT** (Part of Java SE)   -->
+- **Swing & Java AWT** (Part of Java SE)
 
 ---
 
 ## 📝 Tools Used  
 
 - [**Pixel Space Background Generator**](https://deep-fold.itch.io/space-background-generator) by [Deep-Fold](https://deep-fold.itch.io)
-<!-- - **Tiled Map Editor** - [mapeditor.org](https://www.mapeditor.org)  
-- **Aseprite** (Pixel Art Tool) - [Aseprite.org](https://www.aseprite.org)  
-- **Audacity** (Audio Editing) - [audacityteam.org](https://www.audacityteam.org)   -->
 
 ---
 
 ## 🏗️ Contributors  
 
 - **Zurun-Rikuthin [Skyler Almarales]** - Developer, UI Designer, Sound Designer, etc.
-<!-- - **Special Thanks** to [Community/Playtesters/Friends]   -->
 
 ---
 
@@ -66,4 +62,4 @@ For more information, refer to the individual asset license pages.
 
 ---
 
-_Last Updated: [2025-03-08 15:21 UTC-04:00]_
+_Last Updated: [2025-03-10 12:44 UTC-04:00]_
