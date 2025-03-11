@@ -2,70 +2,48 @@ package com.rikuthin.graphics.screens.subpanels;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-
-import javax.swing.JPanel;
 
 import com.rikuthin.entities.Player;
 import com.rikuthin.graphics.GameFrame;
-import com.rikuthin.graphics.ImageManager;
 
 /**
  * A component that displays all the game entities
  */
-public class GamePanel extends JPanel {
+public class GamePanel extends Subpanel {
 
-    private final String backgroundImageURL;
-    private BufferedImage backgroundImage;
     private Player player;
 
-    public GamePanel() {
+    public GamePanel(final int width, final int height, final String backgroundImageURL) {
+        super(width, height, backgroundImageURL);
         // Background colour used as a backup in case the image deosn't load.
         setBackground(new Color(200, 170, 170));
         setPreferredSize(new Dimension(GameFrame.FRAME_HEIGHT, GameFrame.FRAME_HEIGHT));
 
-        backgroundImageURL = "/images/backgrounds/game_panel.png";
-        backgroundImage = ImageManager.loadBufferedImage(backgroundImageURL);
-
-        player = new Player(this, 14, 72, "/images/sprites/white-queen.png");
-    }
-
-    /**
-     * Override the paintComponent method to render the game on the screen. This
-     * is where custom rendering will occur.
-     */
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-
-        if (g instanceof Graphics2D g2d) {
-            render(g2d);
-        }
+        player = new Player(this, 0, 0, "/images/sprites/white-queen.png");
+        int playerX = Math.divideExact(getWidth(), 2);
+        int playerY = getHeight() - player.getSpriteHeight();
+        player.setPosition(playerX, playerY);
     }
 
     /**
      * Updates the screen logic every frame.
      */
-    // public abstract void update();
+    @Override
+    public void update() {
+    }
+
     /**
      * Renders the screen's graphical components.
      */
     public void render(Graphics2D g2d) {
-        if (backgroundImage != null && g2d != null) {
-            g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
-        } else {
-            System.err.println(String.format("%s: Could not load background image <'%s'>.", this.getClass().getName(), backgroundImageURL));
-        }
+        super.render(g2d);
 
         if (player != null) {
             player.render(g2d);
         }
     }
 }
-
-
 
 //     private static int NUM_ALIENS = 3;
 //     private SoundManager soundManager;

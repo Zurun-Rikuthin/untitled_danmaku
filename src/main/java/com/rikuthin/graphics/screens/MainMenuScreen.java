@@ -45,7 +45,7 @@ public class MainMenuScreen extends Screen {
         setBackground(new Color(87, 73, 100));
         setLayout(new BorderLayout());
 
-        backgroundImageURL = "/images/backgrounds/main_menu.png";
+        backgroundImageURL = "/images/backgrounds/main-menu.png";
         backgroundImage = ImageManager.loadBufferedImage(backgroundImageURL);
 
         // ----- Title Section (Centered at the top) -----

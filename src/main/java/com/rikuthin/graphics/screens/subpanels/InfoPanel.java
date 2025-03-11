@@ -1,12 +1,8 @@
-
 package com.rikuthin.graphics.screens.subpanels;
 
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 
 import static javax.swing.Box.createHorizontalStrut;
 import static javax.swing.Box.createVerticalStrut;
@@ -17,8 +13,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 import com.rikuthin.core.GameManager;
-import com.rikuthin.graphics.GameFrame;
-import com.rikuthin.graphics.ImageManager;
 import com.rikuthin.graphics.UIConstants;
 import com.rikuthin.utility.ButtonUtil;
 
@@ -29,10 +23,8 @@ import com.rikuthin.utility.ButtonUtil;
  * This panel is displayed at the right of the gameplay screen.
  * </p>
  */
+public final class InfoPanel extends Subpanel {
 
-public final class InfoPanel extends JPanel {
-
-    private final String backgroundImageURL;
     private final JButton pauseButton;
     private final JLabel waveCounterLabel;
     private final JLabel gameplayTimerLabel;
@@ -41,21 +33,18 @@ public final class InfoPanel extends JPanel {
     private final JPanel hpCounterPanel;
     private final JPanel bombCounterPanel;
     private final JTextArea infoTextArea;
-    private BufferedImage backgroundImage;
 
     /**
      * Constructs the InfoPanel.
      */
-    public InfoPanel() {
+    public InfoPanel(final int width, final int height, final String backgroundImageUrl) {
+        super(width, height, backgroundImageUrl);
+
         // Background colour used as a backup in case the image deosn't load.
         setBackground(new Color(87, 73, 100));
-        setPreferredSize(new Dimension(GameFrame.FRAME_WIDTH - GameFrame.FRAME_HEIGHT, GameFrame.FRAME_HEIGHT));
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setAlignmentX(Component.CENTER_ALIGNMENT);
         setAlignmentY(CENTER_ALIGNMENT);
-
-        backgroundImageURL = "/images/backgrounds/info_panel.png";
-        backgroundImage = ImageManager.loadBufferedImage(backgroundImageURL);
 
         // ----- Initialise elements -----
         JPanel topRow = new JPanel();
@@ -63,14 +52,14 @@ public final class InfoPanel extends JPanel {
 
         JPanel topRowLabels = new JPanel();
         topRowLabels.setLayout(new BoxLayout(topRowLabels, BoxLayout.Y_AXIS));
-        
+
         waveCounterLabel = new JLabel("Wave <lorem ipsum>");
         waveCounterLabel.setFont(UIConstants.BODY_FONT);
 
         gameplayTimerLabel = new JLabel("HH:MM.SS");
         gameplayTimerLabel.setFont(UIConstants.BODY_FONT);
 
-        pauseButton = ButtonUtil.createButtonWithIcon("/images/icons/pause-button.png", 64, 64, false, GameManager.getInstance()::onPause);        
+        pauseButton = ButtonUtil.createButtonWithIcon("/images/icons/pause-button.png", 64, 64, false, GameManager.getInstance()::onPause);
 
         Dimension scoreLabelSize = new Dimension(284, 80);
         highscoreLabel = new JLabel("Highscore: <lorem ipsum>");
@@ -129,35 +118,12 @@ public final class InfoPanel extends JPanel {
         add(createVerticalStrut(20));
         add(scoreLabel);
         add(createVerticalStrut(20));
-        validate();add(hpCounterPanel);
+        validate();
+        add(hpCounterPanel);
         add(createVerticalStrut(20));
         add(bombCounterPanel);
         add(createVerticalStrut(100));
         add(infoTextArea);
-    }
-
-    /**
-     * Override the paintComponent method to render the game on the screen. This
-     * is where custom rendering will occur.
-     */
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-
-        if (g instanceof Graphics2D g2d) {
-            render(g2d);
-        }
-    }
-
-    /**
-     * Renders the screen's graphical components.
-     */
-    public void render(Graphics2D g2d) {
-        if (backgroundImage != null && g2d != null) {
-            g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
-        } else {
-            System.err.println(String.format("%s: Could not load background image <'%s'>.", this.getClass().getName(), backgroundImageURL));
-        }
     }
 
     //     score = 0;
@@ -217,4 +183,8 @@ public final class InfoPanel extends JPanel {
     //     // label.setBorder(new RoundedBorder(Color.BLACK, Color.WHITE, 10));
     //     return label;
     // }
+    @Override
+    public void update() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

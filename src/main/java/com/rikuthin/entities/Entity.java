@@ -2,6 +2,7 @@ package com.rikuthin.entities;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.Objects;
 
 import javax.swing.JPanel;
 
@@ -89,6 +90,105 @@ public abstract class Entity implements Renderable {
     }
 
     /**
+     * Returns the parent {@link JPanel} to which the entity belongs.
+     *
+     * @return The parent panel
+     */
+    public JPanel getPanel() {
+        return panel;
+    }
+
+    /**
+     * Returns the x-coordinate (left-most edge) of the entity's position.
+     *
+     * @return The x-coordinate
+     */
+    public int getX() {
+        return x;
+    }
+
+    /**
+     * Returns the y-coordinate (top-most edge) of the entity's position.
+     *
+     * @return The y-coordinate
+     */
+    public int getY() {
+        return y;
+    }
+
+    /**
+     * Returns the URL for the entity's sprite.
+     *
+     * @return The sprite URL.
+     */
+    public String getSpriteUrl() {
+        return spriteUrl;
+    }
+
+    /**
+     * Returns the entity's sprite.
+     *
+     * @return The sprite.
+     */
+    public BufferedImage getSprite() {
+        return sprite;
+    }
+
+    /**
+     * Returns the width of the entity's sprite.
+     *
+     * @return The sprite width.
+     */
+    public int getSpriteWidth() {
+        return spriteWidth;
+    }
+
+    /**
+     * Returns the height of the entity's sprite.
+     *
+     * @return The sprite height.
+     */
+    public int getSpriteHeight() {
+        return spriteHeight;
+    }
+
+    /**
+     * Returns the x-coordinate (top-most edge) of the entity's hitbox.
+     *
+     * @return The x-coordinate
+     */
+    public int getHitboxX() {
+        return hitboxX;
+    }
+
+    /**
+     * Returns the y-coordinate (top-most edge) of the entity's hitbox.
+     *
+     * @return The y-coordinate
+     */
+    public int getHitboxY() {
+        return hitboxY;
+    }
+
+    /**
+     * Returns the width of the entity's hitbox in pixels.
+     *
+     * @return The width.
+     */
+    public int getHitboxWidth() {
+        return hitboxWidth;
+    }
+
+    /**
+     * Returns the height of the entity's hitbox in pixels.
+     *
+     * @return The height.
+     */
+    public int getHitboxHeight() {
+        return hitboxHeight;
+    }
+
+    /**
      * Sets the position of the upper-left-most corner of the entity's hitbox.
      *
      * @param x The x-coordinate of the entity's hitbox.
@@ -139,6 +239,64 @@ public abstract class Entity implements Renderable {
 
         spriteWidth = sprite != null ? sprite.getWidth() : 0;
         spriteHeight = sprite != null ? sprite.getHeight() : 0;
+    }
+
+    // ----- OVERRIDDEN METHODS -----
+    /**
+     * Compares this entity with another object for equality. May be overridden
+     * to provide futher functionality.
+     *
+     * By default, two entities are considered equal if they have the same
+     * parent panel, position, sprite (image, URL, and dimensions) and hitbox
+     * (position and dimensions.
+     *
+     * @param obj the object to compare with
+     * @return {@code true} if the entities are equal; {@code false} otherwise
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Entity)) {
+            return false;
+        }
+        Entity other = (Entity) obj;
+        return panel.equals(other.getPanel())
+                && Integer.compare(x, other.getX()) == 0
+                && Integer.compare(y, other.getY()) == 0
+                && spriteUrl.equals(other.getSpriteUrl())
+                && sprite.equals(other.getSprite())
+                && Integer.compare(spriteWidth, other.getSpriteWidth()) == 0
+                && Integer.compare(spriteHeight, other.getSpriteHeight()) == 0
+                && Integer.compare(hitboxX, other.getHitboxX()) == 0
+                && Integer.compare(hitboxY, other.getHitboxY()) == 0
+                && Integer.compare(hitboxWidth, other.getHitboxWidth()) == 0
+                && Integer.compare(hitboxHeight, other.getHitboxHeight()) == 0;
+    }
+
+    /**
+     * Computes the hash code for this entity.
+     *
+     * By default, the hash is calculated using the entity's parent panel,
+     * position, sprite (image, URL, and dimensions) and hitbox (position and
+     * dimensions.
+     *
+     * @return the hash code of this entity
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                x,
+                y,
+                spriteUrl,
+                spriteWidth,
+                spriteHeight,
+                hitboxX,
+                hitboxY,
+                hitboxWidth,
+                hitboxHeight
+        );
     }
 
     /**

@@ -38,8 +38,8 @@ public abstract class Screen extends JPanel implements Renderable {
     }
 
     /**
-     * Override the paintComponent method to render the game on the screen.
-     * This is where custom rendering will occur.
+     * Override the paintComponent method to render the game on the screen. This
+     * is where custom rendering will occur.
      */
     @Override
     protected void paintComponent(Graphics g) {
@@ -51,6 +51,14 @@ public abstract class Screen extends JPanel implements Renderable {
     }
 
     /**
+     * Cleans up resources and UI elements when switching screens.
+     */
+    public void cleanup() {
+        removeAll();
+        revalidate();
+    }
+
+    /**
      * Updates the screen logic every frame.
      */
     public abstract void update();
@@ -59,12 +67,4 @@ public abstract class Screen extends JPanel implements Renderable {
      * Renders the screen's graphical components.
      */
     public abstract void render(Graphics2D g);
-
-    /**
-     * Cleans up resources and UI elements when switching screens.
-     */
-    public void cleanup() {
-        removeAll();
-        revalidate();
-    }
 }

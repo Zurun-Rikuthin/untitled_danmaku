@@ -15,6 +15,9 @@ import javax.swing.ImageIcon;
  */
 public class ImageManager {
 
+    /**
+     * Private constructor to prevent instantiation.
+     */
     private ImageManager() {
     }
 
