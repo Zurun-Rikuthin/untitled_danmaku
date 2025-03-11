@@ -77,6 +77,7 @@ public final class GameFrame extends JFrame {
 
         currentScreen.revalidate();
         currentScreen.repaint();
+        currentScreen.setFocusable(true);
         currentScreen.requestFocusInWindow();
     }
 

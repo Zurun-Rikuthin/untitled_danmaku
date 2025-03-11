@@ -1,11 +1,9 @@
 package com.rikuthin.graphics.screens.subpanels;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics2D;
 
 import com.rikuthin.entities.Player;
-import com.rikuthin.graphics.GameFrame;
 
 /**
  * A component that displays all the game entities
@@ -16,14 +14,10 @@ public class GamePanel extends Subpanel {
 
     public GamePanel(final int width, final int height, final String backgroundImageURL) {
         super(width, height, backgroundImageURL);
+
         // Background colour used as a backup in case the image deosn't load.
         setBackground(new Color(200, 170, 170));
-        setPreferredSize(new Dimension(GameFrame.FRAME_HEIGHT, GameFrame.FRAME_HEIGHT));
-
-        player = new Player(this, 0, 0, "/images/sprites/white-queen.png");
-        int playerX = Math.divideExact(getWidth(), 2);
-        int playerY = getHeight() - player.getSpriteHeight();
-        player.setPosition(playerX, playerY);
+        initialisePlayer(width, height);
     }
 
     /**
@@ -31,6 +25,7 @@ public class GamePanel extends Subpanel {
      */
     @Override
     public void update() {
+        player.move();
     }
 
     /**
@@ -42,6 +37,18 @@ public class GamePanel extends Subpanel {
         if (player != null) {
             player.render(g2d);
         }
+    }
+
+    private void initialisePlayer(final int panelWidth, final int panelHeight) {
+        player = new Player(this, 0, 0, "/images/sprites/white-queen.png", 5);
+        
+        int x = Math.divideExact(panelWidth, 2) - Math.divideExact(player.getSpriteWidth(), 2);
+        int y = Math.divideExact(panelHeight, 2);
+        player.setPosition(x, y);        
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 }
 

@@ -184,7 +184,5 @@ public final class InfoPanel extends Subpanel {
     //     return label;
     // }
     @Override
-    public void update() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+    public void update() {}
 }
