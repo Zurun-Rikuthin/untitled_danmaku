@@ -36,10 +36,10 @@ public class GamePanel extends Subpanel {
      * Renders the screen's graphical components.
      */
     public void render(Graphics2D g2d) {
-        super.render(g2d);
+        super.safeRender(g2d);
 
         if (player != null) {
-            player.render(g2d);
+            player.safeRender(g2d);
         }
     }
 

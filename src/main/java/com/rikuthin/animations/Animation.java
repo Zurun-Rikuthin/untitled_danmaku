@@ -1,129 +1,199 @@
 package com.rikuthin.animations;
 
-import java.awt.Image;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import com.rikuthin.graphics.screens.subpanels.GamePanel;
+import com.rikuthin.graphics.ImageManager;
+import com.rikuthin.interfaces.Renderable;
+import com.rikuthin.interfaces.Updateable;
 
 /**
- * The Animation class manages a series of images (frames) and the amount of
- * time to display each frame.
+ * The Animation class manages a series of images (frames) and the duration for
+ * which each frame should be displayed. It supports looping and can be started,
+ * stopped, and updated dynamically.
  */
-public class Animation {
+public class Animation implements Updateable, Renderable {
 
-    private GamePanel panel;					// JPanel on which animation is being displayed
-    private final ArrayList<AnimFrame> frames;			// collection of frames for animation
-    private int currFrameIndex;					// current frame being displayed
-    private long animTime;					// time that the animation has run for already
-    private long startTime;					// start time of the animation or time since last update
-    private long totalDuration;					// total duration of the animation
+    // ----- INSTANCE VARIABLES -----
+    /**
+     * collection of frames in the animation.
+     */
+    private final ArrayList<AnimationFrame> frames;
+    /**
+     * Indicates if the animation should loop.
+     */
+    private final boolean isLooping;
 
-    private final boolean loop;
-    private boolean isActive;
+    /**
+     * Index of the current frame being displayed.
+     */
+    private int currentFrameIndex;
+    /**
+     * Time elapsed since the current frame was first displayed.
+     */
+    private long elapsedFrameDisplayTime;
+    /**
+     * Last recorded update time.
+     */
+    private long lastUpdateTime;
+    /**
+     * Indicates if the animation is currently playing.
+     */
+    private boolean isPlaying;
 
+    // ------ CONSTRUCTORS -----
     /**
      * Creates a new, empty Animation.
      */
-    public Animation(boolean loop) {
-        frames = new ArrayList<AnimFrame>();
-        totalDuration = 0;
-        this.loop = loop;
-        isActive = false;
+    public Animation(final boolean isLooping) {
+        this.frames = new ArrayList<>();
+        this.currentFrameIndex = 0;
+        this.elapsedFrameDisplayTime = 0;
+        this.lastUpdateTime = 0;
+        this.isLooping = isLooping;
+        this.isPlaying = false;
+    }
+
+    // ------ GETTERS ------
+    /**
+     * Returns the current frame's image.
+     *
+     * @return The image of the current frame, or null if there are no frames.
+     */
+    public BufferedImage getCurrentFrameImage() {
+        return frames.isEmpty() ? null : getFrame(currentFrameIndex).image;
     }
 
     /**
+     * Returns the total number of frames in the animation.
+     *
+     * @return The number of frames.
+     */
+    public int getFrameCount() {
+        return frames.size();
+    }
+
+    private AnimationFrame getFrame(int i) {				// returns ith frame in the collection
+        return frames.get(i);
+    }
+
+    /**
+     * Checks whether the animation is currently playing.
+     *
+     * @return true if the animation is active, false otherwise.
+     */
+    public boolean isPlaying() {
+        return isPlaying;
+    }
+
+    // ----- OVERRIDDEN METHODS -----
+    /**
+     * Updates the animation's frame based on elapsed time.
+     */
+    @Override
+    public void update() {
+        if (!isPlaying || !frames.isEmpty()) {
+            return;
+        }
+
+        if (elapsedFrameDisplayTime >= frames.get(currentFrameIndex).frameDurationMs) {
+            nextFrame();
+        }
+    }
+
+    @Override
+    public void render(Graphics2D g2d) {
+        BufferedImage currentImage = frames.get(currentFrameIndex).image;
+        if (currentImage != null) {
+            g2d.drawImage(currentImage, x, y, currentImage.getWidth(), currentImage.getHeight(), null);
+        }
+    }
+
+    // ----- BUSINESS LOGIC ------
+    /**
      * Adds an image to the animation with the specified duration (time to
      * display the image).
+     *
+     * @param imageUrl The URL of the new frame's image.
+     * @param durationMs How long to display the new frame (in milliseconds).
      */
-    public synchronized void addFrame(Image image, long duration) {
-        totalDuration += duration;
-        frames.add(new AnimFrame(image, totalDuration));
+    public void addFrame(final String imageUrl, long durationMs) {
+        frames.add(new AnimationFrame(imageUrl, durationMs));
     }
 
     /**
      * Starts this animation over from the beginning.
      */
-    public synchronized void start() {
-        isActive = true;
-        animTime = 0;						// reset time animation has run for to zero
-        currFrameIndex = 0;					// reset current frame to first frame
-        startTime = System.currentTimeMillis();			// reset start time to current time
+    public void start() {
+        isPlaying = true;
+        currentFrameIndex = 0;
+        elapsedFrameDisplayTime = 0;
+        lastUpdateTime = System.currentTimeMillis();
     }
 
     /**
      * Terminates this animation.
      */
-    public synchronized void stop() {
-        isActive = false;
+    public void stop() {
+        isPlaying = false;
     }
 
+    // ----- HELPER METHODS -----
     /**
-     * Updates this animation's current image (frame), if neccesary.
+     * Advances to the next frame of the animation.
+     *
+     * This method increments the current frame index and resets the elapsed
+     * frame display time. If the current frame index reaches the last frame and
+     * looping is enabled, the animation restarts from the first frame. If
+     * looping is not enabled and the last frame is reached, the animation is
+     * stopped.
      */
-    public synchronized void update() {
+    private void nextFrame() {
+        long currentTime = System.currentTimeMillis();
+        elapsedFrameDisplayTime += currentTime - lastUpdateTime;
+        lastUpdateTime = currentTime;
 
-        if (!isActive) {
-            return;
+        // Check if the frame index points to/beyond the final frame
+        if (currentFrameIndex >= frames.size() - 1) {
+            if (isLooping) { // If looping is enabled, reset to the first frame
+                currentFrameIndex = 0;
+
+            } else { // Otherwise, stop the animation
+                stop();
+            }
+
+        } else { // Otherwise proceed to the next frame and reset the display time counter
+            currentFrameIndex++;
+            elapsedFrameDisplayTime = 0;
         }
-
-        long currTime = System.currentTimeMillis();		// find the current time
-        long elapsedTime = currTime - startTime;		// find how much time has elapsed since last update
-        startTime = currTime;					// set start time to current time
-
-        if (frames.size() > 1) {
-            animTime += elapsedTime;				// add elapsed time to amount of time animation has run for
-            if (animTime >= totalDuration) {			// if the time animation has run for > total duration
-                if (loop) {
-                    animTime = animTime % totalDuration;	// reset time animation has run for
-                    currFrameIndex = 0;				// reset current frame to first frame
-                } else {
-                    isActive = false;				// set to false to terminate animation
-                }
-            }
-
-            if (!isActive) {
-                return;
-            }
-
-            while (animTime > getFrame(currFrameIndex).endTime) {
-                currFrameIndex++;				// set frame corresponding to time animation has run for
-            }
-        }
-
     }
 
+    // ----- PRIVATE INNER CLASSES -----
     /**
-     * Gets this Animation's current image. Returns null if this animation has
-     * no images.
+     * Represents a single frame in the animation
      */
-    public synchronized Image getImage() {
-        if (frames.size() == 0) {
-            return null;
-        } else {
-            return getFrame(currFrameIndex).image;
-        }
-    }
+    private static class AnimationFrame {
 
-    public int getNumFrames() {					// find out how many frames in animation
-        return frames.size();
-    }
+        /**
+         * The image displayed by the frame.
+         */
+        final BufferedImage image;
+        /**
+         * How many milliseconds to display the frame for.
+         */
+        final long frameDurationMs;
 
-    private AnimFrame getFrame(int i) {				// returns ith frame in the collection
-        return frames.get(i);
-    }
-
-    public boolean isStillActive() {
-        return isActive;
-    }
-
-    private class AnimFrame {					// inner class for the frames of the animation
-
-        Image image;
-        long endTime;
-
-        public AnimFrame(Image image, long endTime) {
-            this.image = image;
-            this.endTime = endTime;
+        /**
+         * Constructs a new animation frame.
+         *
+         * @param imageUrl The URL of the displayed image.
+         * @param frameDurationMs How many milliseconds to display the frame
+         * for.
+         */
+        public AnimationFrame(final String imageUrl, long frameDurationMs) {
+            this.image = ImageManager.loadBufferedImage(imageUrl);
+            this.frameDurationMs = frameDurationMs;
         }
     }
 

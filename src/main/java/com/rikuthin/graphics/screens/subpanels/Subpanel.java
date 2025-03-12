@@ -9,12 +9,13 @@ import javax.swing.JPanel;
 
 import com.rikuthin.graphics.ImageManager;
 import com.rikuthin.interfaces.Renderable;
+import com.rikuthin.interfaces.Updateable;
 
 /**
  * Abstract base class for all game screens (e.g., main menu, gameplay).
  * Provides a structure for updating and rendering screens.
  */
-public abstract class Subpanel extends JPanel implements Renderable {
+public abstract class Subpanel extends JPanel implements Updateable, Renderable {
 
     protected String backgroundImageUrl;
     protected BufferedImage backgroundImage;
@@ -36,7 +37,7 @@ public abstract class Subpanel extends JPanel implements Renderable {
         super.paintComponent(g);
 
         if (g instanceof Graphics2D g2d) {
-            render(g2d);
+            safeRender(g2d);
         }
     }
 
@@ -57,15 +58,14 @@ public abstract class Subpanel extends JPanel implements Renderable {
      */
     @Override
     public void render(Graphics2D g2d) {
-        if (backgroundImage != null && g2d != null) {
-            g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
-        } else {
-            System.err.println(String.format("%s: Could not load background image <'%s'>.", this.getClass().getName(), backgroundImageUrl));
+        if (backgroundImage == null) {
+            System.err.println(String.format(
+                    "%s: Could not load background image <'%s'>.",
+                    this.getClass().getName(),
+                    backgroundImageUrl
+            ));
+            return;
         }
+        g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
     }
-
-    /**
-     * Updates the screen logic every frame.
-     */
-    public abstract void update();
 }

@@ -99,7 +99,7 @@ public final class GameFrame extends JFrame {
         }
 
         g2d.clearRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
-        currentScreen.render(g2d);
+        currentScreen.safeRender(g2d);
     }
 
     /**

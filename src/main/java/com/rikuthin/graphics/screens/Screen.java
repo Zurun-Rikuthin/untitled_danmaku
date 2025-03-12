@@ -46,7 +46,7 @@ public abstract class Screen extends JPanel implements Renderable {
         super.paintComponent(g);
 
         if (g instanceof Graphics2D g2d) {
-            render(g2d);
+            safeRender(g2d);
         }
     }
 

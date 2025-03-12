@@ -21,9 +21,10 @@ import com.rikuthin.utility.Bearing2D;
  */
 public class BulletSpawner extends Entity {
 
+    // ----- INSTANCE VARIABLES -----
     /**
-     * The navigational bearing (direction) that bullets initially move along when leaving
-     * the blaster. Defaults to 0° (north) upon construction.
+     * The navigational bearing (direction) that bullets initially move along
+     * when leaving the blaster. Defaults to 0° (north) upon construction.
      */
     private Bearing2D bearing;
 
@@ -38,6 +39,7 @@ public class BulletSpawner extends Entity {
      */
     private double shotSpeed;
 
+    // ----- CONSTRUCTORS -----
     /**
      * Constructs a new Blaster.
      *
@@ -54,6 +56,7 @@ public class BulletSpawner extends Entity {
         this.shotSpeed = shotSpeed;
     }
 
+    // ----- GETTERS -----
     /**
      * Returns the current bearing (direction) of the blaster relative to the
      * mouse pointer.
@@ -83,6 +86,7 @@ public class BulletSpawner extends Entity {
         return shotSpeed;
     }
 
+    // ----- SETTERS -----
     /**
      * Sets the colour of the blaster.
      *
@@ -121,6 +125,7 @@ public class BulletSpawner extends Entity {
         this.shotSpeed = shotSpeed;
     }
 
+    // ----- FIRING METHODS -----
     /**
      * Shoots a new Bubble instance towards the given target location.
      * <p>
@@ -167,25 +172,26 @@ public class BulletSpawner extends Entity {
         g2.draw(this);
     }
 
-    /**
-     * Runs the blaster's movement logic in a loop.
-     * <p>
-     * Note: Rotation logic is currently disabled. Future implementations may
-     * enable dynamic movement or rotation.
-     * </p>
-     */
-    @Override
-    public void run() {
-        while (true) {
-            // Future implementation: rotate();
-            try {
-                Thread.sleep(20); // Controls the update interval (speed)
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt(); // Restore interrupted state
-                break;
-            }
-        }
-    }
+    // ----- OVERRIDDEN METHODS -----
+    // /**
+    //  * Runs the blaster's movement logic in a loop.
+    //  * <p>
+    //  * Note: Rotation logic is currently disabled. Future implementations may
+    //  * enable dynamic movement or rotation.
+    //  * </p>
+    //  */
+    // @Override
+    // public void run() {
+    //     while (true) {
+    //         // Future implementation: rotate();
+    //         try {
+    //             Thread.sleep(20); // Controls the update interval (speed)
+    //         } catch (InterruptedException e) {
+    //             Thread.currentThread().interrupt(); // Restore interrupted state
+    //             break;
+    //         }
+    //     }
+    // }
 
     /**
      * Compares this blaster with another object for equality. Two blasters are

@@ -83,7 +83,7 @@ public final class GameplayScreen extends Screen {
 
     @Override
     public void render(Graphics2D g) {
-        gamePanel.render(g);
-        infoPanel.render(g);
+        gamePanel.safeRender(g);
+        infoPanel.safeRender(g);
     }
 }

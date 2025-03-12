@@ -8,13 +8,14 @@ import javax.swing.JPanel;
 
 import com.rikuthin.graphics.ImageManager;
 import com.rikuthin.interfaces.Renderable;
+import com.rikuthin.interfaces.Updateable;
 
 /**
  * The base class for all entities in the game. This class represents any object
  * that has behavior (e.g., movement, animation, or interaction with other
  * entities) in the game world.
  */
-public abstract class Entity implements Renderable {
+public abstract class Entity implements Updateable, Renderable {
 
     // ----- INSTANCE VARIABLES -----
     /**
@@ -331,24 +332,8 @@ public abstract class Entity implements Renderable {
             return;
         }
 
-        if (g2d == null) {
-            System.err.println(
-                    String.format(
-                            "%s: Could not render sprite '<%s>' due to missing graphics context. Ensure the rendering context is properly initialized.",
-                            this.getClass().getName(),
-                            spriteUrl
-                    ));
-            return;
-        }
-
         if (sprite != null) {
             g2d.drawImage(sprite, x, y, spriteWidth, spriteHeight, null);
         }
     }
-
-    // ----- ABSTRACT METHODS -----
-    /**
-     * Updates the entity's behaviour.
-     */
-    public abstract void update();
 }
