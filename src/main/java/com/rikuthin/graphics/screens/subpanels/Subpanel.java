@@ -17,9 +17,11 @@ import com.rikuthin.interfaces.Updateable;
  */
 public abstract class Subpanel extends JPanel implements Updateable, Renderable {
 
+    // ----- INSTANCE VARIABLES -----
     protected String backgroundImageUrl;
     protected BufferedImage backgroundImage;
 
+    // ----- CONSTRUCTORS -----
     protected Subpanel(final int width, final int height, final String backgroundImageUrl) {
         Dimension panelSize = new Dimension(width, height);
         setPreferredSize(panelSize);
@@ -28,6 +30,7 @@ public abstract class Subpanel extends JPanel implements Updateable, Renderable 
         setBackgroundImage(backgroundImageUrl);
     }
 
+    // ----- OVERRIDDEN METHODS -----
     /**
      * Override the paintComponent method to render the game on the screen. This
      * is where custom rendering will occur.
@@ -39,16 +42,6 @@ public abstract class Subpanel extends JPanel implements Updateable, Renderable 
         if (g instanceof Graphics2D g2d) {
             safeRender(g2d);
         }
-    }
-
-    /**
-     * Sets the background image (and its URL) for this subpanel.
-     *
-     * @param backgroundImageUrl The image URL.
-     */
-    public final void setBackgroundImage(final String backgroundImageUrl) {
-        this.backgroundImageUrl = backgroundImageUrl;
-        backgroundImage = ImageManager.loadBufferedImage(backgroundImageUrl);
     }
 
     /**
@@ -67,5 +60,16 @@ public abstract class Subpanel extends JPanel implements Updateable, Renderable 
             return;
         }
         g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
+    }
+
+    // ----- SETTERS -----
+    /**
+     * Sets the background image (and its URL) for this subpanel.
+     *
+     * @param backgroundImageUrl The image URL.
+     */
+    public final void setBackgroundImage(final String backgroundImageUrl) {
+        this.backgroundImageUrl = backgroundImageUrl;
+        backgroundImage = ImageManager.loadBufferedImage(backgroundImageUrl);
     }
 }

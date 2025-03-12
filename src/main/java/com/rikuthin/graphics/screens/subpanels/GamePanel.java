@@ -35,8 +35,9 @@ public class GamePanel extends Subpanel {
     /**
      * Renders the screen's graphical components.
      */
+    @Override
     public void render(Graphics2D g2d) {
-        super.safeRender(g2d);
+        super.render(g2d);
 
         if (player != null) {
             player.safeRender(g2d);

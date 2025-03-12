@@ -24,7 +24,8 @@ public interface Renderable {
      * <p>
      * If {@code g2d} is {@code null}, an error message is logged, and rendering
      * is skipped. Otherwise, the {@link #render(Graphics2D)} method is called.
-     * </p>
+     * <p>
+     * NOTE: NEVER CALL super.safeRender(g2d); IT WILL CAUSE INFINITE RECURSION ISSUES!!!
      *
      * @param g2d The {@link Graphics2D} object used for rendering.
      */
@@ -36,6 +37,6 @@ public interface Renderable {
             ));
         }
 
-        render(g2d);
+        this.render(g2d);
     }
 }

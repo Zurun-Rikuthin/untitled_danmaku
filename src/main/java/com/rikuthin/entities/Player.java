@@ -147,7 +147,7 @@ public class Player extends Entity {
         movingRight = value;
     }
 
-    // ----- MOVEMENT -----
+    // ----- BUSINESSS LOGIC METHODS -----
     /**
      * Moves the player based on directional inputs while ensuring they remain
      * within the screen boundaries.
@@ -175,15 +175,6 @@ public class Player extends Entity {
 
         correctPosition();
     }
-
-    /**
-     * Ensures the player remains within the visible screen boundaries.
-     */
-    private void correctPosition() {
-        x = Math.max(0, Math.min(x, panel.getWidth() - spriteWidth));
-        y = Math.max(0, Math.min(y, panel.getHeight() - spriteHeight));
-    }
-    
 
     // ----- OVERRIDDEN METHODS -----
     /**
@@ -246,4 +237,13 @@ public class Player extends Entity {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    // ---- HELPER METHODS -----
+    /**
+     * Ensures the player remains within the visible screen boundaries.
+     */
+    private void correctPosition() {
+        // Trying to use Math.clamp gave out of bounds issues or something. This is simpler.
+        x = Math.max(0, Math.min(x, panel.getWidth() - spriteWidth));
+        y = Math.max(0, Math.min(y, panel.getHeight() - spriteHeight));
+    }
 }
