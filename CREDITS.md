@@ -8,14 +8,25 @@ This project includes assets created by various artists and developers. Below is
 
 - **"Collision Detection (An Overview) (UPDATED!)"** by *MacroPixel* ([YouTube](https://www.youtube.com/watch?v=oOEnWQZIePs))
 
+- **"Sparen's Danmaku Design Studio - Danmaku Design Guides"** by *Andrew Fan/Sparen* ([GitHub](https://sparen.github.io/ph3tutorials/danmakudesign.html))
+
 ---
 
 ## 🎨 Art & Graphics  
 
 - **Main Menu Background** generated using [Pixel Space Background Generator](https://deep-fold.itch.io/space-background-generator) by [Deep-Fold](https://deep-fold.itch.io).
 
+  - **License Notes:**
+    - "Feel free [to] use any images generated in your games or other projects. Do not distribute any images generated on their own, or in an asset pack."
+    - Licensed under the [MIT License](https://mit-license.org/).
 
-<!-- - **[Background Image](https://example.com)** by *Artist Name* (License: CC-BY 4.0)
+- **"[Free] Agis"** [animation](https://papoycore.itch.io/free-agis) by [Papoy Core](https://papoycore.itch.io)
+
+  - **License Notes:**  
+    - This asset pack is free for commercial and non-commercial use.  
+    - Modifications are allowed.  
+    - Redistribution or resale of the graphics outside of a packaged game is prohibited.  
+    - Credit is appreciated but not required.
 
 ---
 
@@ -36,7 +47,11 @@ This project includes assets created by various artists and developers. Below is
 
 ## 📚 Libraries & Frameworks  
 
-- **Swing & Java AWT** (Part of Java SE)
+- **Swing & Java AWT** - Part of Java SE.
+
+- **BatAlienGame-ScrollingBackground-Vert** - Original codebase.
+
+- **Untitled Bubble Shooter** - Reused/modified classes from a previous project.
 
 ---
 
@@ -50,6 +65,10 @@ This project includes assets created by various artists and developers. Below is
 
 - **Zurun-Rikuthin [Skyler Almarales]** - Developer, UI Designer, Sound Designer, etc.
 
+- **Dr. Permanand Mohan (Teacher)** - Original Codebase (*BatAlienGame-ScrollingBackground-Vert*)
+
+- **Ms. Zainab Hanif  (Lab Assistant)** - Original Codebase (*BatAlienGame-ScrollingBackground-Vert*)
+
 ---
 
 ## 📜 License Information  
@@ -62,4 +81,4 @@ For more information, refer to the individual asset license pages.
 
 ---
 
-_Last Updated: [2025-03-10 12:44 UTC-04:00]_
+_Last Updated: [2025-03-12 07:42 UTC-04:00]_
