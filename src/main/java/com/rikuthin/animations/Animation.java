@@ -50,12 +50,11 @@ public class Animation implements Updateable, Renderable {
      * Indicates if the animation is currently playing.
      */
     private boolean isPlaying;
-    
 
     // ------ CONSTRUCTORS -----
     /**
      * Creates a new, empty Animation.
-     * 
+     *
      * @param x The x-coordinate to render the animation at.
      * @param y The y-coordinate to render the animation at.
      * @param isLooping Whether the animation should loop.
@@ -72,7 +71,7 @@ public class Animation implements Updateable, Renderable {
     // ------ GETTERS ------
     /**
      * The x-coordinate the animation is rendered at.
-     * 
+     *
      * @return The x-coordinate.
      */
     public int getX() {
@@ -81,7 +80,7 @@ public class Animation implements Updateable, Renderable {
 
     /**
      * The y-coordinate the animation is rendered at.
-     * 
+     *
      * @return The y-coordinate.
      */
     public int getY() {
@@ -120,8 +119,8 @@ public class Animation implements Updateable, Renderable {
     }
 
     // ----- SETTERS -----
-    public void setPosition (final int x, final int y) {
-        this.x = x; 
+    public void setPosition(final int x, final int y) {
+        this.x = x;
         this.y = y;
     }
 
@@ -131,11 +130,17 @@ public class Animation implements Updateable, Renderable {
      */
     @Override
     public void update() {
-        if (!isPlaying || !frames.isEmpty()) {
+        if (!isPlaying || frames.isEmpty()) {
             return;
         }
 
-        if (elapsedFrameDisplayTime >= frames.get(currentFrameIndex).frameDurationMs) {
+        long currentTime = System.currentTimeMillis();
+        elapsedFrameDisplayTime += currentTime - lastUpdateTime;
+        lastUpdateTime = currentTime;
+
+        // If the elapsed time exceeds the duration of the current frame, move to the next frame
+        while (elapsedFrameDisplayTime >= frames.get(currentFrameIndex).frameDurationMs) {
+            elapsedFrameDisplayTime = 0;
             nextFrame();
         }
     }
@@ -150,14 +155,61 @@ public class Animation implements Updateable, Renderable {
 
     // ----- BUSINESS LOGIC METHODS ------
     /**
-     * Adds an image to the animation with the specified duration (time to
-     * display the image).
+     * Loads animation frames from a given strip file.
+     * <p>
+     * Note: A valid strip file has no margins (i.e., no space between the
+     * frames themselves and the outer borders of the image itself).
+     *
+     * @param fileUrl The URL of the strip file.
+     * @param frameDurationMs How many milliseconds to display each frame.
+     * @param numRows The number of rows in the strip file.
+     * @param numColumns The number of columns in the strip file.
+     * @param horizontalSpace The number of pixels between frame columns in the
+     * strip file.
+     * @param verticalSpace The number of pixels between frame rows in the strip
+     * file.
+     */
+    public void loadStripFile(final String fileUrl, final long frameDurationMs, final int numRows, final int numColumns, final int horizontalSpace, final int verticalSpace) {
+        BufferedImage stripImage = ImageManager.loadBufferedImage(fileUrl);
+        int frameWidth = (stripImage.getWidth() - (numColumns - 1) * horizontalSpace) / numColumns;
+        int frameHeight = (stripImage.getHeight() - (numRows - 1) * verticalSpace) / numRows;
+
+        for (int row = 0; row < numRows; row++) {
+            for (int column = 0; column < numColumns; column++) {
+                int leftX = column * (frameWidth + horizontalSpace);
+                int upperY = row * (frameHeight + verticalSpace);
+
+                BufferedImage croppedImage = stripImage.getSubimage(leftX, upperY, frameWidth, frameHeight);
+
+                // Create a new copy of the cropped image to preserve the original's memory integrity
+                BufferedImage frameImage = new BufferedImage(frameWidth, frameHeight, BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g = frameImage.createGraphics();
+                g.drawImage(croppedImage, 0, 0, null);
+                g.dispose();
+
+                addFrame(frameImage, frameDurationMs);
+            }
+        }
+    }
+
+    /**
+     * Adds a new frame to the animation using the provided URL.
      *
      * @param imageUrl The URL of the new frame's image.
      * @param durationMs How long to display the new frame (in milliseconds).
      */
     public void addFrame(final String imageUrl, long durationMs) {
         frames.add(new AnimationFrame(imageUrl, durationMs));
+    }
+
+    /**
+     * Adds an image to the animation using a pre-loaded {@link BufferedImage}.
+     *
+     * @param image The pre-loaded image.
+     * @param durationMs How long to display the new frame (in milliseconds).
+     */
+    public void addFrame(final BufferedImage image, long durationMs) {
+        frames.add(new AnimationFrame(image, durationMs));
     }
 
     /**
@@ -181,29 +233,19 @@ public class Animation implements Updateable, Renderable {
     /**
      * Advances to the next frame of the animation.
      *
-     * This method increments the current frame index and resets the elapsed
-     * frame display time. If the current frame index reaches the last frame and
-     * looping is enabled, the animation restarts from the first frame. If
-     * looping is not enabled and the last frame is reached, the animation is
-     * stopped.
+     * If the animation reaches the last frame, it either loops back to the
+     * first frame (if looping is enabled) or stops. The frame index is updated
+     * accordingly.
      */
     private void nextFrame() {
-        long currentTime = System.currentTimeMillis();
-        elapsedFrameDisplayTime += currentTime - lastUpdateTime;
-        lastUpdateTime = currentTime;
-
-        // Check if the frame index points to/beyond the final frame
         if (currentFrameIndex >= frames.size() - 1) {
-            if (isLooping) { // If looping is enabled, reset to the first frame
+            if (isLooping) {
                 currentFrameIndex = 0;
-
-            } else { // Otherwise, stop the animation
+            } else {
                 stop();
             }
-
-        } else { // Otherwise proceed to the next frame and reset the display time counter
+        } else {
             currentFrameIndex++;
-            elapsedFrameDisplayTime = 0;
         }
     }
 
@@ -213,6 +255,7 @@ public class Animation implements Updateable, Renderable {
      */
     private static class AnimationFrame {
 
+        // ----- INSTANCE VARIABLES -----
         /**
          * The image displayed by the frame.
          */
@@ -222,8 +265,9 @@ public class Animation implements Updateable, Renderable {
          */
         final long frameDurationMs;
 
+        // ----- CONSTRUCTORS -----
         /**
-         * Constructs a new animation frame.
+         * Constructs a new animation frame using the given URL.
          *
          * @param imageUrl The URL of the displayed image.
          * @param frameDurationMs How many milliseconds to display the frame
@@ -233,6 +277,18 @@ public class Animation implements Updateable, Renderable {
             this.image = ImageManager.loadBufferedImage(imageUrl);
             this.frameDurationMs = frameDurationMs;
         }
-    }
 
+        /**
+         * Constructs a new animation frame using a pre-loaded
+         * {@link BufferedImage}.
+         *
+         * @param imageUrl The URL of the displayed image.
+         * @param frameDurationMs How many milliseconds to display the frame
+         * for.
+         */
+        public AnimationFrame(final BufferedImage image, long frameDurationMs) {
+            this.image = image;
+            this.frameDurationMs = frameDurationMs;
+        }
+    }
 }
