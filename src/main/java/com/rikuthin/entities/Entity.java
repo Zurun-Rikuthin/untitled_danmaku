@@ -315,6 +315,10 @@ public abstract class Entity implements Renderable {
      * {@code false otherwise}.
      */
     public boolean collides(final int x, final int y, final int width, final int height) {
+        if (!isCollidable){
+            return false;
+        }
+
         return ((this.x + this.hitboxWidth >= x) && (this.y + hitboxHeight >= y))
                 || ((x + width >= this.x) && (y + height >= this.y));
     }
@@ -327,6 +331,9 @@ public abstract class Entity implements Renderable {
      * {@code false otherwise}.
      */
     public boolean collides(final Entity entity) {
+        if (!isCollidable || !entity.isCollidable()){
+            return false;
+        }
         return collides(entity.getX(), entity.getY(), entity.getHitboxWidth(), entity.getHitboxHeight());
     }
 
