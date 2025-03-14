@@ -8,14 +8,14 @@ import javax.swing.JPanel;
 
 import com.rikuthin.graphics.ImageManager;
 import com.rikuthin.interfaces.Renderable;
-import com.rikuthin.interfaces.Updateable;
 
 /**
- * The base class for all entities in the game. This class represents any object
- * that has behavior (e.g., movement, animation, or interaction with other
- * entities) in the game world.
+ * The base class for all entities in the game.
+ * <p>
+ * This class represents any object that has behavior (e.g., movement,
+ * animation, or interaction with other entities) in the game world.
  */
-public abstract class Entity implements Updateable, Renderable {
+public abstract class Entity implements Renderable {
 
     // ----- INSTANCE VARIABLES -----
     /**
@@ -71,7 +71,7 @@ public abstract class Entity implements Updateable, Renderable {
     // ----- CONSTRUCTORS -----
     /**
      * Constructs an entity with the specified properties.
-     *
+     * <p>
      * The entity's hitbox defaults to the sprite dimensions and position if a
      * sprite is loaded.
      *
@@ -93,7 +93,7 @@ public abstract class Entity implements Updateable, Renderable {
         }
 
         setPosition(x, y);
-        this.isInvisible = isInvisible;
+        setInvisibility(isInvisible);
         setSprite(spriteUrl);
         setHitboxPosition(x, y);
         setHitboxSize(spriteWidth, spriteHeight);
@@ -221,12 +221,22 @@ public abstract class Entity implements Updateable, Renderable {
     }
 
     /**
-     * Sets the entity's sprite and updates its dimensions.
+     * Sets the entity's invisibility.
      *
+     * @param isInvisible {@code true} if the entity is invisible, otherwise
+     * {@code false}.
+     */
+    public final void setInvisibility(final boolean isInvisible) {
+        this.isInvisible = isInvisible;
+    }
+
+    /**
+     * Sets the entity's sprite and updates its dimensions.
+     * <p>
      * If a URL is provided and the sprite can be successfully loaded, then the
      * sprite height/width are set according to the width and height of the
      * loaded image.
-     *
+     * <p>
      * Note: If isInvisible is set to true, the sprite will still be set, just
      * not rendered.
      *
@@ -261,11 +271,19 @@ public abstract class Entity implements Updateable, Renderable {
         this.hitboxHeight = Math.abs(height);
     }
 
+    // ----- BUSINESS LOGIC METHODS -----
+    public boolean isWithinPanel() {
+        return x >= 0
+                && y >= 0
+                && x + spriteWidth < panel.getWidth()
+                && y + spriteHeight < panel.getHeight();
+    }
+
     // ----- OVERRIDDEN METHODS -----
     /**
      * Compares this entity with another object for equality. May be overridden
      * to provide futher functionality.
-     *
+     * <p>
      * By default, two entities are considered equal if they have the same
      * parent panel, position, sprite (image, URL, and dimensions) and hitbox
      * (position and dimensions.
@@ -297,7 +315,7 @@ public abstract class Entity implements Updateable, Renderable {
 
     /**
      * Computes the hash code for this entity.
-     *
+     * <p>
      * By default, the hash is calculated using the entity's parent panel,
      * position, sprite (image, URL, and dimensions) and hitbox (position and
      * dimensions.

@@ -27,7 +27,7 @@ public class Player extends Entity {
     // ----- CONSTRUCTORS -----
     /**
      * Constructs a player entity with specified position, sprite, and movement
-     *
+     * <p>
      * The player remains stationary by default and moves only when directional
      * inputs are provided.
      *
@@ -150,7 +150,7 @@ public class Player extends Entity {
     // ----- BUSINESSS LOGIC METHODS -----
     /**
      * Moves the player based on directional inputs while ensuring they remain
-     * within the screen boundaries.
+     * within the panel boundaries.
      */
     public void move() {
         // Move up
@@ -173,13 +173,15 @@ public class Player extends Entity {
             x += speed;
         }
 
-        correctPosition();
+        if (!isWithinPanel()) {
+            correctPosition();
+        }
     }
 
     // ----- OVERRIDDEN METHODS -----
     /**
      * Compares this player entity to another object for equality.
-     *
+     * <p>
      * Extends {@code equals()} from the {@link Entity} class by comparing
      * movement-related attributes such as speed and directional states.
      *
@@ -224,17 +226,6 @@ public class Player extends Entity {
                 movingLeft,
                 movingRight
         );
-    }
-
-    /**
-     * Updates the player's behavior. This method must be implemented based on
-     * game logic.
-     *
-     * @throws UnsupportedOperationException if not yet implemented.
-     */
-    @Override
-    public void update() {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     // ---- HELPER METHODS -----

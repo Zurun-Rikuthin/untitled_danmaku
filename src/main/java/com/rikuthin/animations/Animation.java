@@ -20,6 +20,15 @@ public class Animation implements Updateable, Renderable {
      * collection of frames in the animation.
      */
     private final ArrayList<AnimationFrame> frames;
+
+    /**
+     * The x-coordinate the animation is rendered at.
+     */
+    private int x;
+    /**
+     * The y-coordinate the animation is rendered at.
+     */
+    private int y;
     /**
      * Indicates if the animation should loop.
      */
@@ -41,12 +50,17 @@ public class Animation implements Updateable, Renderable {
      * Indicates if the animation is currently playing.
      */
     private boolean isPlaying;
+    
 
     // ------ CONSTRUCTORS -----
     /**
      * Creates a new, empty Animation.
+     * 
+     * @param x The x-coordinate to render the animation at.
+     * @param y The y-coordinate to render the animation at.
+     * @param isLooping Whether the animation should loop.
      */
-    public Animation(final boolean isLooping) {
+    public Animation(final int x, final int y, final boolean isLooping) {
         this.frames = new ArrayList<>();
         this.currentFrameIndex = 0;
         this.elapsedFrameDisplayTime = 0;
@@ -56,6 +70,24 @@ public class Animation implements Updateable, Renderable {
     }
 
     // ------ GETTERS ------
+    /**
+     * The x-coordinate the animation is rendered at.
+     * 
+     * @return The x-coordinate.
+     */
+    public int getX() {
+        return x;
+    }
+
+    /**
+     * The y-coordinate the animation is rendered at.
+     * 
+     * @return The y-coordinate.
+     */
+    public int getY() {
+        return y;
+    }
+
     /**
      * Returns the current frame's image.
      *
@@ -87,6 +119,12 @@ public class Animation implements Updateable, Renderable {
         return isPlaying;
     }
 
+    // ----- SETTERS -----
+    public void setPosition (final int x, final int y) {
+        this.x = x; 
+        this.y = y;
+    }
+
     // ----- OVERRIDDEN METHODS -----
     /**
      * Updates the animation's frame based on elapsed time.
@@ -110,7 +148,7 @@ public class Animation implements Updateable, Renderable {
         }
     }
 
-    // ----- BUSINESS LOGIC ------
+    // ----- BUSINESS LOGIC METHODS ------
     /**
      * Adds an image to the animation with the specified duration (time to
      * display the image).

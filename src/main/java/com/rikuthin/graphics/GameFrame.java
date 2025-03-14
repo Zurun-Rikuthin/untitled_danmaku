@@ -7,7 +7,7 @@ import javax.swing.JFrame;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
 
-import static com.rikuthin.core.App.TICK_SPEED_MS;
+import static com.rikuthin.core.App.FRAME_RATE_MS;
 import com.rikuthin.graphics.screens.MainMenuScreen;
 import com.rikuthin.graphics.screens.Screen;
 
@@ -41,7 +41,7 @@ public final class GameFrame extends JFrame {
 
         setScreen(new MainMenuScreen(this));
 
-        gameLoopTimer = new Timer((int) TICK_SPEED_MS, e -> {
+        gameLoopTimer = new Timer((int) FRAME_RATE_MS, e -> {
             updateGame();
             renderGame();
             currentScreen.repaint();

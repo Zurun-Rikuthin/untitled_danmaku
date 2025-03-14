@@ -7,9 +7,11 @@ import com.rikuthin.graphics.GameFrame;
 public class App {
 
     /**
-     * How often the various threads should update themselves (milliseconds).
+     * How often the app should refresh the rendered frame in milliseconds.
+     * <p>
+     * Note that game updates occur once per frame.
      */
-    public static final long TICK_SPEED_MS = (long) 16.7;    // 16.7 ms is approx. 60 FPS
+    public static final long FRAME_RATE_MS = (long) 16.7;  // 16.7 ms is approx. 60 FPS
 
     /**
      * The entry point for the application. This method schedules the creation

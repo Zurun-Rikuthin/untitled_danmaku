@@ -1,168 +1,164 @@
-// package com.rikuthin.entities;
+package com.rikuthin.entities;
 
-// import java.awt.Color;
-// import java.awt.Dimension;
-// import java.awt.Graphics2D;
-// import java.awt.geom.Ellipse2D;
-// import java.util.List;
+import java.util.Objects;
 
-// import com.rikuthin.core.App;
-// import com.rikuthin.core.GameManager;
-// import com.rikuthin.utility.Bearing2D;
+import javax.swing.JPanel;
 
-// /**
-//  * Represents a bubble that moves within a JPanel. The bubble moves along a
-//  * specified bearing (angle in degrees) at a defined speed (pixels per tick) and
-//  * bounces off the edges and walls, stopping at the roof.
-//  */
-// public class Bullet extends Ellipse2D.Double implements Runnable {
+import com.rikuthin.utility.Bearing2D;
 
-//     public static final double SIZE = 30; // Size of the bubble in pixels
+/**
+ * Represents a bubble that moves within a JPanel. The bubble moves along a
+ * specified bearing (angle in degrees) at a defined speed (pixels per tick) and
+ * bounces off the edges and walls, stopping at the roof.
+ */
+public class Bullet extends Entity {
 
-//     private final Color colour;  // Colour of the bubble
-//     private boolean isMoving;    // Whether the bubble should move
-//     private Bearing2D bearing;   // Direction of movement (bearing)
-//     private double speed;        // Movement speed (in pixels per tick)
+    // ----- INSTANCE VARIABLES -----
+    /**
+     * Direction of movement (bearing)
+     */
+    private Bearing2D bearing;
+    /**
+     * Movement speed in pixels per frame. Defaults to 0 (i.e., not moving).
+     */
+    private double speed;
 
-//     /**
-//      * Constructs a new Bubble.
-//      *
-//      * @param initialX The initial x-coordinate.
-//      * @param initialY The initial y-coordinate.
-//      * @param colour The color.
-//      */
-//     public Bullet(final int initialX, final int initialY, final Color colour) {
-//         super(initialX, initialY, SIZE, SIZE);
+    // ----- CONSTRUCTORS -----
+    /**
+     * Constructs a new, non-moving Bullet.
+     *
+     * @param panel The {@link JPanel} to which the bullet belongs.
+     * @param x The initial x-coordinate.
+     * @param y The initial y-coordinate.
+     * @param spriteUrl The URL for the bullet's sprite.
+     */
+    public Bullet(final JPanel panel, final int x, final int y, final String spriteUrl) {
+        super(panel, x, y, true, spriteUrl);
+        this.bearing = null;
+        this.speed = 0;
+    }
 
-//         if (GameManager.getInstance().getBubblePanel() == null) {
-//             throw new NullPointerException("BubblePanel must be instantiated before creating bubbles.");
-//         }
+    /**
+     * Constructs a new Bullet that moves in a given direction.
+     *
+     * @param panel The {@link JPanel} to which the bullet belongs.
+     * @param x The initial x-coordinate.
+     * @param y The initial y-coordinate.
+     * @param spriteUrl The URL for the bullet's sprite.
+     * @param bearing The direction the bullet should move in.
+     * @param speed The bullet's movement speed in pixels per frame.
+     */
+    public Bullet(final JPanel panel, final int x, final int y, final String spriteUrl, final Bearing2D bearing, final double speed) {
+        super(panel, x, y, true, spriteUrl);
+        this.bearing = bearing;
+        this.speed = speed;
+    }
 
-//         this.colour = colour;
-//         this.isMoving = false;
-//         this.bearing = new Bearing2D(0);
-//         this.speed = 0;
-//     }
+    // ----- GETTERS -----
+    /**
+     * Returns whether the movement speed is currently 0.
+     *
+     * @return {@code true} if the movement speed is zero; {@code false}
+     * otherwise.
+     */
+    public boolean isMoving() {
+        return speed != 0;
+    }
 
-//     public boolean isMoving() {
-//         return isMoving;
-//     }
+    /**
+     * Returns the direction the bullet is moving in.
+     *
+     * @return The movement direction.
+     */
+    public Bearing2D getBearing() {
+        return bearing;
+    }
 
-//     public Bearing2D getBearing() {
-//         return bearing;
-//     }
+    /**
+     * Returns the bullet's current movement speed in pixels per frame.
+     *
+     * @return The movement speed.
+     */
+    public double getSpeed() {
+        return speed;
+    }
 
-//     public double getSpeed() {
-//         return speed;
-//     }
+    // ----- SETTERS -----
+    /**
+     * Sets the direction the bullet should move in.
+     *
+     * @param bearing The movement direction.
+     */
+    public void setBearing(final Bearing2D bearing) {
+        this.bearing = bearing;
+    }
 
-//     public void setIsMoving(final boolean isMoving) {
-//         this.isMoving = isMoving;
-//     }
+    /**
+     * Sets the speed the bullet should move at in pixels per frame. Uses the
+     * the absolute (positive) value.
+     *
+     * @param speed The movement speed.
+     */
+    public void setSpeed(final double speed) {
+        this.speed = Math.abs(speed);
+    }
 
-//     public void setBearing(final Bearing2D bearing) {
-//         this.bearing = bearing;
-//     }
+    // ----- BUSINESS LOGIC METHODS -----
+    /**
+     * Moves the bubble based on its bearing and speed.
+     */
+    public void move() {
+        if (!isMoving()) {
+            return;
+        }
 
-//     public void setSpeed(final double speed) {
-//         this.speed = Math.abs(speed);
-//     }
+        final double radians = Math.toRadians(bearing.getDegrees());
 
-//     /**
-//      * Moves the bubble based on its bearing and speed.
-//      */
-//     public void move() {
-//         GameManager gameManager = GameManager.getInstance();
-//         BubblePanel bubblePanel = gameManager.getBubblePanel();
-//         if (!bubblePanel.isVisible()) {
-//             return;
-//         }
+        x += speed * Math.cos(radians);
+        y -= speed * Math.sin(radians); // Inverted for screen coordinates
+    }
 
-//         final Dimension panelSize = bubblePanel.getSize();
-//         final double radians = Math.toRadians(bearing.getDegrees());
+    // ----- OVERRIDDEN METHODS -----
+    /**
+     * Compares this player entity to another object for equality.
+     * <p>
+     * Extends {@code equals()} from the {@link Entity} class by comparing
+     * movement-related attributes such as speed and directional states.
+     *
+     * @param obj The object to compare with.
+     * @return {@code true} if the objects are equal, otherwise {@code false}.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
 
-//         double nextX = x + speed * Math.cos(radians);
-//         double nextY = y - speed * Math.sin(radians); // Inverted for screen coordinates
+        if (!(obj instanceof Player)) {
+            return false;
+        }
 
-//         // Break if colliding with a wall
-//         if (checkWallCollision()) {
-//             bubblePanel.getBubbles().remove(this);
-//             bubblePanel.repaint();
-//             isMoving = false;
-//             return;
-//         }
+        Bullet other = (Bullet) obj;
 
-//         // Handle Y-axis bouncing or stopping at the top
-//         if (nextY < 0) {
-//             y = 0;
-//             isMoving = false;
+        return super.equals(obj)
+                && this.bearing.equals(other.getBearing())
+                && this.speed == other.speed;
+    }
 
-//             // The line `final int currentScore = gameManager` seems to be incomplete in the provided
-//             // code snippet. It looks like there might be a typo or an incomplete statement. It seems
-//             // like there is a missing method call or assignment after `gameManager`.
-//             final int currentScore = gameManager.getScore();
-//             gameManager.setScore(currentScore + 100);
-//             return;
-//         } else {
-//             if (nextY - height > panelSize.height) {
-//                 bearing.setDegrees(360 - bearing.getDegrees());  // Reverse Y direction
-//                 nextY = panelSize.height - height;
-//             }
-//             y = nextY;
-//         }
-
-//         // Handle X-axis bouncing
-//         if (nextX < 0 || nextX + width > panelSize.width) {
-//             bearing.setDegrees(180 - bearing.getDegrees());  // Reverse X direction
-//             nextX = Math.clamp(nextX, 0, panelSize.width - width);
-//         }
-//         x = nextX;
-
-//         javax.swing.SwingUtilities.invokeLater(bubblePanel::repaint);  // Thread-safe repaint
-//     }
-
-//     /**
-//      * Draws the bubble.
-//      */
-//     public void draw(final Graphics2D g2) {
-//         g2.setColor(colour);
-//         g2.fill(this);
-//         g2.setColor(Color.BLACK);
-//         g2.draw(this);
-//     }
-
-//     /**
-//      * Runs the bubble's movement logic.
-//      * 
-//      * Bubbles can freeze if the game is paused while they're in motion.
-//      * No time to fix this bug now
-//      */
-//     @Override
-//     public void run() {
-        
-//         while (isMoving && !GameManager.getInstance().isPaused()) {
-//             move();
-//             try {
-//                 Thread.sleep(App.TICK_SPEED_MS);
-//             } catch (InterruptedException e) {
-//                 Thread.currentThread().interrupt();
-//                 break;
-//             }
-//         }
-//         GameManager.getInstance().onBubbleMovementComplete();
-//     }
-
-//     /**
-//      * Checks for collision with walls.
-//      */
-//     private boolean checkWallCollision() {
-//         List<Wall> walls = GameManager.getInstance().getBubblePanel().getWalls();
-
-//         for (Wall wall : walls) {
-//             if (intersects(wall)) {
-//                 return true;
-//             }
-//         }
-//         return false;
-//     }
-// }
+    /**
+     * Computes the hash code for this player entity.
+     *
+     * Extends {@code hashCode()} from the {@link Entity} class by incorporating
+     * movement attributes such as speed and directional states.
+     *
+     * @return The computed hash code.
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                super.hashCode(),
+                bearing,
+                speed
+        );
+    }
+}
