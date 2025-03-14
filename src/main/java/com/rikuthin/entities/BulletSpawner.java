@@ -47,7 +47,7 @@ public class BulletSpawner extends Entity {
      * @param y The initial y-coordinate.
      */
     public BulletSpawner(final JPanel panel, final int x, final int y) {
-        super(panel, x, y, true, null);
+        super(panel, x, y, true, null, false);
         bulletSpriteUrl = null;
         shotSpeed = 0;
         isSpawning = false;
@@ -62,7 +62,7 @@ public class BulletSpawner extends Entity {
      * @param bulletType The type of bullets spawned.
      */
     public BulletSpawner(final JPanel panel, final int x, final int y, final String bulletSpriteUrl) {
-        super(panel, x, y, true, null);
+        super(panel, x, y, true, null, false);
         this.bulletSpriteUrl = bulletSpriteUrl;
         this.shotSpeed = 0;
         isSpawning = false;
