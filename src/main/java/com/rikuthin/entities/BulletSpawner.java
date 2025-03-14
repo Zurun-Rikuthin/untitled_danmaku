@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import javax.swing.JPanel;
 
+import com.rikuthin.graphics.Animation;
 import com.rikuthin.utility.Bearing2D;
 
 /**
@@ -28,6 +29,11 @@ public class BulletSpawner extends Entity {
      * The URL for the spawned bullet's sprite.
      */
     private String bulletSpriteUrl;
+
+    /**
+     * The spawned bullet's sprite animation.
+     */
+    private Animation bulletAnimation;
     /**
      *
      * The speed bullets are shot at in pixels per frame. Defaults to 0.
@@ -40,18 +46,50 @@ public class BulletSpawner extends Entity {
 
     // ----- CONSTRUCTORS -----
     /**
-     * Constructs a new Spawner for a specific bullet type.
+     * Constructs a new Spawner for bullets with static sprites.
      *
      * @param panel The parent {@code JPanel} in which the bullets are spawned.
      * @param x The initial x-coordinate.
      * @param y The initial y-coordinate.
-     * @param bulletType The type of bullets spawned.
+     * @param bulletSpriteUrl The type of bullets spawned.
+     * @param shotSpeed The speed spawned bullets will move at in pixels per
+     * frame.
+     * @param isSpawning {@code true} if spawning should begin immediately upon
+     * construction; {@code false otherwise.
      */
-    public BulletSpawner(final JPanel panel, final int x, final int y, final String bulletSpriteUrl) {
-        super(panel, x, y, true, "", false);
+    public BulletSpawner(final JPanel panel, final int x, final int y, final String bulletSpriteUrl, final int shotSpeed, final boolean isSpawning) {
+        super(panel, x, y, null, true, false);
         this.bulletSpriteUrl = bulletSpriteUrl;
-        this.shotSpeed = 0;
-        isSpawning = false;
+        this.shotSpeed = shotSpeed;
+        this.isSpawning = isSpawning;
+    }
+
+    /**
+     * Constructs a new Spawner for bullets with animated sprites.
+     *
+     * @param panel The parent {@code JPanel} in which the bullets are spawned.
+     * @param x The initial x-coordinate.
+     * @param y The initial y-coordinate.
+     * @param bulletAnimation The type of bullets spawned.
+     * @param shotSpeed The speed spawned bullets will move at in pixels per
+     * frame.
+     * @param isSpawning {@code true} if spawning should begin immediately upon
+     * construction; {@code false otherwise.
+     */
+    public BulletSpawner(final JPanel panel, final int x, final int y, final Animation bulletAnimation, final int shotSpeed, final boolean isSpawning) {
+        super(panel, x, y, null, true, false);
+
+        if (animation == null || animation.isEmpty()) {
+            throw new IllegalArgumentException(String.format(
+                    "%s: Must provide an animation.",
+                    this.getClass().getName()
+            ));
+        }
+
+        this.bulletAnimation = bulletAnimation;
+        this.sprite = animation.getCurrentFrameImage();
+        this.shotSpeed = shotSpeed;
+        this.isSpawning = isSpawning;
     }
 
     // ----- GETTERS -----
@@ -138,12 +176,18 @@ public class BulletSpawner extends Entity {
      * <p>
      * The bullet is created at the spawner's position and moves along the given
      * bearing.
-     * </p>
+     * <p>
+     * The creation of animated bullets is prioritised. If no bullet animation
+     * is set, the spawner will use the set static sprite.
      *
      * @return the newly created {@link Bullet} instance
      */
     public Bullet spawnBullet() {
-        return new Bullet(panel, x, y, bulletSpriteUrl, bearing, shotSpeed);
+        if (bulletAnimation != null) {
+            return new Bullet(panel, x, y, bulletAnimation, bearing, shotSpeed);
+        } else {
+            return new Bullet(panel, x, y, bulletSpriteUrl, bearing, shotSpeed);
+        }
     }
 
     /**
@@ -155,7 +199,8 @@ public class BulletSpawner extends Entity {
      *
      * @param bulletSpriteUrl The URL for the spawned bullet's sprite.
      * @param bearing The direction the bullet will move in.
-     * @param shotSpeed The movement speed of the new bullet in pixels per frame.
+     * @param shotSpeed The movement speed of the new bullet in pixels per
+     * frame.
      * @return the newly created {@link Bullet} instance
      */
     public Bullet spawnBullet(final String bulletSpriteUrl, final Bearing2D bearing, final double shotSpeed) {

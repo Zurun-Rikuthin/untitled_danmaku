@@ -4,12 +4,15 @@ import java.util.Objects;
 
 import javax.swing.JPanel;
 
+import com.rikuthin.graphics.Animation;
 import com.rikuthin.utility.Bearing2D;
 
 /**
- * Represents a bubble that moves within a JPanel. The bubble moves along a
- * specified bearing (angle in degrees) at a defined speed (pixels per tick) and
- * bounces off the edges and walls, stopping at the roof.
+ * Represents a generic bullet that moves within a JPanel.
+ * <p>
+ * The bullet moves along a specified bearing (angle in degrees) at a defined
+ * speed (pixels per tick). and bounces off the edges and walls, stopping at the
+ * roof.
  */
 public class Bullet extends Entity {
 
@@ -25,31 +28,31 @@ public class Bullet extends Entity {
 
     // ----- CONSTRUCTORS -----
     /**
-     * Constructs a new, non-moving Bullet.
+     * Constructs a new Bullet with a static sprite.
      *
      * @param panel The {@link JPanel} to which the bullet belongs.
      * @param x The initial x-coordinate.
      * @param y The initial y-coordinate.
      * @param spriteUrl The URL for the bullet's sprite.
      */
-    public Bullet(final JPanel panel, final int x, final int y, final String spriteUrl) {
-        super(panel, x, y, true, spriteUrl, true);
-        this.bearing = null;
-        this.speed = 0;
+    public Bullet(final JPanel panel, final int x, final int y, final String spriteUrl, final Bearing2D bearing, final double speed) {
+        super(panel, x, y, spriteUrl, false, true);
+        this.bearing = bearing;
+        this.speed = speed;
     }
 
     /**
-     * Constructs a new Bullet that moves in a given direction.
+     * Constructs a new Bullet with an animated sprite.
      *
      * @param panel The {@link JPanel} to which the bullet belongs.
      * @param x The initial x-coordinate.
      * @param y The initial y-coordinate.
-     * @param spriteUrl The URL for the bullet's sprite.
+     * @param animation The bullet's sprite animation
      * @param bearing The direction the bullet should move in.
      * @param speed The bullet's movement speed in pixels per frame.
      */
-    public Bullet(final JPanel panel, final int x, final int y, final String spriteUrl, final Bearing2D bearing, final double speed) {
-        super(panel, x, y, true, spriteUrl, true);
+    public Bullet(final JPanel panel, final int x, final int y, final Animation animation, final Bearing2D bearing, final double speed) {
+        super(panel, x, y, animation, true);
         this.bearing = bearing;
         this.speed = speed;
     }

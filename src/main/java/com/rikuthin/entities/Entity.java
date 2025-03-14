@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import com.rikuthin.graphics.Animation;
 import com.rikuthin.graphics.ImageManager;
 import com.rikuthin.interfaces.Renderable;
+import com.rikuthin.interfaces.Updateable;
 
 /**
  * The base class for all entities in the game.
@@ -16,7 +17,7 @@ import com.rikuthin.interfaces.Renderable;
  * This class represents any object that has behavior (e.g., movement,
  * animation, or interaction with other entities) in the game world.
  */
-public abstract class Entity implements Renderable {
+public abstract class Entity implements Updateable, Renderable {
 
     // ----- INSTANCE VARIABLES -----
     /**
@@ -24,58 +25,60 @@ public abstract class Entity implements Renderable {
      */
     protected JPanel panel;
     /**
-     * The x-coordinate of the entity's top-left corner.
+     * The x-coordinate of the entity sprite's top-left corner.
      */
     protected int x;
     /**
-     * The y-coordinate of the entity's top-left corner.
+     * The y-coordinate of the entity sprite's top-left corner.
      */
     protected int y;
     /**
-     * Determines if the entity is invisible, meaning any sprite set is not
-     * rendered.
-     */
-    protected boolean isInvisible;
-    /**
-     * Determines if the entity can collide with others.
-     */
-    protected boolean isCollidable;
-    /**
-     * The URL for the entity's sprite;
-     */
-    protected String spriteUrl;
-    /**
-     * The entity's sprite image.
+     * The entity's current sprite image.
      */
     protected BufferedImage sprite;
     /**
-     * Width of the entity's sprite in pixels.
+     * {@code true} if the should not render its sprite; {@code false}
+     * otherwise.
      */
-    protected int spriteWidth;
+    protected boolean isInvisible;
     /**
-     * Height of the entity's sprite in pixels.
+     * The entity's sprite animation.
      */
-    protected int spriteHeight;
+    protected Animation animation;
     /**
-     * The x-coordinate of the entity hitbox's top-left corner.
+     * {@code true} if the entity's sprite animation (if set) is currently
+     * playing; {@code false} if the sprite is static.
+     */
+    protected boolean isAnimated;
+    /**
+     * The x-coordinate of the entity hitbox's top-left corner. Defaults to that
+     * of the current sprite.
      */
     protected int hitboxX;
     /**
-     * The y-coordinate of the entity hitbox's top-left corner.
+     * The y-coordinate of the entity hitbox's top-left corner. Defaults to that
+     * of the current sprite.
      */
     protected int hitboxY;
     /**
-     * Width of the entity's hitbox in pixels. Defaults to the sprite height.
+     * Width of the entity's hitbox in pixels. Defaults to that of the current
+     * sprite.
      */
     protected int hitboxWidth;
     /**
-     * Height of the entity's hitbox in pixels. Defaults to the sprite width.
+     * Height of the entity's hitbox in pixels. Defaults to that of the current
+     * sprite.
      */
     protected int hitboxHeight;
+    /**
+     * {@code true} if the entity can collide with others; {@code false}
+     * otherwise.
+     */
+    protected boolean isCollidable;
 
     // ----- CONSTRUCTORS -----
     /**
-     * Constructs an entity with a static sprite.
+     * Constructs an entity with a static (i.e., non-animated) sprite.
      * <p>
      * The entity's hitbox defaults to the sprite dimensions and position if a
      * sprite is loaded.
@@ -86,14 +89,12 @@ public abstract class Entity implements Renderable {
      * @param panel The parent {@link JPanel} to which the entity belongs.
      * @param x The initial x-coordinate.
      * @param y The initial y-coordinate.
-     * @param isInvisible Whether the entity is invisible and does not render
-     * its sprite (even if one is set).
      * @param spriteUrl The URL for the entity's sprite.
+     * @param isInvisible {@code true} if the entity should not render its
+     * sprite; {@code false} otherwise.
      * @param isCollidable Whether the entity can collide with others.
      */
-    protected Entity(final JPanel panel, final int x, final int y, final boolean isInvisible, final String spriteUrl, final boolean isCollidable) {
-        this.panel = panel;
-
+    protected Entity(final JPanel panel, final int x, final int y, final String spriteUrl, final boolean isInvisible, final boolean isCollidable) {
         if (panel == null) {
             throw new IllegalArgumentException(String.format(
                     "%s: Panel cannot be null",
@@ -101,19 +102,22 @@ public abstract class Entity implements Renderable {
             ));
         }
 
+        this.panel = panel;
         setPosition(x, y);
         setInvisibility(isInvisible);
         setSprite(spriteUrl);
+        setAnimation(null);
+        this.isAnimated = false;
         setHitboxPosition(x, y);
-        setHitboxSize(spriteWidth, spriteHeight);
+        setHitboxSizeFromCurrentSprite();
         setCollidability(isCollidable);
     }
 
     /**
-     * Constructs an entity with a static sprite.
+     * Constructs an entity with a animated sprite.
      * <p>
-     * The entity's hitbox defaults to the sprite dimensions and position if a
-     * sprite is loaded.
+     * The entity's hitbox defaults to the dimensions and position of the
+     * animation's first sprite if one is available.
      * <p>
      * Note: ALL hitboxes are rectangles (NOT quadrilaterals or other polygonal
      * shapes).
@@ -121,14 +125,10 @@ public abstract class Entity implements Renderable {
      * @param panel The parent {@link JPanel} to which the entity belongs.
      * @param x The initial x-coordinate.
      * @param y The initial y-coordinate.
-     * @param isInvisible Whether the entity is invisible and does not render
-     * its sprite (even if one is set).
      * @param spriteUrl The URL for the entity's sprite.
      * @param isCollidable Whether the entity can collide with others.
      */
-    protected Entity(final JPanel panel, final int x, final int y, final boolean isInvisible, final Animation animation, final boolean isCollidable) {
-        this.panel = panel;
-
+    protected Entity(final JPanel panel, final int x, final int y, final Animation animation, final boolean isCollidable) {
         if (panel == null) {
             throw new IllegalArgumentException(String.format(
                     "%s: Panel cannot be null",
@@ -136,12 +136,18 @@ public abstract class Entity implements Renderable {
             ));
         }
 
+        this.panel = panel;
         setPosition(x, y);
         setInvisibility(isInvisible);
-        setSprite(spriteUrl);
+        setAnimation(animation);
+        this.isAnimated = true;
+        setSprite();
         setHitboxPosition(x, y);
-        setHitboxSize(spriteWidth, spriteHeight);
+        setHitboxSizeFromCurrentSprite();
         setCollidability(isCollidable);
+
+        // Start the animation once everything else is loaded.
+        this.animation.start();
     }
 
     // ----- GETTERS -----
@@ -182,15 +188,6 @@ public abstract class Entity implements Renderable {
     }
 
     /**
-     * Returns the URL for the entity's sprite image.
-     *
-     * @return The sprite URL.
-     */
-    public String getSpriteUrl() {
-        return spriteUrl;
-    }
-
-    /**
      * Returns the entity's sprite image.
      *
      * @return The sprite image.
@@ -202,19 +199,37 @@ public abstract class Entity implements Renderable {
     /**
      * Returns the width of the entity's sprite in pixels.
      *
-     * @return The sprite width.
+     * @return The sprite image's width.
      */
-    public int getSpriteWidth() {
-        return spriteWidth;
+    public final int getSpriteWidth() {
+        return sprite != null ? sprite.getWidth() : 0;
     }
 
     /**
      * Returns the height of the entity's sprite in pixels.
      *
-     * @return The sprite height.
+     * @return The sprite image's height.
      */
-    public int getSpriteHeight() {
-        return spriteHeight;
+    public final int getSpriteHeight() {
+        return sprite != null ? sprite.getHeight() : 0;
+    }
+
+    /**
+     * Returns the entity's sprite animation.
+     *
+     * @return The sprite animation.
+     */
+    public Animation getAnimation() {
+        return animation;
+    }
+    
+    /**
+     * Checks whether the entity's sprite animation (if one is set) is currently playing.
+     * 
+     * @return {@code true} if the animation is playing; {@code false} otherwise.
+     */
+    public boolean isAnimated() {
+        return animation!= null && animation.isPlaying();
     }
 
     /**
@@ -293,6 +308,49 @@ public abstract class Entity implements Renderable {
     }
 
     /**
+     * Sets the entity's sprite using an image URL and updates its dimensions.
+     * <p>
+     * If a URL is provided and the sprite can be successfully loaded, then the
+     * sprite height/width are set according to the width and height of the
+     * loaded image.
+     * <p>
+     * Otherwise, the sprite will be set to {@code null}.
+     * <p>
+     * Note: If the entity is invisible, the sprite will still be set, just not
+     * rendered.
+     *
+     * @param spriteUrl The URL for the entity's sprite.
+     */
+    public final void setSprite(final String spriteUrl) {
+        sprite = ImageManager.loadBufferedImage(spriteUrl);
+    }
+
+    /**
+     * Sets the entity's sprite using the current frame of the entity's
+     * {@link Animation}.
+     * <p>
+     * Note: If the entity is invisible, the sprite will still be set, just not
+     * rendered.
+     */
+    public final void setSprite() {
+        if (animation != null && !animation.isEmpty()) {
+            sprite = animation.getCurrentFrameImage();
+        }
+    }
+
+    /**
+     * Sets the entity's sprite using a pre-loaded {@link BufferedImage}.
+     * <p>
+     * Note: If the entity is invisible, the sprite will still be set, just not
+     * rendered.
+     *
+     * @param image The image for the entity's sprite.
+     */
+    public final void setSprite(final BufferedImage image) {
+        sprite = image;
+    }
+
+    /**
      * Sets the entity's invisibility.
      *
      * @param isInvisible {@code true} if the entity is invisible, otherwise
@@ -303,22 +361,16 @@ public abstract class Entity implements Renderable {
     }
 
     /**
-     * Sets the entity's sprite and updates its dimensions.
-     * <p>
-     * If a URL is provided and the sprite can be successfully loaded, then the
-     * sprite height/width are set according to the width and height of the
-     * loaded image.
-     * <p>
-     * Note: If the entity is invisible, the sprite will still be set, just not
-     * rendered.
+     * Sets the animation used for the entity's sprite.
      *
-     * @param spriteUrl The URL for the entity's sprite.
+     * @param animation The animation.
      */
-    public final void setSprite(final String spriteUrl) {
-        this.spriteUrl = spriteUrl;
-        sprite = ImageManager.loadBufferedImage(this.spriteUrl);
-        spriteWidth = sprite != null ? sprite.getWidth() : 0;
-        spriteHeight = sprite != null ? sprite.getHeight() : 0;
+    public final void setAnimation(final Animation animation) {
+        this.animation = animation;
+
+        if (this.animation != null && !this.animation.isEmpty()) {
+            setSprite(this.animation.getCurrentFrameImage());
+        }
     }
 
     /**
@@ -333,7 +385,7 @@ public abstract class Entity implements Renderable {
     }
 
     /**
-     * Sets the size of the entity's hitbox.
+     * Sets the size of the entity's hitbox using the provided values.
      *
      * @param width The new hitbox width in pixels.
      * @param height The new hitbox height in pixels.
@@ -344,9 +396,21 @@ public abstract class Entity implements Renderable {
     }
 
     /**
+     * Sets the size of the entity's hitbox using the dimensions of the entity's
+     * current sprite.
+     * <p>
+     * Note: If a sprite is currently not set, the the width and height are both
+     * set to 0.
+     */
+    public final void setHitboxSizeFromCurrentSprite() {
+        this.hitboxWidth = sprite != null ? sprite.getWidth() : 0;
+        this.hitboxHeight = sprite != null ? sprite.getHeight() : 0;
+    }
+
+    /**
      * Sets whether the entity can collide with others.
      *
-     * @param isInvisible {@code true} if the entity can collide, otherwise
+     * @param isCollidable {@code true} if the entity can collide, otherwise
      * {@code false}.
      */
     public final void setCollidability(final boolean isCollidable) {
@@ -357,8 +421,8 @@ public abstract class Entity implements Renderable {
     public boolean isWithinPanel() {
         return x >= 0
                 && y >= 0
-                && x + spriteWidth < panel.getWidth()
-                && y + spriteHeight < panel.getHeight();
+                && x + getSpriteWidth() < panel.getWidth()
+                && y + getSpriteHeight() < panel.getHeight();
     }
 
     /**
@@ -369,12 +433,14 @@ public abstract class Entity implements Renderable {
      * {@code false otherwise}.
      */
     public boolean collides(final int x, final int y, final int width, final int height) {
-        if (!isCollidable){
+        if (!isCollidable) {
             return false;
         }
 
-        return ((this.x + this.hitboxWidth >= x) && (this.y + hitboxHeight >= y))
-                || ((x + width >= this.x) && (y + height >= this.y));
+        return (this.hitboxX < x + width)
+                && (this.hitboxX + this.hitboxWidth > x)
+                && (this.hitboxY < y + height)
+                && (this.hitboxY + this.hitboxHeight > y);
     }
 
     /**
@@ -385,7 +451,7 @@ public abstract class Entity implements Renderable {
      * {@code false otherwise}.
      */
     public boolean collides(final Entity entity) {
-        if (!isCollidable || !entity.isCollidable()){
+        if (!isCollidable || !entity.isCollidable()) {
             return false;
         }
         return collides(entity.getX(), entity.getY(), entity.getHitboxWidth(), entity.getHitboxHeight());
@@ -397,8 +463,8 @@ public abstract class Entity implements Renderable {
      * to provide futher functionality.
      * <p>
      * By default, two entities are considered equal if they have the same
-     * parent panel, position, sprite (image, URL, and dimensions), hitbox
-     * (position and dimensions), and invisibility and collidability statuses.
+     * parent panel, position, sprite, hitbox (position and dimensions), and
+     * invisibility and collidability statuses.
      *
      * @param obj the object to compare with
      * @return {@code true} if the entities are equal; {@code false} otherwise
@@ -416,15 +482,13 @@ public abstract class Entity implements Renderable {
         return panel.equals(other.getPanel())
                 && Integer.compare(x, other.getX()) == 0
                 && Integer.compare(y, other.getY()) == 0
-                && Objects.equals(spriteUrl, other.getSpriteUrl())
                 && Objects.equals(sprite, other.getSprite())
-                && Integer.compare(spriteWidth, other.getSpriteWidth()) == 0
-                && Integer.compare(spriteHeight, other.getSpriteHeight()) == 0
+                && Boolean.compare(isInvisible, other.isInvisible()) == 0
+                && animation.equals(other.getAnimation())
                 && Integer.compare(hitboxX, other.getHitboxX()) == 0
                 && Integer.compare(hitboxY, other.getHitboxY()) == 0
                 && Integer.compare(hitboxWidth, other.getHitboxWidth()) == 0
                 && Integer.compare(hitboxHeight, other.getHitboxHeight()) == 0
-                && Boolean.compare(isInvisible, other.isInvisible()) == 0
                 && Boolean.compare(isCollidable, other.isCollidable()) == 0;
     }
 
@@ -443,17 +507,24 @@ public abstract class Entity implements Renderable {
                 panel,
                 x,
                 y,
-                spriteUrl,
                 sprite,
-                spriteWidth,
-                spriteHeight,
+                isInvisible,
+                animation,
                 hitboxX,
                 hitboxY,
                 hitboxWidth,
                 hitboxHeight,
-                isInvisible,
                 isCollidable
         );
+    }
+
+    @Override
+    public void update() {
+        if (animation != null) {
+            animation.update();
+            setSprite(animation.getCurrentFrameImage());
+            setHitboxSizeFromCurrentSprite();
+        }
     }
 
     /**
@@ -462,14 +533,13 @@ public abstract class Entity implements Renderable {
      * @param g2 The Graphics2D object used for rendering the entity.
      */
     @Override
-    public void render(final Graphics2D g2d
-    ) {
+    public void render(final Graphics2D g2d) {
         if (isInvisible) {
             return;
         }
 
         if (sprite != null) {
-            g2d.drawImage(sprite, x, y, spriteWidth, spriteHeight, null);
+            g2d.drawImage(sprite, x, y, getSpriteWidth(), getSpriteHeight(), null);
         }
     }
 }

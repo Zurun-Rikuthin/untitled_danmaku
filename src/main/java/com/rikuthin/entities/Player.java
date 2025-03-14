@@ -38,7 +38,7 @@ public class Player extends Entity {
      * @param speed The movement speed in pixels per frame.
      */
     public Player(final JPanel panel, final int x, final int y, final String spriteUrl, final int speed) {
-        super(panel, x, y, false, spriteUrl, true);
+        super(panel, x, y, spriteUrl, false, true);
         this.speed = speed;
         this.movingUp = false;
         this.movingDown = false;
@@ -234,7 +234,7 @@ public class Player extends Entity {
      */
     private void correctPosition() {
         // Trying to use Math.clamp gave out of bounds issues or something. This is simpler.
-        x = Math.max(0, Math.min(x, panel.getWidth() - spriteWidth));
-        y = Math.max(0, Math.min(y, panel.getHeight() - spriteHeight));
+        x = Math.max(0, Math.min(x, panel.getWidth() - getSpriteWidth()));
+        y = Math.max(0, Math.min(y, panel.getHeight() - getSpriteHeight()));
     }
 }

@@ -46,7 +46,8 @@ public class Animation implements Updateable, Renderable {
      */
     private long lastUpdateTime;
     /**
-     * Indicates if the animation is currently playing.
+     * Indicates if the animation is currently playing. Defaults to
+     * {@code false}.
      */
     private boolean isPlaying;
 
@@ -87,12 +88,21 @@ public class Animation implements Updateable, Renderable {
     }
 
     /**
+     * Returns whether the animation has any frames.
+     *
+     * @return {@code true} if there are frames; {@code false} otherwise.
+     */
+    public boolean isEmpty() {
+        return frames.isEmpty();
+    }
+
+    /**
      * Returns the current frame's image.
      *
      * @return The image of the current frame, or null if there are no frames.
      */
     public BufferedImage getCurrentFrameImage() {
-        return frames.isEmpty() ? null : getFrame(currentFrameIndex).image;
+        return frames.isEmpty() ? null : frames.get(currentFrameIndex).image;
     }
 
     /**
@@ -104,17 +114,13 @@ public class Animation implements Updateable, Renderable {
         return frames.size();
     }
 
-    private AnimationFrame getFrame(int i) {				// returns ith frame in the collection
-        return frames.get(i);
-    }
-
     /**
      * Checks whether the animation is currently playing.
      *
-     * @return true if the animation is active, false otherwise.
+     * @return true if the animation is playing, false otherwise.
      */
     public boolean isPlaying() {
-        return isPlaying;
+        return !frames.isEmpty() && isPlaying;
     }
 
     // ----- SETTERS -----
@@ -138,7 +144,7 @@ public class Animation implements Updateable, Renderable {
 
     /**
      * Sets the position at which the animation will be rendered.
-     * 
+     *
      * @param x The x-coordinate
      * @param y The y-coordinate
      */
@@ -153,7 +159,7 @@ public class Animation implements Updateable, Renderable {
      */
     @Override
     public void update() {
-        if (!isPlaying || frames.isEmpty()) {
+        if (!isPlaying || isEmpty()) {
             return;
         }
 
@@ -186,7 +192,8 @@ public class Animation implements Updateable, Renderable {
      * Loads animation frames from a given strip file.
      * <p>
      * Note: A valid strip file has no margins (i.e., no space between the
-     * frames themselves and the outer borders of the image itself).
+     * frames themselves and the outer borders of the image itself). It can
+     * however have space *in-between* each frame.
      *
      * @param fileUrl The URL of the strip file.
      * @param frameDurationMs How many milliseconds to display each frame.
@@ -198,26 +205,50 @@ public class Animation implements Updateable, Renderable {
      * file.
      */
     public void loadStripFile(final String fileUrl, final long frameDurationMs, final int numRows, final int numColumns, final int horizontalSpace, final int verticalSpace) {
-        BufferedImage stripImage = ImageManager.loadBufferedImage(fileUrl);
-        int frameWidth = (stripImage.getWidth() - (numColumns - 1) * horizontalSpace) / numColumns;
-        int frameHeight = (stripImage.getHeight() - (numRows - 1) * verticalSpace) / numRows;
-
-        for (int row = 0; row < numRows; row++) {
-            for (int column = 0; column < numColumns; column++) {
-                int leftX = column * (frameWidth + horizontalSpace);
-                int upperY = row * (frameHeight + verticalSpace);
-
-                BufferedImage croppedImage = stripImage.getSubimage(leftX, upperY, frameWidth, frameHeight);
-
-                // Create a new copy of the cropped image to preserve the original's memory integrity
-                BufferedImage frameImage = new BufferedImage(frameWidth, frameHeight, BufferedImage.TYPE_INT_ARGB);
-                Graphics2D g = frameImage.createGraphics();
-                g.drawImage(croppedImage, 0, 0, null);
-                g.dispose();
-
-                addFrame(frameImage, frameDurationMs);
-            }
+        if (fileUrl == null || fileUrl.isEmpty()) {
+            throw new IllegalArgumentException(String.format(
+                    "%s: Must provide a strip animation file URL to load from.",
+                    this.getClass().getName()
+            ));
         }
+
+        if (frameDurationMs <= 0) {
+            throw new IllegalArgumentException(String.format(
+                    "%s: Frame duration must be a positive value.",
+                    this.getClass().getName()
+            ));
+        }
+
+        if (numRows <= 0) {
+            throw new IllegalArgumentException(String.format(
+                    "%s: Number of rows must be a positive value.",
+                    this.getClass().getName()
+            ));
+        }
+
+        if (numColumns <= 0) {
+            throw new IllegalArgumentException(String.format(
+                    "%s: Number of colums must be a positive value.",
+                    this.getClass().getName()
+            ));
+        }
+        safeLoadStripAnimation(fileUrl, frameDurationMs, numRows, numColumns, Math.abs(horizontalSpace), Math.abs(verticalSpace));
+    }
+
+    /**
+     * Loads animation frames from a given strip file that has with no
+     * horizontal/vertical space between frames.
+     * <p>
+     * Note: A valid strip file has no margins (i.e., no space between the
+     * frames themselves and the outer borders of the image itself).
+     *
+     * @param fileUrl The URL of the strip file.
+     * @param frameDurationMs How many milliseconds to display each frame.
+     * @param numRows The number of rows in the strip file.
+     * @param numColumns The number of columns in the strip file.
+     */
+    public void loadStripFile(final String fileUrl, final long frameDurationMs, final int numRows, final int numColumns) {
+        loadStripFile(fileUrl, frameDurationMs, numRows, numColumns, 0, 0);
     }
 
     /**
@@ -244,6 +275,13 @@ public class Animation implements Updateable, Renderable {
      * Starts this animation over from the beginning.
      */
     public void start() {
+        if (isEmpty()) {
+            throw new IllegalStateException(String.format(
+                    "%s: Cannot start an empty animation",
+                    this.getClass().getName()
+            ));
+
+        }
         isPlaying = true;
         currentFrameIndex = 0;
         elapsedFrameDisplayTime = 0;
@@ -266,14 +304,42 @@ public class Animation implements Updateable, Renderable {
      * accordingly.
      */
     private void nextFrame() {
+        if (isEmpty()) {
+            return;
+        }
+
         if (currentFrameIndex >= frames.size() - 1) {
             if (isLooping) {
                 currentFrameIndex = 0;
             } else {
                 stop();
+
             }
         } else {
             currentFrameIndex++;
+        }
+    }
+
+    private void safeLoadStripAnimation(final String fileUrl, final long frameDurationMs, final int numRows, final int numColumns, final int horizontalSpace, final int verticalSpace) {
+        BufferedImage stripImage = ImageManager.loadBufferedImage(fileUrl);
+        int frameWidth = (stripImage.getWidth() - (numColumns - 1) * horizontalSpace) / numColumns;
+        int frameHeight = (stripImage.getHeight() - (numRows - 1) * verticalSpace) / numRows;
+
+        for (int row = 0; row < numRows; row++) {
+            for (int column = 0; column < numColumns; column++) {
+                int leftX = column * (frameWidth + horizontalSpace);
+                int upperY = row * (frameHeight + verticalSpace);
+
+                BufferedImage croppedImage = stripImage.getSubimage(leftX, upperY, frameWidth, frameHeight);
+
+                // Create a new copy of the cropped image to preserve the original's memory integrity
+                BufferedImage frameImage = new BufferedImage(frameWidth, frameHeight, BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g = frameImage.createGraphics();
+                g.drawImage(croppedImage, 0, 0, null);
+                g.dispose();
+
+                addFrame(frameImage, frameDurationMs);
+            }
         }
     }
 
@@ -301,7 +367,21 @@ public class Animation implements Updateable, Renderable {
          * @param frameDurationMs How many milliseconds to display the frame
          * for.
          */
-        public AnimationFrame(final String imageUrl, long frameDurationMs) {
+        public AnimationFrame(final String imageUrl, final long frameDurationMs) {
+            if (imageUrl == null || imageUrl.isEmpty()) {
+                throw new IllegalArgumentException(String.format(
+                        "%s: Must provide a URL.",
+                        this.getClass().getName()
+                ));
+            }
+
+            if (frameDurationMs <= 0) {
+                throw new IllegalArgumentException(String.format(
+                        "%s: Must provide a positive duration.",
+                        this.getClass().getName()
+                ));
+            }
+
             this.image = ImageManager.loadBufferedImage(imageUrl);
             this.frameDurationMs = frameDurationMs;
         }
@@ -310,11 +390,25 @@ public class Animation implements Updateable, Renderable {
          * Constructs a new animation frame using a pre-loaded
          * {@link BufferedImage}.
          *
-         * @param imageUrl The URL of the displayed image.
+         * @param imageUrl The displayed image.
          * @param frameDurationMs How many milliseconds to display the frame
          * for.
          */
-        public AnimationFrame(final BufferedImage image, long frameDurationMs) {
+        public AnimationFrame(final BufferedImage image, final long frameDurationMs) {
+            if (image == null) {
+                throw new IllegalArgumentException(String.format(
+                        "%s: Must provide an image.",
+                        this.getClass().getName()
+                ));
+            }
+
+            if (frameDurationMs <= 0) {
+                throw new IllegalArgumentException(String.format(
+                        "%s: Must provide a positive duration.",
+                        this.getClass().getName()
+                ));
+            }
+
             this.image = image;
             this.frameDurationMs = frameDurationMs;
         }

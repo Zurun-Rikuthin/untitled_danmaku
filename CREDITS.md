@@ -8,6 +8,8 @@ This project includes assets created by various artists and developers. Below is
 
 - **"Collision Detection (An Overview) (UPDATED!)"** by *MacroPixel* ([YouTube](https://www.youtube.com/watch?v=oOEnWQZIePs))
 
+- **"Bounding Box Collision Detection"** by *Teklectic* ([Youtube](https://www.youtube.com/watch?v=8b_reDI7iPM))
+
 - **"Sparen's Danmaku Design Studio - Danmaku Design Guides"** by *Andrew Fan/Sparen* ([GitHub](https://sparen.github.io/ph3tutorials/danmakudesign.html))
 
 ---
@@ -90,4 +92,4 @@ For more information, refer to the individual asset license pages.
 
 ---
 
-*Last Updated: [2025-03-14 09:35 UTC-04:00]*
+*Last Updated: [2025-03-14 14:57 UTC-04:00]*

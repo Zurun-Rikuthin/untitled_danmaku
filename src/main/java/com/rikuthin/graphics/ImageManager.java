@@ -37,9 +37,13 @@ public class ImageManager {
      * regular file.
      *
      * @param filepath The file path (relative or absolute).
-     * @return The BufferedImage object.
+     * @return The loaded image object (if possible); {@code null} if a
+     * null/empty filepath is provided or the image cannot be found.
      */
     public static BufferedImage loadBufferedImage(final String filepath) {
+        if (filepath == null || filepath.isEmpty()) {
+            return null;
+        }
         BufferedImage bufferedImage = null;
 
         try {
