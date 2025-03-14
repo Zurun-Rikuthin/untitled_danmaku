@@ -36,6 +36,10 @@ public abstract class Entity implements Renderable {
      */
     protected boolean isInvisible;
     /**
+     * Determines if the entity can collide with others.
+     */
+    protected boolean isCollidable;
+    /**
      * The URL for the entity's sprite;
      */
     protected String spriteUrl;
@@ -74,6 +78,9 @@ public abstract class Entity implements Renderable {
      * <p>
      * The entity's hitbox defaults to the sprite dimensions and position if a
      * sprite is loaded.
+     * <p>
+     * Note: ALL hitboxes are rectangles (NOT quadrilaterals or other polygonal
+     * shapes).
      *
      * @param panel The parent {@link JPanel} to which the entity belongs.
      * @param x The initial x-coordinate.
@@ -81,8 +88,9 @@ public abstract class Entity implements Renderable {
      * @param isInvisible Whether the entity is invisible and does not render
      * its sprite (even if one is set).
      * @param spriteUrl The URL for the entity's sprite.
+     * @param isCollidable Whether the entity can collide with others.
      */
-    protected Entity(final JPanel panel, final int x, final int y, final boolean isInvisible, final String spriteUrl) {
+    protected Entity(final JPanel panel, final int x, final int y, final boolean isInvisible, final String spriteUrl, final boolean isCollidable) {
         this.panel = panel;
 
         if (panel == null) {
@@ -97,6 +105,7 @@ public abstract class Entity implements Renderable {
         setSprite(spriteUrl);
         setHitboxPosition(x, y);
         setHitboxSize(spriteWidth, spriteHeight);
+        setCollidability(isCollidable);
     }
 
     // ----- GETTERS -----
@@ -208,6 +217,15 @@ public abstract class Entity implements Renderable {
         return hitboxHeight;
     }
 
+    /**
+     * Returns whether the entity can collide with others.
+     *
+     * @return {@code true} if the entity can collide, otherwise {@code false}.
+     */
+    public boolean isCollidable() {
+        return isCollidable;
+    }
+
     // ----- SETTERS -----
     /**
      * Sets the position of the entity's top-left corner.
@@ -237,8 +255,8 @@ public abstract class Entity implements Renderable {
      * sprite height/width are set according to the width and height of the
      * loaded image.
      * <p>
-     * Note: If isInvisible is set to true, the sprite will still be set, just
-     * not rendered.
+     * Note: If the entity is invisible, the sprite will still be set, just not
+     * rendered.
      *
      * @param spriteUrl The URL for the entity's sprite.
      */
@@ -271,12 +289,45 @@ public abstract class Entity implements Renderable {
         this.hitboxHeight = Math.abs(height);
     }
 
+    /**
+     * Sets whether the entity can collide with others.
+     *
+     * @param isInvisible {@code true} if the entity can collide, otherwise
+     * {@code false}.
+     */
+    public final void setCollidability(final boolean isCollidable) {
+        this.isCollidable = isCollidable;
+    }
+
     // ----- BUSINESS LOGIC METHODS -----
     public boolean isWithinPanel() {
         return x >= 0
                 && y >= 0
                 && x + spriteWidth < panel.getWidth()
                 && y + spriteHeight < panel.getHeight();
+    }
+
+    /**
+     * Checks whether this entity's (rectangular) hitbox collides with another
+     * rectangular space using the Axis Aligned Bounding Boxes (AABB) algorithm.
+     *
+     * @return {@code true} if the two spaces intersect;
+     * {@code false otherwise}.
+     */
+    public boolean collides(final int x, final int y, final int width, final int height) {
+        return ((this.x + this.hitboxWidth >= x) && (this.y + hitboxHeight >= y))
+                || ((x + width >= this.x) && (y + height >= this.y));
+    }
+
+    /**
+     * Checks whether this entity's (rectangular) hitbox collides another's
+     * using the Axis Aligned Bounding Boxes (AABB) algorithm.
+     *
+     * @return {@code true} if the two spaces intersect;
+     * {@code false otherwise}.
+     */
+    public boolean collides(final Entity entity) {
+        return collides(entity.getX(), entity.getY(), entity.getHitboxWidth(), entity.getHitboxHeight());
     }
 
     // ----- OVERRIDDEN METHODS -----
@@ -292,7 +343,8 @@ public abstract class Entity implements Renderable {
      * @return {@code true} if the entities are equal; {@code false} otherwise
      */
     @Override
-    public boolean equals(final Object obj) {
+    public boolean equals(final Object obj
+    ) {
         if (this == obj) {
             return true;
         }
@@ -345,7 +397,8 @@ public abstract class Entity implements Renderable {
      * @param g2 The Graphics2D object used for rendering the entity.
      */
     @Override
-    public void render(final Graphics2D g2d) {
+    public void render(final Graphics2D g2d
+    ) {
         if (isInvisible) {
             return;
         }
