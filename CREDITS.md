@@ -28,6 +28,15 @@ This project includes assets created by various artists and developers. Below is
     - Redistribution or resale of the graphics outside of a packaged game is prohibited.  
     - Credit is appreciated but not required.
 
+- **"500 Pixel Bullet 24x24 Free"** [bullet animation sprites](https://bdragon1727.itch.io/500-pixel-bullet-24x24) by [BDragon1727](https://bdragon1727.itch.io/)
+
+  - **License Notes:**
+    - Free to use on non-commercial games.
+    - If you will be using on a commercial game, please contribute (any value).
+    - Modify as desired.
+    - You cannot do:
+      - Resell / redistribute this asset.
+
 ---
 
 ## 🎵 Music & Sound Effects  
@@ -63,7 +72,7 @@ This project includes assets created by various artists and developers. Below is
 
 ## 🏗️ Contributors  
 
-- **Zurun-Rikuthin [Skyler Almarales]** - Developer, UI Designer, Sound Designer, etc.
+- **Zurun-Rikuthin [Skyler Almarales]** - Developer, UI Designer, Sound Designer, etc. *(Also for Untitled Bubble Shooter)*
 
 - **Dr. Permanand Mohan (Teacher)** - Original Codebase (*BatAlienGame-ScrollingBackground-Vert*)
 
@@ -81,4 +90,4 @@ For more information, refer to the individual asset license pages.
 
 ---
 
-_Last Updated: [2025-03-12 07:42 UTC-04:00]_
+*Last Updated: [2025-03-14 09:35 UTC-04:00]*
