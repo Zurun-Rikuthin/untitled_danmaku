@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 import com.rikuthin.entities.Player;
+import com.rikuthin.graphics.Animation;
 
 /**
  * A component that displays all the game entities
@@ -11,6 +12,7 @@ import com.rikuthin.entities.Player;
 public class GamePanel extends Subpanel {
 
     private Player player;
+    private Animation testAnimation;
 
     public GamePanel(final int width, final int height, final String backgroundImageURL) {
         super(width, height, backgroundImageURL);
@@ -18,6 +20,10 @@ public class GamePanel extends Subpanel {
         // Background colour used as a backup in case the image deosn't load.
         setBackground(new Color(200, 170, 170));
         initialisePlayer(width, height);
+
+        testAnimation = new Animation(100, 100, true);
+        testAnimation.loadStripFile("/images/animations/Bullet 24x24 Free  Part 1B.png", (long) 16.7, 15, 24, 0, 0);
+        testAnimation.start();
     }
 
     /**
@@ -25,7 +31,13 @@ public class GamePanel extends Subpanel {
      */
     @Override
     public void update() {
-        player.move();
+        if (player != null) {
+            player.move();
+        }
+        
+        if (testAnimation != null) {
+            testAnimation.update();
+        }        
     }
 
     public Player getPlayer() {
@@ -41,6 +53,10 @@ public class GamePanel extends Subpanel {
 
         if (player != null) {
             player.safeRender(g2d);
+        }
+
+        if (testAnimation != null) {
+            testAnimation.safeRender(g2d);
         }
     }
 

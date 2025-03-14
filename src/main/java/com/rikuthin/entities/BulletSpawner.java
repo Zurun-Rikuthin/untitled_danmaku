@@ -40,20 +40,6 @@ public class BulletSpawner extends Entity {
 
     // ----- CONSTRUCTORS -----
     /**
-     * Constructs a new empty Spawner.
-     *
-     * @param panel The {@code JPanel} in which bullets are spawned.
-     * @param x The initial x-coordinate.
-     * @param y The initial y-coordinate.
-     */
-    public BulletSpawner(final JPanel panel, final int x, final int y) {
-        super(panel, x, y, true, null, false);
-        bulletSpriteUrl = null;
-        shotSpeed = 0;
-        isSpawning = false;
-    }
-
-    /**
      * Constructs a new Spawner for a specific bullet type.
      *
      * @param panel The parent {@code JPanel} in which the bullets are spawned.
@@ -62,7 +48,7 @@ public class BulletSpawner extends Entity {
      * @param bulletType The type of bullets spawned.
      */
     public BulletSpawner(final JPanel panel, final int x, final int y, final String bulletSpriteUrl) {
-        super(panel, x, y, true, null, false);
+        super(panel, x, y, true, "", false);
         this.bulletSpriteUrl = bulletSpriteUrl;
         this.shotSpeed = 0;
         isSpawning = false;

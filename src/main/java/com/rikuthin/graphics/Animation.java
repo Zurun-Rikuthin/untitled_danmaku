@@ -1,10 +1,9 @@
-package com.rikuthin.animations;
+package com.rikuthin.graphics;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import com.rikuthin.graphics.ImageManager;
 import com.rikuthin.interfaces.Renderable;
 import com.rikuthin.interfaces.Updateable;
 
@@ -119,6 +118,30 @@ public class Animation implements Updateable, Renderable {
     }
 
     // ----- SETTERS -----
+    /**
+     * Sets the x-coordinate of the animation's top-left corner.
+     *
+     * @param x The new x-coordinate.
+     */
+    public final void setX(final int x) {
+        this.x = x;
+    }
+
+    /**
+     * Sets the y-coordinate of the animation's top-left corner.
+     *
+     * @param x The new y-coordinate.
+     */
+    public final void setY(final int y) {
+        this.y = y;
+    }
+
+    /**
+     * Sets the position at which the animation will be rendered.
+     * 
+     * @param x The x-coordinate
+     * @param y The y-coordinate
+     */
     public void setPosition(final int x, final int y) {
         this.x = x;
         this.y = y;
@@ -145,6 +168,11 @@ public class Animation implements Updateable, Renderable {
         }
     }
 
+    /**
+     * Renders the current frame at the animations's x and y position.
+     *
+     * @param g2 The Graphics2D object used for rendering the entity.
+     */
     @Override
     public void render(Graphics2D g2d) {
         BufferedImage currentImage = frames.get(currentFrameIndex).image;

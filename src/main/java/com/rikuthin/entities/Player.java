@@ -38,7 +38,7 @@ public class Player extends Entity {
      * @param speed The movement speed in pixels per frame.
      */
     public Player(final JPanel panel, final int x, final int y, final String spriteUrl, final int speed) {
-        super(panel, x, y, false, spriteUrl);
+        super(panel, x, y, false, spriteUrl, true);
         this.speed = speed;
         this.movingUp = false;
         this.movingDown = false;

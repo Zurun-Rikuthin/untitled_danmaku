@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import javax.swing.JPanel;
 
+import com.rikuthin.graphics.Animation;
 import com.rikuthin.graphics.ImageManager;
 import com.rikuthin.interfaces.Renderable;
 
@@ -74,7 +75,7 @@ public abstract class Entity implements Renderable {
 
     // ----- CONSTRUCTORS -----
     /**
-     * Constructs an entity with the specified properties.
+     * Constructs an entity with a static sprite.
      * <p>
      * The entity's hitbox defaults to the sprite dimensions and position if a
      * sprite is loaded.
@@ -91,6 +92,41 @@ public abstract class Entity implements Renderable {
      * @param isCollidable Whether the entity can collide with others.
      */
     protected Entity(final JPanel panel, final int x, final int y, final boolean isInvisible, final String spriteUrl, final boolean isCollidable) {
+        this.panel = panel;
+
+        if (panel == null) {
+            throw new IllegalArgumentException(String.format(
+                    "%s: Panel cannot be null",
+                    this.getClass().getName()
+            ));
+        }
+
+        setPosition(x, y);
+        setInvisibility(isInvisible);
+        setSprite(spriteUrl);
+        setHitboxPosition(x, y);
+        setHitboxSize(spriteWidth, spriteHeight);
+        setCollidability(isCollidable);
+    }
+
+    /**
+     * Constructs an entity with a static sprite.
+     * <p>
+     * The entity's hitbox defaults to the sprite dimensions and position if a
+     * sprite is loaded.
+     * <p>
+     * Note: ALL hitboxes are rectangles (NOT quadrilaterals or other polygonal
+     * shapes).
+     *
+     * @param panel The parent {@link JPanel} to which the entity belongs.
+     * @param x The initial x-coordinate.
+     * @param y The initial y-coordinate.
+     * @param isInvisible Whether the entity is invisible and does not render
+     * its sprite (even if one is set).
+     * @param spriteUrl The URL for the entity's sprite.
+     * @param isCollidable Whether the entity can collide with others.
+     */
+    protected Entity(final JPanel panel, final int x, final int y, final boolean isInvisible, final Animation animation, final boolean isCollidable) {
         this.panel = panel;
 
         if (panel == null) {
@@ -228,6 +264,24 @@ public abstract class Entity implements Renderable {
 
     // ----- SETTERS -----
     /**
+     * Sets the x-coordinate of the entity's top-left corner.
+     *
+     * @param x The new x-coordinate.
+     */
+    public final void setX(final int x) {
+        this.x = x;
+    }
+
+    /**
+     * Sets the y-coordinate of the entity's top-left corner.
+     *
+     * @param x The new y-coordinate.
+     */
+    public final void setY(final int y) {
+        this.y = y;
+    }
+
+    /**
      * Sets the position of the entity's top-left corner.
      *
      * @param x The new x-coordinate.
@@ -343,8 +397,8 @@ public abstract class Entity implements Renderable {
      * to provide futher functionality.
      * <p>
      * By default, two entities are considered equal if they have the same
-     * parent panel, position, sprite (image, URL, and dimensions) and hitbox
-     * (position and dimensions.
+     * parent panel, position, sprite (image, URL, and dimensions), hitbox
+     * (position and dimensions), and invisibility and collidability statuses.
      *
      * @param obj the object to compare with
      * @return {@code true} if the entities are equal; {@code false} otherwise
@@ -369,15 +423,17 @@ public abstract class Entity implements Renderable {
                 && Integer.compare(hitboxX, other.getHitboxX()) == 0
                 && Integer.compare(hitboxY, other.getHitboxY()) == 0
                 && Integer.compare(hitboxWidth, other.getHitboxWidth()) == 0
-                && Integer.compare(hitboxHeight, other.getHitboxHeight()) == 0;
+                && Integer.compare(hitboxHeight, other.getHitboxHeight()) == 0
+                && Boolean.compare(isInvisible, other.isInvisible()) == 0
+                && Boolean.compare(isCollidable, other.isCollidable()) == 0;
     }
 
     /**
      * Computes the hash code for this entity.
      * <p>
      * By default, the hash is calculated using the entity's parent panel,
-     * position, sprite (image, URL, and dimensions) and hitbox (position and
-     * dimensions.
+     * position, sprite (image, URL, and dimensions), hitbox (position and
+     * dimensions, and invisibility and collidability statuses.
      *
      * @return the hash code of this entity
      */
@@ -394,7 +450,9 @@ public abstract class Entity implements Renderable {
                 hitboxX,
                 hitboxY,
                 hitboxWidth,
-                hitboxHeight
+                hitboxHeight,
+                isInvisible,
+                isCollidable
         );
     }
 

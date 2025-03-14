@@ -33,7 +33,7 @@ public class Bullet extends Entity {
      * @param spriteUrl The URL for the bullet's sprite.
      */
     public Bullet(final JPanel panel, final int x, final int y, final String spriteUrl) {
-        super(panel, x, y, true, spriteUrl);
+        super(panel, x, y, true, spriteUrl, true);
         this.bearing = null;
         this.speed = 0;
     }
@@ -49,7 +49,7 @@ public class Bullet extends Entity {
      * @param speed The bullet's movement speed in pixels per frame.
      */
     public Bullet(final JPanel panel, final int x, final int y, final String spriteUrl, final Bearing2D bearing, final double speed) {
-        super(panel, x, y, true, spriteUrl);
+        super(panel, x, y, true, spriteUrl, true);
         this.bearing = bearing;
         this.speed = speed;
     }
