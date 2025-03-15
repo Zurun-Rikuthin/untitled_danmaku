@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import javax.swing.JPanel;
 
+import com.rikuthin.core.GameManager;
 import com.rikuthin.graphics.Animation;
 import com.rikuthin.utility.Bearing2D;
 
@@ -241,28 +242,32 @@ public class BulletSpawner extends Entity {
     /**
      * Spawns a new bullet instance using the current stored values.
      * <p>
-     * The bullet is created at the spawner's position and moves along the given
-     * bearing.
-     * <p>
      * The creation of animated bullets is prioritised. If no bullet animation
      * is set, the spawner will use the set static sprite.
+     * <p>
+     * Following creation, the new bullet is additionally added to the
+     * GameManager's managed list of bullets.
      *
      * @return the newly created {@link Bullet} instance
      */
     public Bullet spawnBullet() {
+        Bullet bullet;
+
         if (bulletAnimation != null) {
-            return new Bullet(panel, position, bulletAnimation, bearing, bulletSpeed);
+            bullet = new Bullet(panel, position, bulletAnimation, bearing, bulletSpeed);
         } else {
-            return new Bullet(panel, position, bulletSpriteUrl, bearing, bulletSpeed);
+            bullet = new Bullet(panel, position, bulletSpriteUrl, bearing, bulletSpeed);
         }
+
+        GameManager.getInstance().addBullet(bullet);
+        return bullet;
     }
 
     /**
-     * Spawns a new bullet instance using the provided values.
+     * Spawns a new bullet instance with a static sprite using the provided values.
      * <p>
-     * The bullet is created at the spawner's position and moves along the given
-     * bearing.
-     * </p>
+     * Following creation, the new bullet is additionally added to the
+     * GameManager's managed list of bullets.
      *
      * @param bulletSpriteUrl The URL for the spawned bullet's sprite.
      * @param bearing The direction the bullet will move in.
@@ -271,7 +276,27 @@ public class BulletSpawner extends Entity {
      * @return the newly created {@link Bullet} instance
      */
     public Bullet spawnBullet(final String bulletSpriteUrl, final Bearing2D bearing, final double shotSpeed) {
-        return new Bullet(panel, position, bulletSpriteUrl, bearing, shotSpeed);
+        Bullet bullet = new Bullet(panel, position, bulletSpriteUrl, bearing, shotSpeed);
+        GameManager.getInstance().addBullet(bullet);
+        return bullet;
+    }
+
+    /**
+     * Spawns a new bullet instance with an animatedsprite using the provided values.
+     * <p>
+     * Following creation, the new bullet is additionally added to the
+     * GameManager's managed list of bullets.
+     *
+     * @param bulletAnimation The URL for the spawned bullet's sprite.
+     * @param bearing The direction the bullet will move in.
+     * @param shotSpeed The movement speed of the new bullet in pixels per
+     * frame.
+     * @return the newly created {@link Bullet} instance
+     */
+    public Bullet spawnBullet(final Animation animation, final Bearing2D bearing, final double shotSpeed) {
+        Bullet bullet = new Bullet(panel, position, animation, bearing, shotSpeed);
+        GameManager.getInstance().addBullet(bullet);
+        return bullet;
     }
 
     // ----- OVERRIDDEN METHODS -----

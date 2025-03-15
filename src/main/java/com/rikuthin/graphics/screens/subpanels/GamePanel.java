@@ -3,12 +3,10 @@ package com.rikuthin.graphics.screens.subpanels;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.util.ArrayList;
 
 import com.rikuthin.core.App;
-import com.rikuthin.entities.Bullet;
+import com.rikuthin.core.GameManager;
 import com.rikuthin.entities.BulletSpawner;
-import com.rikuthin.entities.Entity;
 import com.rikuthin.entities.Player;
 import com.rikuthin.graphics.Animation;
 import com.rikuthin.utility.Bearing2D;
@@ -19,9 +17,9 @@ import com.rikuthin.utility.Bearing2D;
 public class GamePanel extends Subpanel {
 
     // ----- INSTANCE VARIABLES -----
+    private GameManager gameManager;
     private Player player;
     private BulletSpawner spawner;
-    private ArrayList<Bullet> bullets;
 
     // ----- CONSTRUCTORS -----
     public GamePanel(final int width, final int height, final String backgroundImageURL) {
@@ -31,7 +29,8 @@ public class GamePanel extends Subpanel {
         setBackground(new Color(200, 170, 170));
         initialisePlayer(width, height);
 
-        bullets = new ArrayList<>();
+        gameManager = GameManager.getInstance();
+        gameManager.init();
 
         Animation bulletAnimation = new Animation(new Point(100, 100), true);
         bulletAnimation.loadStripFile("/images/animations/bullet-1.png", App.FRAME_RATE_MS, 15, 24);
@@ -55,10 +54,8 @@ public class GamePanel extends Subpanel {
             spawner.update();
         }
 
-        for (Bullet b : bullets) {
-            b.update();
-        }
-        bullets.removeIf(Entity::isFullyOutsidePanel);
+        gameManager.updateBullets();
+        gameManager.removeOffScreenBullets();
     }
 
     public Player getPlayer() {
@@ -80,9 +77,7 @@ public class GamePanel extends Subpanel {
             spawner.safeRender(g2d);
         }
 
-        for (Bullet b : bullets) {
-            b.safeRender(g2d);
-        }
+        gameManager.renderBullets(g2d);
     }
 
     // ----- HELPER METHODS -----

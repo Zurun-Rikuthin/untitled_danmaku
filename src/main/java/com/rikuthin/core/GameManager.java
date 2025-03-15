@@ -1,9 +1,14 @@
 package com.rikuthin.core;
 
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.Timer;
 
+import com.rikuthin.entities.Bullet;
+import com.rikuthin.entities.Entity;
 import com.rikuthin.graphics.GameFrame;
 import com.rikuthin.graphics.dialogue.PauseMenuDialogue;
 import com.rikuthin.graphics.screens.subpanels.GamePanel;
@@ -16,30 +21,31 @@ import com.rikuthin.graphics.screens.subpanels.InfoPanel;
 // import com.rikuthin.screen_panels.gameplay_subpanels.BubblePanel;
 // import com.rikuthin.screen_panels.gameplay_subpanels.StatusPanel;
 // import com.rikuthin.utility.RandomColour;
-
 public class GameManager {
 
+    // ----- STATIC VARIABLES -----
     private static GameManager instance;
 
+    // ----- INSTANCE VARIABLES -----
     private GamePanel gamePanel;
     private InfoPanel infoPanel;
     private Timer gameplayTimer;
-    private int remainingBubbles;
-    private int elapsedSeconds;
-    private int score;
-    private boolean canShootBlaster;
-    private boolean gameActive;
+    private ArrayList<Bullet> bullets;
+    // private int elapsedSeconds;
+    // private int score;
+    // private boolean canShootBlaster;
+    // private boolean gameActive;
     private boolean isPaused;
 
+    // ----- CONSTRUCTORS -----
+    /**
+     * Private constructor to hide the public one.
+     */
     private GameManager() {
-        remainingBubbles = 0;
-        elapsedSeconds = 0;
-        score = 0;
-        gameActive = false;
-        canShootBlaster = false;
-        isPaused = false;
+        init();
     }
 
+    // ----- GETTERS -----
     /**
      * Returns the singleton instance of the GameManager.
      *
@@ -60,6 +66,15 @@ public class GameManager {
         return infoPanel;
     }
 
+    public List<Bullet> getBullets() {
+        return bullets;
+    }
+
+    public boolean isPaused() {
+        return isPaused;  // This should be updated when the pause menu is opened/closed
+    }
+
+    // ----- SETTERS -----
     public void setGamePanel(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
     }
@@ -75,7 +90,6 @@ public class GameManager {
     //     if (blasterPanel == null || bubblePanel == null) {
     //         throw new IllegalStateException("Error: Game cannot start. BlasterPanel and BubblePanel must be set first.");
     //     }
-
     //     remainingBubbles = 100;
     //     elapsedSeconds = 0;
     //     score = 0;
@@ -84,12 +98,10 @@ public class GameManager {
     //     gameActive = true;
     //     canShootBlaster = true;
     //     isPaused = false;
-
     //     // Initialise and start the game timer (updates every second).
     //     gameTimer = new Timer(1000, this::onTimerTick);
     //     gameTimer.start();
     // }
-
     // /**
     //  * Shoots a bubble towards a target point. Reduces the number of remaining
     //  * bubbles if possible.
@@ -100,16 +112,12 @@ public class GameManager {
     //     if (!gameActive) {
     //         throw new IllegalStateException("Error: Cannot shoot bubble. Game has not started.");
     //     }
-
     //     if (remainingBubbles > 0) {
     //         if (canShootBlaster) {
     //             canShootBlaster = false;
-
     //             Blaster blaster = blasterPanel.getBlaster();
     //             Bubble newBubble = blaster.shootBubble(target, nextRandomColour());
-
     //             bubblePanel.addBubble(newBubble);
-
     //             remainingBubbles--;
     //             blasterPanel.updateRemainingBubblesCounter(remainingBubbles);
     //         } else {
@@ -119,11 +127,9 @@ public class GameManager {
     //         System.err.println("Warning: No more bubbles left to shoot.");
     //     }
     // }
-
     // public void onBubbleMovementComplete() {
     //     canShootBlaster = true;
     // }
-
     // /**
     //  * Chooses the next bubble's color randomly.
     //  *
@@ -135,16 +141,13 @@ public class GameManager {
     //     }
     //     return RandomColour.getRandomColour();
     // }
-
     // public int getScore() {
     //     return score;
     // }
-
     // public void setScore(final int score) {
     //     this.score = score;
     //     updateScoreDisplay();
     // }
-
     // /**
     //  * Updates the displayed score and internal score counter.
     //  *
@@ -153,7 +156,6 @@ public class GameManager {
     // public final void updateScoreDisplay() {
     //     statusPanel.updateScoreDisplay(score);
     // }
-
     // /**
     //  * Updates the timer label with a formatted elapsed time string.
     //  *
@@ -162,11 +164,6 @@ public class GameManager {
     // public void updateTimerDisplay() {
     //     statusPanel.updateTimerDisplay(elapsedSeconds);
     // }
-
-    public boolean isPaused() {
-        return isPaused;  // This should be updated when the pause menu is opened/closed
-    }
-
     // /**
     //  * Action invoked by the game timer every second. Increments the elapsed
     //  * time and updates the timer display.
@@ -177,6 +174,67 @@ public class GameManager {
     //     elapsedSeconds++;
     //     updateTimerDisplay();
     // }
+    // ----- BUSINESS LOGIC METHODS -----
+    /**
+     * Initialises the GameManager and its attributes..
+     */
+    public final void init() {
+        bullets = new ArrayList<>();
+        // remainingBubbles = 0;
+        // elapsedSeconds = 0;
+        // score = 0;
+        // gameActive = false;
+        // canShootBlaster = false;
+        isPaused = false;
+    }
+
+    /**
+     * Adds a new bullet to the managed list.
+     *
+     * @param bullet The new bullet
+     */
+    public void addBullet(final Bullet bullet) {
+        bullets.add(bullet);
+    }
+
+    /**
+     * Removes the first occurance of a specific bullet instance from the
+     * managed list.
+     *
+     * @param bullet
+     */
+    public void removeBullet(final Bullet bullet) {
+        bullets.remove(bullet);
+    }
+
+    /**
+     * Updates all bullets in the managed list.
+     *
+     * @param bullet
+     */
+    public void renderBullets(Graphics2D g2d) {
+        for (Bullet b : bullets) {
+            b.safeRender(g2d);
+        }
+    }
+
+    /**
+     * Updates all bullets in the managed list.
+     *
+     * @param bullet
+     */
+    public void updateBullets() {
+        for (Bullet b : bullets) {
+            b.update();
+        }
+    }
+
+    /**
+     * Removes bullet that are fully off-screen.
+     */
+    public void removeOffScreenBullets() {
+        bullets.removeIf(Entity::isFullyOutsidePanel);
+    }
 
     /**
      * Pauses the game when the pause button is clicked. Stops the timer and
@@ -190,6 +248,7 @@ public class GameManager {
         showPauseMenu();
     }
 
+    // ----- HELPER METHODS -----
     /**
      * Displays the pause menu dialogue.
      */
