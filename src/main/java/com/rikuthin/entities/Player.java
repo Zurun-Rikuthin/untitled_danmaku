@@ -1,5 +1,6 @@
 package com.rikuthin.entities;
 
+import java.awt.Point;
 import java.util.Objects;
 
 import javax.swing.JPanel;
@@ -37,8 +38,8 @@ public class Player extends Entity {
      * @param spriteUrl The URL for the player's sprite.
      * @param speed The movement speed in pixels per frame.
      */
-    public Player(final JPanel panel, final int x, final int y, final String spriteUrl, final int speed) {
-        super(panel, x, y, spriteUrl, false, true);
+    public Player(final JPanel panel, final Point position, final String spriteUrl, final int speed) {
+        super(panel, position, spriteUrl, false, true);
         this.speed = speed;
         this.movingUp = false;
         this.movingDown = false;
@@ -170,8 +171,7 @@ public class Player extends Entity {
         }
 
         // Apply movement
-        x += dx;
-        y += dy;
+        position.translate(dx, dy);
 
         // Ensure the player remains within bounds
         if (!isFullyWithinPanel()) {
@@ -235,7 +235,7 @@ public class Player extends Entity {
      */
     private void correctPosition() {
         // Trying to use Math.clamp gave out of bounds issues or something. This is simpler.
-        x = Math.max(0, Math.min(x, panel.getWidth() - getSpriteWidth()));
-        y = Math.max(0, Math.min(y, panel.getHeight() - getSpriteHeight()));
+        position.x = Math.max(0, Math.min(position.x, panel.getWidth() - getSpriteWidth()));
+        position.y = Math.max(0, Math.min(position.y, panel.getHeight() - getSpriteHeight()));
     }
 }

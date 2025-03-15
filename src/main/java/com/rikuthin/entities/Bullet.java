@@ -1,5 +1,6 @@
 package com.rikuthin.entities;
 
+import java.awt.Point;
 import java.util.Objects;
 
 import javax.swing.JPanel;
@@ -34,8 +35,8 @@ public class Bullet extends Entity {
      * @param y The initial y-coordinate.
      * @param spriteUrl The URL for the bullet's sprite.
      */
-    public Bullet(final JPanel panel, final int x, final int y, final String spriteUrl, final Bearing2D bearing, final double speed) {
-        super(panel, x, y, spriteUrl, false, true);
+    public Bullet(final JPanel panel, final Point position, final String spriteUrl, final Bearing2D bearing, final double speed) {
+        super(panel, position, spriteUrl, false, true);
         this.bearing = bearing;
         this.speed = speed;
     }
@@ -50,8 +51,8 @@ public class Bullet extends Entity {
      * @param bearing The direction the bullet should move in.
      * @param speed The bullet's movement speed in pixels per frame.
      */
-    public Bullet(final JPanel panel, final int x, final int y, final Animation animation, final Bearing2D bearing, final double speed) {
-        super(panel, x, y, animation, true);
+    public Bullet(final JPanel panel, final Point position, final Animation animation, final Bearing2D bearing, final double speed) {
+        super(panel, position, animation, true);
         this.bearing = bearing;
         this.speed = speed;
     }
@@ -116,8 +117,8 @@ public class Bullet extends Entity {
 
         final double radians = Math.toRadians(bearing.getDegrees());
 
-        x += speed * Math.cos(radians);
-        y -= speed * Math.sin(radians); // Inverted for screen coordinates
+        position.x += speed * Math.cos(radians);
+        position.y -= speed * Math.sin(radians); // Inverted for screen coordinates
     }
 
     // ----- OVERRIDDEN METHODS -----

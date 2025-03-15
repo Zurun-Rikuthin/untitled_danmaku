@@ -1,6 +1,7 @@
 package com.rikuthin.entities;
 
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.Objects;
@@ -26,13 +27,9 @@ public abstract class Entity implements Updateable, Renderable {
      */
     protected JPanel panel;
     /**
-     * The x-coordinate of the entity sprite's top-left corner.
+     * The x and y coordinates of the entity sprite's top left corner.
      */
-    protected int x;
-    /**
-     * The y-coordinate of the entity sprite's top-left corner.
-     */
-    protected int y;
+    protected Point position;
     /**
      * The entity's current sprite image.
      */
@@ -71,14 +68,13 @@ public abstract class Entity implements Updateable, Renderable {
      * Note: Currently, ALL hitboxes are standard rectangles.
      *
      * @param panel The parent {@link JPanel} to which the entity belongs.
-     * @param x The initial x-coordinate.
-     * @param y The initial y-coordinate.
+     * @param position The initial position.
      * @param spriteUrl The URL for the entity's sprite.
      * @param isInvisible {@code true} if the entity should not render its
      * sprite; {@code false} otherwise.
      * @param isCollidable Whether the entity can collide with others.
      */
-    protected Entity(final JPanel panel, final int x, final int y, final String spriteUrl, final boolean isInvisible, final boolean isCollidable) {
+    protected Entity(final JPanel panel, final Point position, final String spriteUrl, final boolean isInvisible, final boolean isCollidable) {
         if (panel == null) {
             throw new IllegalArgumentException(String.format(
                     "%s: Panel cannot be null",
@@ -87,7 +83,7 @@ public abstract class Entity implements Updateable, Renderable {
         }
 
         this.panel = panel;
-        setPosition(x, y);
+        setPosition(position);
         setInvisibility(isInvisible);
         setSprite(spriteUrl);
         setAnimation(null);
@@ -105,12 +101,11 @@ public abstract class Entity implements Updateable, Renderable {
      * Note: Currently, ALL hitboxes are standard rectangles.
      *
      * @param panel The parent {@link JPanel} to which the entity belongs.
-     * @param x The initial x-coordinate.
-     * @param y The initial y-coordinate.
+     * @param position The initial position.
      * @param spriteUrl The URL for the entity's sprite.
      * @param isCollidable Whether the entity can collide with others.
      */
-    protected Entity(final JPanel panel, final int x, final int y, final Animation animation, final boolean isCollidable) {
+    protected Entity(final JPanel panel, final Point position, final Animation animation, final boolean isCollidable) {
         if (panel == null) {
             throw new IllegalArgumentException(String.format(
                     "%s: Panel cannot be null",
@@ -119,7 +114,7 @@ public abstract class Entity implements Updateable, Renderable {
         }
 
         this.panel = panel;
-        setPosition(x, y);
+        setPosition(position);
         setInvisibility(false);
         setAnimation(animation);
         this.isAnimated = true;
@@ -146,7 +141,7 @@ public abstract class Entity implements Updateable, Renderable {
      * @return The x-coordinate.
      */
     public int getX() {
-        return x;
+        return position.x;
     }
 
     /**
@@ -155,7 +150,16 @@ public abstract class Entity implements Updateable, Renderable {
      * @return The y-coordinate.
      */
     public int getY() {
-        return y;
+        return position.y;
+    }
+
+    /**
+     * Returns the coordinates of the entity's top-left corner.
+     *
+     * @return The coordinates.
+     */
+    public Point getPosition() {
+        return position;
     }
 
     /**
@@ -239,7 +243,7 @@ public abstract class Entity implements Updateable, Renderable {
      * @param x The new x-coordinate.
      */
     public final void setX(final int x) {
-        this.x = x;
+        position.x = x;
     }
 
     /**
@@ -248,7 +252,7 @@ public abstract class Entity implements Updateable, Renderable {
      * @param y The new y-coordinate.
      */
     public final void setY(final int y) {
-        this.y = y;
+        position.y = y;
     }
 
     /**
@@ -258,8 +262,17 @@ public abstract class Entity implements Updateable, Renderable {
      * @param y The new y-coordinate.
      */
     public final void setPosition(final int x, final int y) {
-        this.x = x;
-        this.y = y;
+        position.x = x;
+        position.y = y;
+    }
+
+    /**
+     * Sets the position of the entity's top-left corner.
+     *
+     * @param position The new coordinates.
+     */
+    public final void setPosition(final Point position) {
+        this.position = position;
     }
 
     /**
@@ -325,7 +338,7 @@ public abstract class Entity implements Updateable, Renderable {
 
         if (this.animation != null && !this.animation.isEmpty()) {
             setSprite(this.animation.getCurrentFrameImage());
-            this.animation.setPosition(x, y);
+            this.animation.setPosition(position);
         }
     }
 
@@ -342,6 +355,17 @@ public abstract class Entity implements Updateable, Renderable {
     }
 
     /**
+     * Sets the entity hitbox.
+     *
+     * @param position The coordinates of the hitbox's upper-left corner.
+     * @param width The width of the hitbox in pixels
+     * @param height The height of the hitbox in pixels
+     */
+    public final void setHitbox(final Point position, final int width, final int height) {
+        hitbox = new Rectangle(position.x, position.y, width, height);
+    }
+
+    /**
      * Sets the size of the entity's hitbox using the dimensions of the entity's
      * current sprite.
      * <p>
@@ -352,7 +376,7 @@ public abstract class Entity implements Updateable, Renderable {
         int hitboxWidth = sprite != null ? sprite.getWidth() : 0;
         int hitboxHeight = sprite != null ? sprite.getHeight() : 0;
 
-        setHitbox(x, y, hitboxWidth, hitboxHeight);
+        setHitbox(position, hitboxWidth, hitboxHeight);
     }
 
     /**
@@ -372,10 +396,10 @@ public abstract class Entity implements Updateable, Renderable {
      * @return {@code true} if the sprite can be fully rendered inside the panel; {@code false} otherwise.
      */
     public boolean isFullyWithinPanel() {
-        return x >= 0
-                && y >= 0
-                && x + getSpriteWidth() <= panel.getWidth()
-                && y + getSpriteHeight() <= panel.getHeight();
+        return position.x >= 0
+                && position.y >= 0
+                && position.x + getSpriteWidth() <= panel.getWidth()
+                && position.y + getSpriteHeight() <= panel.getHeight();
     }
 
     /**
@@ -384,7 +408,7 @@ public abstract class Entity implements Updateable, Renderable {
      * @return {@code true} if the sprite cannot be rendered at all inside the panel; {@code false otherwise}.
      */
     public boolean isFullyOutsidePanel() {
-        Rectangle spriteBounds = new Rectangle(x, y, getSpriteWidth(), getSpriteHeight());
+        Rectangle spriteBounds = new Rectangle(position.x, position.y, getSpriteWidth(), getSpriteHeight());
         Rectangle panelBounds = new Rectangle(0, 0, panel.getWidth(), panel.getHeight());
 
         return !spriteBounds.intersects(panelBounds);
@@ -441,8 +465,7 @@ public abstract class Entity implements Updateable, Renderable {
         }
         Entity other = (Entity) obj;
         return panel.equals(other.getPanel())
-                && Integer.compare(x, other.getX()) == 0
-                && Integer.compare(y, other.getY()) == 0
+                && Objects.equals(position, other.getPosition())
                 && Objects.equals(sprite, other.getSprite())
                 && Boolean.compare(isInvisible, other.isInvisible()) == 0
                 && Objects.equals(animation, other.getAnimation())
@@ -462,8 +485,7 @@ public abstract class Entity implements Updateable, Renderable {
     public int hashCode() {
         return Objects.hash(
                 panel,
-                x,
-                y,
+                position,
                 sprite,
                 isInvisible,
                 animation,
@@ -475,7 +497,7 @@ public abstract class Entity implements Updateable, Renderable {
     @Override
     public void update() {
         if (animation != null) {
-            animation.setPosition(x, y);
+            animation.setPosition(position);
             animation.update();
             setSprite(animation.getCurrentFrameImage());
             setHitboxFromCurrentSprite();
@@ -494,7 +516,7 @@ public abstract class Entity implements Updateable, Renderable {
         }
 
         if (sprite != null) {
-            g2d.drawImage(sprite, x, y, getSpriteWidth(), getSpriteHeight(), null);
+            g2d.drawImage(sprite, position.x, position.y, getSpriteWidth(), getSpriteHeight(), null);
         }
     }
 }

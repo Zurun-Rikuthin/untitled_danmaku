@@ -1,6 +1,7 @@
 package com.rikuthin.graphics;
 
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -21,13 +22,9 @@ public class Animation implements Updateable, Renderable {
     private final ArrayList<AnimationFrame> frames;
 
     /**
-     * The x-coordinate the animation is rendered at.
+     * The coordinates the animation is rendered at.
      */
-    private int x;
-    /**
-     * The y-coordinate the animation is rendered at.
-     */
-    private int y;
+    private Point position;
     /**
      * Indicates if the animation should loop.
      */
@@ -55,16 +52,16 @@ public class Animation implements Updateable, Renderable {
     /**
      * Creates a new, empty Animation.
      *
-     * @param x The x-coordinate to render the animation at.
-     * @param y The y-coordinate to render the animation at.
+     * @param position The coordinates to render the animation at.
      * @param isLooping Whether the animation should loop.
      */
-    public Animation(final int x, final int y, final boolean isLooping) {
+    public Animation(final Point position, final boolean isLooping) {
+        this.position = position;
+        this.isLooping = isLooping;
         this.frames = new ArrayList<>();
         this.currentFrameIndex = 0;
         this.elapsedFrameDisplayTime = 0;
         this.lastUpdateTime = System.currentTimeMillis();
-        this.isLooping = isLooping;
         this.isPlaying = false;
     }
 
@@ -75,7 +72,7 @@ public class Animation implements Updateable, Renderable {
      * @return The x-coordinate.
      */
     public int getX() {
-        return x;
+        return position.x;
     }
 
     /**
@@ -84,7 +81,16 @@ public class Animation implements Updateable, Renderable {
      * @return The y-coordinate.
      */
     public int getY() {
-        return y;
+        return position.y;
+    }
+
+    /**
+     * The coordinates the animation is rendered at.
+     *
+     * @return The coordinates.
+     */
+    public Point getPosition() {
+        return position;
     }
 
     /**
@@ -121,7 +127,7 @@ public class Animation implements Updateable, Renderable {
      * @param x The new x-coordinate.
      */
     public final void setX(final int x) {
-        this.x = x;
+        position.x = x;
     }
 
     /**
@@ -130,18 +136,27 @@ public class Animation implements Updateable, Renderable {
      * @param x The new y-coordinate.
      */
     public final void setY(final int y) {
-        this.y = y;
+        position.y = y;
     }
 
     /**
      * Sets the position at which the animation will be rendered.
      *
-     * @param x The x-coordinate
-     * @param y The y-coordinate
+     * @param x The new x-coordinate.
+     * @param y The new y-coordinate.
      */
     public void setPosition(final int x, final int y) {
-        this.x = x;
-        this.y = y;
+        position.x = x;
+        position.y = y;
+    }
+
+    /**
+     * Sets the position at which the animation will be rendered.
+     *
+     * @param position The new position.
+     */
+    public void setPosition(final Point position) {
+        this.position = position;
     }
 
     // ----- OVERRIDDEN METHODS -----
@@ -174,7 +189,7 @@ public class Animation implements Updateable, Renderable {
     public void render(Graphics2D g2d) {
         BufferedImage currentImage = frames.get(currentFrameIndex).image;
         if (currentImage != null) {
-            g2d.drawImage(currentImage, x, y, currentImage.getWidth(), currentImage.getHeight(), null);
+            g2d.drawImage(currentImage, position.x, position.y, currentImage.getWidth(), currentImage.getHeight(), null);
         }
     }
 

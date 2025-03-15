@@ -1,5 +1,6 @@
 package com.rikuthin.entities;
 
+import java.awt.Point;
 import java.util.Objects;
 
 import javax.swing.JPanel;
@@ -71,10 +72,10 @@ public class BulletSpawner extends Entity {
      * @param shotDelayMs How many milliseconds to wait before spawning more
      * bullets.
      */
-    public BulletSpawner(final JPanel panel, final int x, final int y,
+    public BulletSpawner(final JPanel panel, final Point position,
             final String bulletSpriteUrl, final Animation bulletAnimation,
             final int bulletSpeed, final long spawnDelayMs) {
-        super(panel, x, y, null, true, false);
+        super(panel, position, null, true, false);
 
         if (bulletAnimation == null && (bulletSpriteUrl == null || bulletSpriteUrl.isEmpty())) {
             throw new IllegalArgumentException(String.format(
@@ -89,6 +90,7 @@ public class BulletSpawner extends Entity {
         this.spawnDelayMs = Math.abs(spawnDelayMs);
         this.lastUpdateTime = System.currentTimeMillis();
         this.elapsedDelayTime = 0;
+        this.isSpawning = false;
 
         if (bulletAnimation != null) {
             this.sprite = bulletAnimation.getCurrentFrameImage();
@@ -249,9 +251,9 @@ public class BulletSpawner extends Entity {
      */
     public Bullet spawnBullet() {
         if (bulletAnimation != null) {
-            return new Bullet(panel, x, y, bulletAnimation, bearing, bulletSpeed);
+            return new Bullet(panel, position, bulletAnimation, bearing, bulletSpeed);
         } else {
-            return new Bullet(panel, x, y, bulletSpriteUrl, bearing, bulletSpeed);
+            return new Bullet(panel, position, bulletSpriteUrl, bearing, bulletSpeed);
         }
     }
 
@@ -269,7 +271,7 @@ public class BulletSpawner extends Entity {
      * @return the newly created {@link Bullet} instance
      */
     public Bullet spawnBullet(final String bulletSpriteUrl, final Bearing2D bearing, final double shotSpeed) {
-        return new Bullet(panel, x, y, bulletSpriteUrl, bearing, shotSpeed);
+        return new Bullet(panel, position, bulletSpriteUrl, bearing, shotSpeed);
     }
 
     // ----- OVERRIDDEN METHODS -----
@@ -338,9 +340,9 @@ public class BulletSpawner extends Entity {
         elapsedDelayTime += currentTime - lastUpdateTime;
         lastUpdateTime = currentTime;
 
-        if (elapsedDelayTime >= spawnDelayMs) {
-            elapsedDelayTime -= spawnDelayMs;
+        while (elapsedDelayTime >= spawnDelayMs) {
             spawnBullet();
+            elapsedDelayTime -= spawnDelayMs; // Ensures correct timing
         }
     }
 }

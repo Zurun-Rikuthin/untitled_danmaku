@@ -2,6 +2,7 @@ package com.rikuthin.graphics.screens.subpanels;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.util.ArrayList;
 
 import com.rikuthin.core.App;
@@ -32,11 +33,12 @@ public class GamePanel extends Subpanel {
 
         bullets = new ArrayList<>();
 
-        Animation bulletAnimation = new Animation(100, 100, true);
+        Animation bulletAnimation = new Animation(new Point(100, 100), true);
         bulletAnimation.loadStripFile("/images/animations/bullet-1.png", App.FRAME_RATE_MS, 15, 24);
 
-        spawner = new BulletSpawner(this, 200, 200, null, bulletAnimation, 20, 5000);
+        spawner = new BulletSpawner(this, new Point(200, 200), null, bulletAnimation, 20, 17);
         spawner.setBearing(new Bearing2D(0, 0, 20, -20));
+        spawner.start();
     }
 
     // ----- OVERRIDDEN METHODS -----
@@ -50,7 +52,7 @@ public class GamePanel extends Subpanel {
         }
 
         if (spawner != null) {
-            bullets.add(spawner.spawnBullet());
+            spawner.update();
         }
 
         for (Bullet b : bullets) {
@@ -85,7 +87,7 @@ public class GamePanel extends Subpanel {
 
     // ----- HELPER METHODS -----
     private void initialisePlayer(final int panelWidth, final int panelHeight) {
-        player = new Player(this, 0, 0, "/images/sprites/white-queen.png", 5);
+        player = new Player(this, new Point(0, 0), "/images/sprites/white-queen.png", 5);
 
         int x = Math.divideExact(panelWidth, 2) - Math.divideExact(player.getSpriteWidth(), 2);
         int y = Math.divideExact(panelHeight, 2);
