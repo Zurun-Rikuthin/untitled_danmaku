@@ -1,6 +1,7 @@
 package com.rikuthin.entities;
 
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.Objects;
 
@@ -51,25 +52,9 @@ public abstract class Entity implements Updateable, Renderable {
      */
     protected boolean isAnimated;
     /**
-     * The x-coordinate of the entity hitbox's top-left corner. Defaults to that
-     * of the current sprite.
+     * The entity's rectangular hitbox.
      */
-    protected int hitboxX;
-    /**
-     * The y-coordinate of the entity hitbox's top-left corner. Defaults to that
-     * of the current sprite.
-     */
-    protected int hitboxY;
-    /**
-     * Width of the entity's hitbox in pixels. Defaults to that of the current
-     * sprite.
-     */
-    protected int hitboxWidth;
-    /**
-     * Height of the entity's hitbox in pixels. Defaults to that of the current
-     * sprite.
-     */
-    protected int hitboxHeight;
+    protected Rectangle hitbox;
     /**
      * {@code true} if the entity can collide with others; {@code false}
      * otherwise.
@@ -83,8 +68,7 @@ public abstract class Entity implements Updateable, Renderable {
      * The entity's hitbox defaults to the sprite dimensions and position if a
      * sprite is loaded.
      * <p>
-     * Note: ALL hitboxes are rectangles (NOT quadrilaterals or other polygonal
-     * shapes).
+     * Note: Currently, ALL hitboxes are standard rectangles.
      *
      * @param panel The parent {@link JPanel} to which the entity belongs.
      * @param x The initial x-coordinate.
@@ -108,8 +92,7 @@ public abstract class Entity implements Updateable, Renderable {
         setSprite(spriteUrl);
         setAnimation(null);
         this.isAnimated = false;
-        setHitboxPosition(x, y);
-        setHitboxSizeFromCurrentSprite();
+        setHitboxFromCurrentSprite();
         setCollidability(isCollidable);
     }
 
@@ -119,8 +102,7 @@ public abstract class Entity implements Updateable, Renderable {
      * The entity's hitbox defaults to the dimensions and position of the
      * animation's first sprite if one is available.
      * <p>
-     * Note: ALL hitboxes are rectangles (NOT quadrilaterals or other polygonal
-     * shapes).
+     * Note: Currently, ALL hitboxes are standard rectangles.
      *
      * @param panel The parent {@link JPanel} to which the entity belongs.
      * @param x The initial x-coordinate.
@@ -138,12 +120,10 @@ public abstract class Entity implements Updateable, Renderable {
 
         this.panel = panel;
         setPosition(x, y);
-        setInvisibility(isInvisible);
+        setInvisibility(false);
         setAnimation(animation);
         this.isAnimated = true;
-        setSprite();
-        setHitboxPosition(x, y);
-        setHitboxSizeFromCurrentSprite();
+        setHitboxFromCurrentSprite();
         setCollidability(isCollidable);
 
         // Start the animation once everything else is loaded.
@@ -222,50 +202,25 @@ public abstract class Entity implements Updateable, Renderable {
     public Animation getAnimation() {
         return animation;
     }
-    
+
     /**
-     * Checks whether the entity's sprite animation (if one is set) is currently playing.
-     * 
-     * @return {@code true} if the animation is playing; {@code false} otherwise.
+     * Checks whether the entity's sprite animation (if one is set) is currently
+     * playing.
+     *
+     * @return {@code true} if the animation is playing; {@code false}
+     * otherwise.
      */
     public boolean isAnimated() {
-        return animation!= null && animation.isPlaying();
+        return animation != null && animation.isPlaying();
     }
 
     /**
-     * Returns the x-coordinate of the entity hitbox's top-left corner.
+     * Returns the entity's hitbox.
      *
-     * @return The x-coordinate.
+     * @return The hitbox.
      */
-    public int getHitboxX() {
-        return hitboxX;
-    }
-
-    /**
-     * Returns the y-coordinate of the entity hitbox's top-left corner.
-     *
-     * @return The y-coordinate.
-     */
-    public int getHitboxY() {
-        return hitboxY;
-    }
-
-    /**
-     * Returns the width of the entity's hitbox in pixels.
-     *
-     * @return The hitbox width.
-     */
-    public int getHitboxWidth() {
-        return hitboxWidth;
-    }
-
-    /**
-     * Returns the height of the entity's hitbox in pixels.
-     *
-     * @return The height.
-     */
-    public int getHitboxHeight() {
-        return hitboxHeight;
+    public Rectangle getHitbox() {
+        return hitbox;
     }
 
     /**
@@ -290,7 +245,7 @@ public abstract class Entity implements Updateable, Renderable {
     /**
      * Sets the y-coordinate of the entity's top-left corner.
      *
-     * @param x The new y-coordinate.
+     * @param y The new y-coordinate.
      */
     public final void setY(final int y) {
         this.y = y;
@@ -370,29 +325,20 @@ public abstract class Entity implements Updateable, Renderable {
 
         if (this.animation != null && !this.animation.isEmpty()) {
             setSprite(this.animation.getCurrentFrameImage());
+            this.animation.setPosition(x, y);
         }
     }
 
     /**
-     * Sets the position of the entity hitbox's top-left corner.
+     * Sets the entity hitbox.
      *
-     * @param x The new hitbox x-coordinate.
-     * @param y The new hitbox y-coordinate.
+     * @param x The x-coordinate of the hitbox's upper-left corner.
+     * @param y The y-coordinate of the hitbox's upper-left corner.
+     * @param width The width of the hitbox in pixels
+     * @param height The height of the hitbox in pixels
      */
-    public final void setHitboxPosition(final int x, final int y) {
-        this.hitboxX = x;
-        this.hitboxY = y;
-    }
-
-    /**
-     * Sets the size of the entity's hitbox using the provided values.
-     *
-     * @param width The new hitbox width in pixels.
-     * @param height The new hitbox height in pixels.
-     */
-    public final void setHitboxSize(final int width, final int height) {
-        this.hitboxWidth = Math.abs(width);
-        this.hitboxHeight = Math.abs(height);
+    public final void setHitbox(final int x, final int y, final int width, final int height) {
+        hitbox = new Rectangle(x, y, width, height);
     }
 
     /**
@@ -402,9 +348,11 @@ public abstract class Entity implements Updateable, Renderable {
      * Note: If a sprite is currently not set, the the width and height are both
      * set to 0.
      */
-    public final void setHitboxSizeFromCurrentSprite() {
-        this.hitboxWidth = sprite != null ? sprite.getWidth() : 0;
-        this.hitboxHeight = sprite != null ? sprite.getHeight() : 0;
+    public final void setHitboxFromCurrentSprite() {
+        int hitboxWidth = sprite != null ? sprite.getWidth() : 0;
+        int hitboxHeight = sprite != null ? sprite.getHeight() : 0;
+
+        setHitbox(x, y, hitboxWidth, hitboxHeight);
     }
 
     /**
@@ -418,43 +366,56 @@ public abstract class Entity implements Updateable, Renderable {
     }
 
     // ----- BUSINESS LOGIC METHODS -----
-    public boolean isWithinPanel() {
+    /**
+     * Checks if the entity is fully within the display of its parent panel.
+     * 
+     * @return {@code true} if the sprite can be fully rendered inside the panel; {@code false} otherwise.
+     */
+    public boolean isFullyWithinPanel() {
         return x >= 0
                 && y >= 0
-                && x + getSpriteWidth() < panel.getWidth()
-                && y + getSpriteHeight() < panel.getHeight();
+                && x + getSpriteWidth() <= panel.getWidth()
+                && y + getSpriteHeight() <= panel.getHeight();
     }
 
     /**
-     * Checks whether this entity's (rectangular) hitbox collides with another
-     * rectangular space using the Axis Aligned Bounding Boxes (AABB) algorithm.
+     * Checks if the entity is fully outside the display of its parent panel.
+     * 
+     * @return {@code true} if the sprite cannot be rendered at all inside the panel; {@code false otherwise}.
+     */
+    public boolean isFullyOutsidePanel() {
+        Rectangle spriteBounds = new Rectangle(x, y, getSpriteWidth(), getSpriteHeight());
+        Rectangle panelBounds = new Rectangle(0, 0, panel.getWidth(), panel.getHeight());
+
+        return !spriteBounds.intersects(panelBounds);
+    }
+
+    /**
+     * Checks whether this entity's (rectangular) hitbox intersects with another
+     * rectangular space.
      *
+     * @param x The rectangular space being checked for collision.
      * @return {@code true} if the two spaces intersect;
      * {@code false otherwise}.
      */
-    public boolean collides(final int x, final int y, final int width, final int height) {
-        if (!isCollidable) {
+    public boolean collides(final Rectangle rectangle) {
+        if (!isCollidable || hitbox == null || rectangle == null) {
             return false;
         }
 
-        return (this.hitboxX < x + width)
-                && (this.hitboxX + this.hitboxWidth > x)
-                && (this.hitboxY < y + height)
-                && (this.hitboxY + this.hitboxHeight > y);
+        return hitbox.intersects(rectangle);
     }
 
     /**
-     * Checks whether this entity's (rectangular) hitbox collides another's
-     * using the Axis Aligned Bounding Boxes (AABB) algorithm.
+     * Checks whether this entity's (rectangular) hitbox intersects with
+     * another's.
      *
+     * @param entity The other entity being checked for collision.
      * @return {@code true} if the two spaces intersect;
      * {@code false otherwise}.
      */
     public boolean collides(final Entity entity) {
-        if (!isCollidable || !entity.isCollidable()) {
-            return false;
-        }
-        return collides(entity.getX(), entity.getY(), entity.getHitboxWidth(), entity.getHitboxHeight());
+        return collides(entity.getHitbox());
     }
 
     // ----- OVERRIDDEN METHODS -----
@@ -463,8 +424,8 @@ public abstract class Entity implements Updateable, Renderable {
      * to provide futher functionality.
      * <p>
      * By default, two entities are considered equal if they have the same
-     * parent panel, position, sprite, hitbox (position and dimensions), and
-     * invisibility and collidability statuses.
+     * parent panel, position, sprite, hitbox, and invisibility and
+     * collidability statuses.
      *
      * @param obj the object to compare with
      * @return {@code true} if the entities are equal; {@code false} otherwise
@@ -484,11 +445,8 @@ public abstract class Entity implements Updateable, Renderable {
                 && Integer.compare(y, other.getY()) == 0
                 && Objects.equals(sprite, other.getSprite())
                 && Boolean.compare(isInvisible, other.isInvisible()) == 0
-                && animation.equals(other.getAnimation())
-                && Integer.compare(hitboxX, other.getHitboxX()) == 0
-                && Integer.compare(hitboxY, other.getHitboxY()) == 0
-                && Integer.compare(hitboxWidth, other.getHitboxWidth()) == 0
-                && Integer.compare(hitboxHeight, other.getHitboxHeight()) == 0
+                && Objects.equals(animation, other.getAnimation())
+                && Objects.equals(hitbox, other.getHitbox())
                 && Boolean.compare(isCollidable, other.isCollidable()) == 0;
     }
 
@@ -496,8 +454,7 @@ public abstract class Entity implements Updateable, Renderable {
      * Computes the hash code for this entity.
      * <p>
      * By default, the hash is calculated using the entity's parent panel,
-     * position, sprite (image, URL, and dimensions), hitbox (position and
-     * dimensions, and invisibility and collidability statuses.
+     * position, sprite, hitbox, and invisibility and collidability statuses.
      *
      * @return the hash code of this entity
      */
@@ -510,10 +467,7 @@ public abstract class Entity implements Updateable, Renderable {
                 sprite,
                 isInvisible,
                 animation,
-                hitboxX,
-                hitboxY,
-                hitboxWidth,
-                hitboxHeight,
+                hitbox,
                 isCollidable
         );
     }
@@ -521,9 +475,10 @@ public abstract class Entity implements Updateable, Renderable {
     @Override
     public void update() {
         if (animation != null) {
+            animation.setPosition(x, y);
             animation.update();
             setSprite(animation.getCurrentFrameImage());
-            setHitboxSizeFromCurrentSprite();
+            setHitboxFromCurrentSprite();
         }
     }
 

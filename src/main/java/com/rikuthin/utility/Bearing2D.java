@@ -2,7 +2,7 @@ package com.rikuthin.utility;
 
 /**
  * Represents a bearing (direction) in 2D space, measured in degrees. Bearings
- * are used to indicate direction from one point to another and are normalized
+ * are used to indicate direction from one Cartesian point to another and are normalized
  * to the range [0, 360).
  *
  * Bearings are defined as follows: - 0 degrees = North (up) - 90 degrees = East
@@ -25,8 +25,8 @@ public final class Bearing2D {
     }
 
     /**
-     * Creates a Bearing2D instance representing the angle from one point to
-     * another.
+     * Creates a Bearing2D instance representing the angle from one Cartesian
+     * point to another.
      *
      * @param startX The x-coordinate of the starting point.
      * @param startY The y-coordinate of the starting point.

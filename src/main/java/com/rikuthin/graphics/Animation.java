@@ -63,7 +63,7 @@ public class Animation implements Updateable, Renderable {
         this.frames = new ArrayList<>();
         this.currentFrameIndex = 0;
         this.elapsedFrameDisplayTime = 0;
-        this.lastUpdateTime = 0;
+        this.lastUpdateTime = System.currentTimeMillis();
         this.isLooping = isLooping;
         this.isPlaying = false;
     }
@@ -103,15 +103,6 @@ public class Animation implements Updateable, Renderable {
      */
     public BufferedImage getCurrentFrameImage() {
         return frames.isEmpty() ? null : frames.get(currentFrameIndex).image;
-    }
-
-    /**
-     * Returns the total number of frames in the animation.
-     *
-     * @return The number of frames.
-     */
-    public int getFrameCount() {
-        return frames.size();
     }
 
     /**
@@ -168,7 +159,7 @@ public class Animation implements Updateable, Renderable {
         lastUpdateTime = currentTime;
 
         // If the elapsed time exceeds the duration of the current frame, move to the next frame
-        while (elapsedFrameDisplayTime >= frames.get(currentFrameIndex).frameDurationMs) {
+        if (elapsedFrameDisplayTime >= frames.get(currentFrameIndex).frameDurationMs) {
             elapsedFrameDisplayTime = 0;
             nextFrame();
         }
@@ -322,6 +313,15 @@ public class Animation implements Updateable, Renderable {
 
     private void safeLoadStripAnimation(final String fileUrl, final long frameDurationMs, final int numRows, final int numColumns, final int horizontalSpace, final int verticalSpace) {
         BufferedImage stripImage = ImageManager.loadBufferedImage(fileUrl);
+
+        if (stripImage == null) {
+            throw new NullPointerException(String.format(
+                    "%s: Could not load strip animation file <'%s'>",
+                    this.getClass().getName(),
+                    fileUrl
+            ));
+        }
+
         int frameWidth = (stripImage.getWidth() - (numColumns - 1) * horizontalSpace) / numColumns;
         int frameHeight = (stripImage.getHeight() - (numRows - 1) * verticalSpace) / numRows;
 

@@ -30,6 +30,25 @@ public abstract class Subpanel extends JPanel implements Updateable, Renderable 
         setBackgroundImage(backgroundImageUrl);
     }
 
+    // ----- SETTERS -----
+    /**
+     * Sets the background image (and its URL) for this subpanel.
+     *
+     * @param backgroundImageUrl The image URL.
+     */
+    public final void setBackgroundImage(final String backgroundImageUrl) {
+        this.backgroundImageUrl = backgroundImageUrl;
+        backgroundImage = ImageManager.loadBufferedImage(backgroundImageUrl);
+
+        if (backgroundImage == null) {
+            System.err.println(String.format(
+                    "%s: Could not load background image <'%s'>.",
+                    this.getClass().getName(),
+                    backgroundImageUrl
+            ));
+        }
+    }
+
     // ----- OVERRIDDEN METHODS -----
     /**
      * Override the paintComponent method to render the game on the screen. This
@@ -60,16 +79,5 @@ public abstract class Subpanel extends JPanel implements Updateable, Renderable 
             return;
         }
         g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
-    }
-
-    // ----- SETTERS -----
-    /**
-     * Sets the background image (and its URL) for this subpanel.
-     *
-     * @param backgroundImageUrl The image URL.
-     */
-    public final void setBackgroundImage(final String backgroundImageUrl) {
-        this.backgroundImageUrl = backgroundImageUrl;
-        backgroundImage = ImageManager.loadBufferedImage(backgroundImageUrl);
     }
 }

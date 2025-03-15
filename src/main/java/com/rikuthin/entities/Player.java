@@ -153,27 +153,28 @@ public class Player extends Entity {
      * within the panel boundaries.
      */
     public void move() {
-        // Move up
-        if (movingUp && !movingDown) {
-            y -= speed;
+        int dx = 0;
+        int dy = 0;
+
+        if (movingUp) {
+            dy -= speed;
+        }
+        if (movingDown) {
+            dy += speed;
+        }
+        if (movingLeft) {
+            dx -= speed;
+        }
+        if (movingRight) {
+            dx += speed;
         }
 
-        // Move down
-        if (movingDown && !movingUp) {
-            y += speed;
-        }
+        // Apply movement
+        x += dx;
+        y += dy;
 
-        // Move left
-        if (movingLeft && !movingRight) {
-            x -= speed;
-        }
-
-        // Move right
-        if (movingRight && !movingLeft) {
-            x += speed;
-        }
-
-        if (!isWithinPanel()) {
+        // Ensure the player remains within bounds
+        if (!isFullyWithinPanel()) {
             correctPosition();
         }
     }

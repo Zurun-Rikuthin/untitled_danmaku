@@ -17,7 +17,7 @@ public final class GameFrame extends JFrame {
     public static final int FRAME_HEIGHT = 720;
 
     private final Timer gameLoopTimer;
-    private final Graphics2D g2d;
+    private Graphics2D g2d;
     private BufferedImage backBuffer;
     private Screen currentScreen;
 
@@ -70,6 +70,7 @@ public final class GameFrame extends JFrame {
         if (currentScreen != null) {
             remove(currentScreen);
             currentScreen.cleanup();
+            currentScreen = null;
         }
 
         currentScreen = newScreen;
@@ -94,10 +95,11 @@ public final class GameFrame extends JFrame {
      * Renders the game onto the back buffer.
      */
     private void renderGame() {
-        if (g2d == null || currentScreen == null) {
+        if (backBuffer == null || currentScreen == null) {
             return;
         }
 
+        g2d = backBuffer.createGraphics();
         g2d.clearRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
         currentScreen.safeRender(g2d);
     }

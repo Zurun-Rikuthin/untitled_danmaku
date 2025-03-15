@@ -11,8 +11,7 @@ import com.rikuthin.utility.Bearing2D;
  * Represents a generic bullet that moves within a JPanel.
  * <p>
  * The bullet moves along a specified bearing (angle in degrees) at a defined
- * speed (pixels per tick). and bounces off the edges and walls, stopping at the
- * roof.
+ * speed (pixels per tick).
  */
 public class Bullet extends Entity {
 
@@ -108,7 +107,7 @@ public class Bullet extends Entity {
 
     // ----- BUSINESS LOGIC METHODS -----
     /**
-     * Moves the bubble based on its bearing and speed.
+     * Moves the bullet based on its bearing and speed.
      */
     public void move() {
         if (!isMoving()) {
@@ -123,7 +122,7 @@ public class Bullet extends Entity {
 
     // ----- OVERRIDDEN METHODS -----
     /**
-     * Compares this player entity to another object for equality.
+     * Compares this bullet entity to another object for equality.
      * <p>
      * Extends {@code equals()} from the {@link Entity} class by comparing
      * movement-related attributes such as speed and directional states.
@@ -137,7 +136,7 @@ public class Bullet extends Entity {
             return true;
         }
 
-        if (!(obj instanceof Player)) {
+        if (!(obj instanceof Bullet)) {
             return false;
         }
 
@@ -149,7 +148,7 @@ public class Bullet extends Entity {
     }
 
     /**
-     * Computes the hash code for this player entity.
+     * Computes the hash code for this bullet entity.
      *
      * Extends {@code hashCode()} from the {@link Entity} class by incorporating
      * movement attributes such as speed and directional states.
@@ -163,5 +162,15 @@ public class Bullet extends Entity {
                 bearing,
                 speed
         );
+    }
+
+    @Override
+    public void update() {
+        super.update();
+        move();
+
+        if (animation != null) {
+            animation.update();
+        }
     }
 }
