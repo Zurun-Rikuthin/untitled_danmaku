@@ -4,6 +4,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import com.rikuthin.interfaces.Renderable;
 import com.rikuthin.interfaces.Updateable;
@@ -17,12 +18,12 @@ public class Animation implements Updateable, Renderable {
 
     // ----- INSTANCE VARIABLES -----
     /**
-     * collection of frames in the animation.
+     * Collection of frames in the animation.
      */
     private final ArrayList<AnimationFrame> frames;
 
     /**
-     * The coordinates the animation is rendered at.
+     * The coordinates where the animation is rendered.
      */
     private Point position;
     /**
@@ -67,6 +68,14 @@ public class Animation implements Updateable, Renderable {
 
     // ------ GETTERS ------
     /**
+     *
+     * @return
+     */
+    public ArrayList<AnimationFrame> getFrames() {
+        return frames;
+    }
+
+    /**
      * The x-coordinate the animation is rendered at.
      *
      * @return The x-coordinate.
@@ -103,6 +112,15 @@ public class Animation implements Updateable, Renderable {
     }
 
     /**
+     * Returns the current frame's index.
+     *
+     * @return The index of the current frame.
+     */
+    public int getCurrentFrameIndex() {
+        return currentFrameIndex;
+    }
+
+    /**
      * Returns the current frame's image.
      *
      * @return The image of the current frame, or null if there are no frames.
@@ -112,12 +130,41 @@ public class Animation implements Updateable, Renderable {
     }
 
     /**
+     * Checks whether the animation is set to loop.
+     *
+     * @return {@code true} if the animation is looping; {@code false}
+     * otherwise.
+     */
+    public boolean isLooping() {
+        return isLooping;
+    }
+
+    /**
      * Checks whether the animation is currently playing.
      *
-     * @return true if the animation is playing, false otherwise.
+     * @return {@code true} if the animation is playing; {@code false}
+     * otherwise.
      */
     public boolean isPlaying() {
         return !frames.isEmpty() && isPlaying;
+    }
+
+    /**
+     * Returns the time elapsed since the update() methods was last called..
+     *
+     * @return The elapsed update time.
+     */
+    private long getLastUpdateTime() {
+        return lastUpdateTime;
+    }
+
+    /**
+     * Returns the time elapsed since the current frame was first displayed.
+     *
+     * @return The elapsed display time.
+     */
+    private long getElapsedFrameDisplayTime() {
+        return elapsedFrameDisplayTime;
     }
 
     // ----- SETTERS -----
@@ -160,6 +207,58 @@ public class Animation implements Updateable, Renderable {
     }
 
     // ----- OVERRIDDEN METHODS -----
+    /**
+     * Compares this animation to another object for equality.
+     * <p>
+     * Two animations are considered equal if they share the same frames,
+     * position, looping and playing statuses, frame index, and last update and
+     * current frame display times.
+     *
+     * @param obj The object to compare with.
+     * @return {@code true} if the objects are equal, otherwise {@code false}.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof Animation)) {
+            return false;
+        }
+
+        Animation other = (Animation) obj;
+
+        return Objects.equals(frames, other.frames)
+                && Objects.equals(position, other.position)
+                && isLooping == other.isLooping()
+                && isPlaying == other.isPlaying()
+                && currentFrameIndex == other.getCurrentFrameIndex()
+                && elapsedFrameDisplayTime == other.getElapsedFrameDisplayTime()
+                && lastUpdateTime == other.getLastUpdateTime();
+    }
+
+    /**
+     * Computes the hash code for this player entity.
+     *
+     * Extends {@code hashCode()} from the {@link Entity} class by incorporating
+     * movement attributes such as speed and directional states.
+     *
+     * @return The computed hash code.
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                frames,
+                position,
+                isLooping,
+                isPlaying,
+                currentFrameIndex,
+                elapsedFrameDisplayTime,
+                lastUpdateTime
+        );
+    }
+
     /**
      * Updates the animation's frame based on elapsed time.
      */

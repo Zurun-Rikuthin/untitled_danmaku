@@ -8,8 +8,9 @@ import java.awt.event.KeyEvent;
 import com.rikuthin.graphics.GameFrame;
 import com.rikuthin.graphics.screens.subpanels.GamePanel;
 import com.rikuthin.graphics.screens.subpanels.InfoPanel;
+import com.rikuthin.interfaces.Updateable;
 
-public final class GameplayScreen extends Screen {
+public final class GameplayScreen extends Screen implements Updateable {
 
     private final GamePanel gamePanel;
     private final InfoPanel infoPanel;

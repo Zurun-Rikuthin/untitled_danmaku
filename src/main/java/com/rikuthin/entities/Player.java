@@ -5,6 +5,8 @@ import java.util.Objects;
 
 import javax.swing.JPanel;
 
+import com.rikuthin.graphics.Animation;
+
 /**
  * This class represents the player-controlled character and defines how it
  * interacts with the game world.
@@ -13,10 +15,6 @@ public class Player extends Entity {
 
     // ----- INSTANCE VARIABLES -----
     /**
-     * How many pixels to move each frame. Defaults to 0 (stationary).
-     */
-    private int speed;
-    /**
      * Flags indicating movement direction based on player input. Defaults to
      * {@code false}.
      */
@@ -24,6 +22,10 @@ public class Player extends Entity {
     private boolean movingDown;
     private boolean movingLeft;
     private boolean movingRight;
+    /**
+     * Whether the player is currently firing bullets.
+     */
+    private boolean isFiring;
 
     // ----- CONSTRUCTORS -----
     /**
@@ -33,14 +35,33 @@ public class Player extends Entity {
      * inputs are provided.
      *
      * @param panel The parent {@link JPanel} the player belongs to.
-     * @param x The initial x-coordinate.
-     * @param y The initial y-coordinate.
+     * @param position The initial x and y-coordinates.
      * @param spriteUrl The URL for the player's sprite.
+     * @param maxHitpoints The player's maximum hitpoints.
      * @param speed The movement speed in pixels per frame.
      */
-    public Player(final JPanel panel, final Point position, final String spriteUrl, final int speed) {
-        super(panel, position, spriteUrl, false, true);
-        this.speed = speed;
+    public Player(final JPanel panel, final Point position, final String spriteUrl, final int maxHitPoints, final int speed) {
+        super(panel, position, spriteUrl, false, true, maxHitPoints, speed);
+        this.movingUp = false;
+        this.movingDown = false;
+        this.movingLeft = false;
+        this.movingRight = false;
+    }
+
+    /**
+     * Constructs a player entity with specified position, sprite, and movement
+     * <p>
+     * The player remains stationary by default and moves only when directional
+     * inputs are provided.
+     *
+     * @param panel The parent {@link JPanel} the player belongs to.
+     * @param position The initial x and y-coordinates.
+     * @param spriteUrl The URL for the player's sprite.
+     * @param maxHitpoints The player's maximum hitpoints.
+     * @param speed The movement speed in pixels per frame.
+     */
+    public Player(final JPanel panel, final Point position, final Animation animation, final int maxHitPoints, final int speed) {
+        super(panel, position, animation, true, maxHitPoints, speed);
         this.movingUp = false;
         this.movingDown = false;
         this.movingLeft = false;
@@ -48,15 +69,6 @@ public class Player extends Entity {
     }
 
     // ----- GETTERS -----
-    /**
-     * Returns the player's movement speed.
-     *
-     * @return The speed in pixels per frame.
-     */
-    public int getSpeed() {
-        return speed;
-    }
-
     /**
      * Checks if the player is currently moving in any direction.
      *
@@ -103,15 +115,6 @@ public class Player extends Entity {
     }
 
     // ----- SETTERS -----
-    /**
-     * Sets the player's movement speed.
-     *
-     * @param speed The new movement speed in pixels per frame.
-     */
-    public void setSpeed(final int speed) {
-        this.speed = speed;
-    }
-
     /**
      * Sets whether the player is moving up.
      *
@@ -227,6 +230,12 @@ public class Player extends Entity {
                 movingLeft,
                 movingRight
         );
+    }
+
+    @Override
+    public void update() {
+        super.update();
+
     }
 
     // ---- HELPER METHODS -----

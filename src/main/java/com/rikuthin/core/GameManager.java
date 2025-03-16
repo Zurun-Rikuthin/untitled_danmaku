@@ -2,9 +2,9 @@ package com.rikuthin.core;
 
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
 
 import javax.swing.Timer;
 
@@ -16,14 +16,17 @@ import com.rikuthin.graphics.screens.subpanels.InfoPanel;
 import com.rikuthin.interfaces.Renderable;
 import com.rikuthin.interfaces.Updateable;
 
-// import com.rikuthin.dialogue_panels.PauseMenuDialogue;
-// import com.rikuthin.game_objects.Blaster;
-// import com.rikuthin.game_objects.Bubble;
-// import com.rikuthin.screen_panels.gameplay_subpanels.BlasterPanel;
-// import com.rikuthin.screen_panels.gameplay_subpanels.BubblePanel;
-// import com.rikuthin.screen_panels.gameplay_subpanels.StatusPanel;
-// import com.rikuthin.utility.RandomColour;
 public class GameManager implements Updateable, Renderable {
+
+    // ----- ENUMARATORS -----
+    /**
+     * Whether the bullet belongs to the player (thus hurting enemies) or to
+     * enemies (thus hurting the player).
+     */
+    public enum BulletTeam {
+        PLAYER,
+        ENEMY
+    }
 
     // ----- STATIC VARIABLES -----
     private static GameManager instance;
@@ -32,11 +35,8 @@ public class GameManager implements Updateable, Renderable {
     private GamePanel gamePanel;
     private InfoPanel infoPanel;
     private Timer gameplayTimer;
-    private ArrayList<Bullet> bullets;
-    // private int elapsedSeconds;
-    // private int score;
-    // private boolean canShootBlaster;
-    // private boolean gameActive;
+    private HashSet<Bullet> enemyBullets;
+    private HashSet<Bullet> playerBullets;
     private boolean isPaused;
 
     // ----- CONSTRUCTORS -----
@@ -68,8 +68,12 @@ public class GameManager implements Updateable, Renderable {
         return infoPanel;
     }
 
-    public List<Bullet> getBullets() {
-        return bullets;
+    public Set<Bullet> getEnemyBullets() {
+        return enemyBullets;
+    }
+
+    public Set<Bullet> getPlayerBullets() {
+        return playerBullets;
     }
 
     public boolean isPaused() {
@@ -85,108 +89,13 @@ public class GameManager implements Updateable, Renderable {
         this.infoPanel = infoPanel;
     }
 
-    // /**
-    //  * Starts a new game by resetting/initialising game values/objects.
-    //  */
-    // public void startGame() {
-    //     if (blasterPanel == null || bubblePanel == null) {
-    //         throw new IllegalStateException("Error: Game cannot start. BlasterPanel and BubblePanel must be set first.");
-    //     }
-    //     remainingBubbles = 100;
-    //     elapsedSeconds = 0;
-    //     score = 0;
-    //     blasterPanel.updateRemainingBubblesCounter(remainingBubbles);
-    //     bubblePanel.initialiseWalls();
-    //     gameActive = true;
-    //     canShootBlaster = true;
-    //     isPaused = false;
-    //     // Initialise and start the game timer (updates every second).
-    //     gameTimer = new Timer(1000, this::onTimerTick);
-    //     gameTimer.start();
-    // }
-    // /**
-    //  * Shoots a bubble towards a target point. Reduces the number of remaining
-    //  * bubbles if possible.
-    //  *
-    //  * @param target The point to shoot the bubble towards.
-    //  */
-    // public void shootBubble(Point target) {
-    //     if (!gameActive) {
-    //         throw new IllegalStateException("Error: Cannot shoot bubble. Game has not started.");
-    //     }
-    //     if (remainingBubbles > 0) {
-    //         if (canShootBlaster) {
-    //             canShootBlaster = false;
-    //             Blaster blaster = blasterPanel.getBlaster();
-    //             Bubble newBubble = blaster.shootBubble(target, nextRandomColour());
-    //             bubblePanel.addBubble(newBubble);
-    //             remainingBubbles--;
-    //             blasterPanel.updateRemainingBubblesCounter(remainingBubbles);
-    //         } else {
-    //             System.err.println("Warning: Bubble already fired. Wait for it to stop moving.");
-    //         }
-    //     } else {
-    //         System.err.println("Warning: No more bubbles left to shoot.");
-    //     }
-    // }
-    // public void onBubbleMovementComplete() {
-    //     canShootBlaster = true;
-    // }
-    // /**
-    //  * Chooses the next bubble's color randomly.
-    //  *
-    //  * @return The next random colour.
-    //  */
-    // private Color nextRandomColour() {
-    //     if (!gameActive) {
-    //         throw new IllegalStateException("Cannot select color when game is not active.");
-    //     }
-    //     return RandomColour.getRandomColour();
-    // }
-    // public int getScore() {
-    //     return score;
-    // }
-    // public void setScore(final int score) {
-    //     this.score = score;
-    //     updateScoreDisplay();
-    // }
-    // /**
-    //  * Updates the displayed score and internal score counter.
-    //  *
-    //  * @param score The new score.
-    //  */
-    // public final void updateScoreDisplay() {
-    //     statusPanel.updateScoreDisplay(score);
-    // }
-    // /**
-    //  * Updates the timer label with a formatted elapsed time string.
-    //  *
-    //  * @param elapsedSeconds The elapsed time in seconds.
-    //  */
-    // public void updateTimerDisplay() {
-    //     statusPanel.updateTimerDisplay(elapsedSeconds);
-    // }
-    // /**
-    //  * Action invoked by the game timer every second. Increments the elapsed
-    //  * time and updates the timer display.
-    //  *
-    //  * @param e The action event triggered by the timer.
-    //  */
-    // private void onTimerTick(ActionEvent e) {
-    //     elapsedSeconds++;
-    //     updateTimerDisplay();
-    // }
     // ----- BUSINESS LOGIC METHODS -----
     /**
      * Initialises the GameManager and its attributes..
      */
     public final void init() {
-        bullets = new ArrayList<>();
-        // remainingBubbles = 0;
-        // elapsedSeconds = 0;
-        // score = 0;
-        // gameActive = false;
-        // canShootBlaster = false;
+        enemyBullets = new HashSet<>();
+        playerBullets = new HashSet<>();
         isPaused = false;
     }
 
@@ -196,7 +105,7 @@ public class GameManager implements Updateable, Renderable {
      * @param bullet The new bullet
      */
     public void addBullet(final Bullet bullet) {
-        bullets.add(bullet);
+        enemyBullets.add(bullet);
     }
 
     /**
@@ -206,7 +115,7 @@ public class GameManager implements Updateable, Renderable {
      * @param bullet
      */
     public void removeBullet(final Bullet bullet) {
-        bullets.remove(bullet);
+        enemyBullets.remove(bullet);
     }
 
     // ----- OVERRIDDEN METHODS -----
@@ -215,19 +124,8 @@ public class GameManager implements Updateable, Renderable {
      */
     @Override
     public void update() {
-        Iterator<Bullet> bulletIterator = bullets.iterator();
-
-        while (bulletIterator.hasNext()) {
-            Bullet b = bulletIterator.next();
-
-            if (b != null) {
-                b.update();
-
-                if (b.isFullyOutsidePanel()) {
-                    bulletIterator.remove();
-                }
-            }
-        }
+        updateBullets(enemyBullets);
+        updateBullets(playerBullets);
     }
 
     /**
@@ -237,7 +135,7 @@ public class GameManager implements Updateable, Renderable {
      */
     @Override
     public void render(Graphics2D g2d) {
-        for (Bullet b : bullets) {
+        for (Bullet b : enemyBullets) {
             b.safeRender(g2d);
         }
     }
@@ -273,4 +171,115 @@ public class GameManager implements Updateable, Renderable {
         gameplayTimer.start();
         isPaused = false;
     }
+
+    /**
+     * Updates a list of managed bullets. Removes any bullet that is fully
+     * outside the panel boundaries.
+     *
+     * @param bullets The list of bullets.
+     */
+    private void updateBullets(Set<Bullet> bullets) {
+        Iterator<Bullet> it = bullets.iterator();
+        while (it.hasNext()) {
+            Bullet b = it.next();
+            if (b != null) {
+                b.update();
+                if (b.isFullyOutsidePanel()) {
+                    it.remove();
+                }
+            }
+        }
+    }
 }
+
+// /**
+//  * Starts a new game by resetting/initialising game values/objects.
+//  */
+// public void startGame() {
+//     if (blasterPanel == null || bubblePanel == null) {
+//         throw new IllegalStateException("Error: Game cannot start. BlasterPanel and BubblePanel must be set first.");
+//     }
+//     remainingBubbles = 100;
+//     elapsedSeconds = 0;
+//     score = 0;
+//     blasterPanel.updateRemainingBubblesCounter(remainingBubbles);
+//     bubblePanel.initialiseWalls();
+//     gameActive = true;
+//     canShootBlaster = true;
+//     isPaused = false;
+//     // Initialise and start the game timer (updates every second).
+//     gameTimer = new Timer(1000, this::onTimerTick);
+//     gameTimer.start();
+// }
+// /**
+//  * Shoots a bubble towards a target point. Reduces the number of remaining
+//  * bubbles if possible.
+//  *
+//  * @param target The point to shoot the bubble towards.
+//  */
+// public void shootBubble(Point target) {
+//     if (!gameActive) {
+//         throw new IllegalStateException("Error: Cannot shoot bubble. Game has not started.");
+//     }
+//     if (remainingBubbles > 0) {
+//         if (canShootBlaster) {
+//             canShootBlaster = false;
+//             Blaster blaster = blasterPanel.getBlaster();
+//             Bubble newBubble = blaster.shootBubble(target, nextRandomColour());
+//             bubblePanel.addBubble(newBubble);
+//             remainingBubbles--;
+//             blasterPanel.updateRemainingBubblesCounter(remainingBubbles);
+//         } else {
+//             System.err.println("Warning: Bubble already fired. Wait for it to stop moving.");
+//         }
+//     } else {
+//         System.err.println("Warning: No more bubbles left to shoot.");
+//     }
+// }
+// public void onBubbleMovementComplete() {
+//     canShootBlaster = true;
+// }
+// /**
+//  * Chooses the next bubble's color randomly.
+//  *
+//  * @return The next random colour.
+//  */
+// private Color nextRandomColour() {
+//     if (!gameActive) {
+//         throw new IllegalStateException("Cannot select color when game is not active.");
+//     }
+//     return RandomColour.getRandomColour();
+// }
+// public int getScore() {
+//     return score;
+// }
+// public void setScore(final int score) {
+//     this.score = score;
+//     updateScoreDisplay();
+// }
+// /**
+//  * Updates the displayed score and internal score counter.
+//  *
+//  * @param score The new score.
+//  */
+// public final void updateScoreDisplay() {
+//     statusPanel.updateScoreDisplay(score);
+// }
+// /**
+//  * Updates the timer label with a formatted elapsed time string.
+//  *
+//  * @param elapsedSeconds The elapsed time in seconds.
+//  */
+// public void updateTimerDisplay() {
+//     statusPanel.updateTimerDisplay(elapsedSeconds);
+// }
+// /**
+//  * Action invoked by the game timer every second. Increments the elapsed
+//  * time and updates the timer display.
+//  *
+//  * @param e The action event triggered by the timer.
+//  */
+// private void onTimerTick(ActionEvent e) {
+//     elapsedSeconds++;
+//     updateTimerDisplay();
+    // }

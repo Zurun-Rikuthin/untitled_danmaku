@@ -67,16 +67,16 @@ public class BulletSpawner extends Entity {
      * @param y The initial y-coordinate.
      * @param bulletSpriteUrl The URL for the bullet's static sprite. Used if no
      * animation is provided.
+     * @param bearing The bearing/direction to fire bullets in. If note is
+     * provided, defaults to firing string down.
      * @param bulletAnimation The animation for the bullet's sprite.
      * @param bulletSpeed The speed spawned bullets will move at in pixels per
      * frame.
      * @param shotDelayMs How many milliseconds to wait before spawning more
      * bullets.
      */
-    public BulletSpawner(final JPanel panel, final Point position,
-            final String bulletSpriteUrl, final Animation bulletAnimation,
-            final int bulletSpeed, final long spawnDelayMs) {
-        super(panel, position, null, true, false);
+    public BulletSpawner(final JPanel panel, final Point position, final String bulletSpriteUrl, final Animation bulletAnimation, final Bearing2D bearing, final int bulletSpeed, final long spawnDelayMs) {
+        super(panel, position, null, true, false, 0, 0);
 
         if (bulletAnimation == null && (bulletSpriteUrl == null || bulletSpriteUrl.isEmpty())) {
             throw new IllegalArgumentException(String.format(
@@ -87,13 +87,14 @@ public class BulletSpawner extends Entity {
 
         this.bulletSpriteUrl = bulletSpriteUrl;
         this.bulletAnimation = bulletAnimation;
+        setBearing(bearing);
         this.bulletSpeed = Math.abs(bulletSpeed);
         this.spawnDelayMs = Math.abs(spawnDelayMs);
         this.lastUpdateTime = System.currentTimeMillis();
         this.elapsedDelayTime = 0;
         this.isSpawning = false;
 
-        if (bulletAnimation != null) {
+        if (this.bulletAnimation != null) {
             this.sprite = bulletAnimation.getCurrentFrameImage();
         }
     }
@@ -195,21 +196,23 @@ public class BulletSpawner extends Entity {
 
     /**
      * Sets the bearing (direction) of the blaster's movement.
+     * <p>
+     * If the passed value is {@code null}, defaults to aiming straight down.
      *
      * @param bearing the new {@link Bearing2D} direction
      */
-    public void setBearing(Bearing2D bearing) {
-        this.bearing = bearing;
+    public final void setBearing(Bearing2D bearing) {
+        this.bearing = bearing != null ? bearing : new Bearing2D(0, 0, 0, -20);
     }
 
     /**
      * Sets the speed (in pixels/tick) of the bullets that will be shot from the
      * blaster.
      *
-     * @param shotSpeed the new bullet speed
+     * @param bulletSpeed the new bullet speed
      */
-    public void setBulletSpeed(double shotSpeed) {
-        this.bulletSpeed = Math.abs(shotSpeed);
+    public void setBulletSpeed(double bulletSpeed) {
+        this.bulletSpeed = Math.abs(bulletSpeed);
     }
 
     /**
@@ -274,11 +277,11 @@ public class BulletSpawner extends Entity {
      *
      * @param bulletSpriteUrl The URL for the spawned bullet's sprite.
      * @param bearing The direction the bullet will move in.
-     * @param shotSpeed The movement speed of the new bullet in pixels per
+     * @param bulletSpeed The movement speed of the new bullet in pixels per
      * frame.
      * @return the newly created {@link Bullet} instance
      */
-    public Bullet spawnBullet(final Animation animation, final String bulletSpriteUrl, final Bearing2D bearing, final double shotSpeed) {
+    public Bullet spawnBullet(final Animation animation, final String bulletSpriteUrl, final Bearing2D bearing, final double bulletSpeed) {
         if (bulletAnimation == null && (bulletSpriteUrl == null || bulletSpriteUrl.isEmpty())) {
             throw new IllegalArgumentException(String.format(
                     "%s: Must have either a sprite URL or an animation.",
@@ -288,30 +291,11 @@ public class BulletSpawner extends Entity {
 
         Bullet bullet;
         if (bulletAnimation != null) {
-            bullet = new Bullet(panel, position, animation, bearing, shotSpeed);
+            bullet = new Bullet(panel, position, animation, bearing, bulletSpeed);
         } else {
-            bullet = new Bullet(panel, position, bulletSpriteUrl, bearing, shotSpeed);
+            bullet = new Bullet(panel, position, bulletSpriteUrl, bearing, bulletSpeed);
         }
-        
-        GameManager.getInstance().addBullet(bullet);
-        return bullet;
-    }
 
-    /**
-     * Spawns a new bullet instance with an animatedsprite using the provided
-     * values.
-     * <p>
-     * Following creation, the new bullet is additionally added to the
-     * GameManager's managed list of bullets.
-     *
-     * @param bulletAnimation The URL for the spawned bullet's sprite.
-     * @param bearing The direction the bullet will move in.
-     * @param shotSpeed The movement speed of the new bullet in pixels per
-     * frame.
-     * @return the newly created {@link Bullet} instance
-     */
-    public Bullet spawnBullet(final Animation animation, final Bearing2D bearing, final double shotSpeed) {
-        Bullet bullet = new Bullet(panel, position, animation, bearing, shotSpeed);
         GameManager.getInstance().addBullet(bullet);
         return bullet;
     }

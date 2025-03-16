@@ -8,18 +8,21 @@ import javax.swing.JPanel;
 
 import com.rikuthin.graphics.GameFrame;
 import com.rikuthin.interfaces.Renderable;
+import com.rikuthin.interfaces.Updateable;
 
 /**
  * Abstract base class for all game screens (e.g., main menu, gameplay).
  * Provides a structure for updating and rendering screens.
  */
-public abstract class Screen extends JPanel implements Renderable {
+public abstract class Screen extends JPanel implements Updateable, Renderable {
 
+    // ----- INSTANCE VARIABLES -----
     /**
      * The parent {@link GameFrame} to which this screen belongs
      */
     protected final GameFrame gameFrame;
 
+    // ----- CONSTRUCTORS -----
     /**
      * Constructs a screen panel and sets its dimensions to match the game
      * window.
@@ -37,6 +40,16 @@ public abstract class Screen extends JPanel implements Renderable {
         setMaximumSize(panelSize);
     }
 
+    // ----- BUSINESS LOGIC METHODS -----
+    /**
+     * Cleans up resources and UI elements when switching screens.
+     */
+    public void cleanup() {
+        removeAll();
+        revalidate();
+    }
+
+    // ----- OVERRIDDEN METHODS -----
     /**
      * Override the paintComponent method to render the game on the screen. This
      * is where custom rendering will occur.
@@ -49,22 +62,4 @@ public abstract class Screen extends JPanel implements Renderable {
             safeRender(g2d);
         }
     }
-
-    /**
-     * Cleans up resources and UI elements when switching screens.
-     */
-    public void cleanup() {
-        removeAll();
-        revalidate();
-    }
-
-    /**
-     * Updates the screen logic every frame.
-     */
-    public abstract void update();
-
-    /**
-     * Renders the screen's graphical components.
-     */
-    public abstract void render(Graphics2D g);
 }

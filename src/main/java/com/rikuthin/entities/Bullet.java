@@ -21,10 +21,6 @@ public class Bullet extends Entity {
      * Direction of movement (bearing)
      */
     private Bearing2D bearing;
-    /**
-     * Movement speed in pixels per frame. Defaults to 0 (i.e., not moving).
-     */
-    private double speed;
 
     // ----- CONSTRUCTORS -----
     /**
@@ -36,9 +32,8 @@ public class Bullet extends Entity {
      * @param spriteUrl The URL for the bullet's sprite.
      */
     public Bullet(final JPanel panel, final Point position, final String spriteUrl, final Bearing2D bearing, final double speed) {
-        super(panel, position, spriteUrl, false, true);
+        super(panel, position, spriteUrl, false, true, 0, speed);
         this.bearing = bearing;
-        this.speed = speed;
     }
 
     /**
@@ -52,9 +47,8 @@ public class Bullet extends Entity {
      * @param speed The bullet's movement speed in pixels per frame.
      */
     public Bullet(final JPanel panel, final Point position, final Animation animation, final Bearing2D bearing, final double speed) {
-        super(panel, position, animation, true);
+        super(panel, position, animation, true, 0, speed);
         this.bearing = bearing;
-        this.speed = speed;
     }
 
     // ----- GETTERS -----
@@ -77,15 +71,6 @@ public class Bullet extends Entity {
         return bearing;
     }
 
-    /**
-     * Returns the bullet's current movement speed in pixels per frame.
-     *
-     * @return The movement speed.
-     */
-    public double getSpeed() {
-        return speed;
-    }
-
     // ----- SETTERS -----
     /**
      * Sets the direction the bullet should move in.
@@ -94,16 +79,6 @@ public class Bullet extends Entity {
      */
     public void setBearing(final Bearing2D bearing) {
         this.bearing = bearing;
-    }
-
-    /**
-     * Sets the speed the bullet should move at in pixels per frame. Uses the
-     * the absolute (positive) value.
-     *
-     * @param speed The movement speed.
-     */
-    public void setSpeed(final double speed) {
-        this.speed = Math.abs(speed);
     }
 
     // ----- BUSINESS LOGIC METHODS -----
@@ -117,8 +92,8 @@ public class Bullet extends Entity {
 
         final double radians = Math.toRadians(bearing.getDegrees());
 
-        position.x += speed * Math.cos(radians);
-        position.y -= speed * Math.sin(radians); // Inverted for screen coordinates
+        position.x += Math.floor(speed * Math.cos(radians));
+        position.y -= Math.floor(speed * Math.sin(radians)); // Inverted for screen coordinates
     }
 
     // ----- OVERRIDDEN METHODS -----
@@ -144,8 +119,8 @@ public class Bullet extends Entity {
         Bullet other = (Bullet) obj;
 
         return super.equals(obj)
-                && this.bearing.equals(other.getBearing())
-                && this.speed == other.speed;
+                && Objects.equals(bearing, other.getBearing())
+                && Double.compare(speed, other.speed) == 0;
     }
 
     /**

@@ -57,6 +57,19 @@ public abstract class Entity implements Updateable, Renderable {
      * otherwise.
      */
     protected boolean isCollidable;
+    /**
+     * The maximum number of hit points the player can have.
+     */
+    protected int maxHitPoints;
+    /**
+     * The player's current hit points. Defaults to the max HP's value upon
+     * construction.
+     */
+    protected int currentHitPoints;
+    /**
+     * How many pixels to move each frame. Defaults to 0 (stationary).
+     */
+    protected double speed;
 
     // ----- CONSTRUCTORS -----
     /**
@@ -73,8 +86,10 @@ public abstract class Entity implements Updateable, Renderable {
      * @param isInvisible {@code true} if the entity should not render its
      * sprite; {@code false} otherwise.
      * @param isCollidable Whether the entity can collide with others.
+     * @param maxHitPoints The entity's maximum hit points.
+     * @param speed How many pixels per frame the entity can move.
      */
-    protected Entity(final JPanel panel, final Point position, final String spriteUrl, final boolean isInvisible, final boolean isCollidable) {
+    protected Entity(final JPanel panel, final Point position, final String spriteUrl, final boolean isInvisible, final boolean isCollidable, final int maxHitPoints, final double speed) {
         if (panel == null) {
             throw new IllegalArgumentException(String.format(
                     "%s: Panel cannot be null",
@@ -90,6 +105,9 @@ public abstract class Entity implements Updateable, Renderable {
         this.isAnimated = false;
         setHitboxFromCurrentSprite();
         setCollidability(isCollidable);
+        setMaxHitPoints(maxHitPoints);
+        setCurrentHitPoints(currentHitPoints);
+        setSpeed(speed);
     }
 
     /**
@@ -102,10 +120,12 @@ public abstract class Entity implements Updateable, Renderable {
      *
      * @param panel The parent {@link JPanel} to which the entity belongs.
      * @param position The initial position.
-     * @param spriteUrl The URL for the entity's sprite.
+     * @param animation The animation for the entity's sprite.
      * @param isCollidable Whether the entity can collide with others.
+     * @param maxHitPoints The entity's maximum hit points.
+     * @param speed How many pixels per frame the entity can move.
      */
-    protected Entity(final JPanel panel, final Point position, final Animation animation, final boolean isCollidable) {
+    protected Entity(final JPanel panel, final Point position, final Animation animation, final boolean isCollidable, final int maxHitPoints, final double speed) {
         if (panel == null) {
             throw new IllegalArgumentException(String.format(
                     "%s: Panel cannot be null",
@@ -120,6 +140,9 @@ public abstract class Entity implements Updateable, Renderable {
         this.isAnimated = true;
         setHitboxFromCurrentSprite();
         setCollidability(isCollidable);
+        setMaxHitPoints(maxHitPoints);
+        setCurrentHitPoints(currentHitPoints);
+        setSpeed(speed);
 
         // Start the animation once everything else is loaded.
         this.animation.start();
@@ -234,6 +257,33 @@ public abstract class Entity implements Updateable, Renderable {
      */
     public boolean isCollidable() {
         return isCollidable;
+    }
+
+    /**
+     * Returns the player's maximum hit points.
+     *
+     * @return The max hit points.
+     */
+    public int getMaxHitPoints() {
+        return maxHitPoints;
+    }
+
+    /**
+     * Returns the player's current hit points.
+     *
+     * @return The current hit points.
+     */
+    public int getCurrentHitPoints() {
+        return currentHitPoints;
+    }
+
+    /**
+     * Returns the player's movement speed.
+     *
+     * @return The speed in pixels per frame.
+     */
+    public double getSpeed() {
+        return speed;
     }
 
     // ----- SETTERS -----
@@ -389,6 +439,39 @@ public abstract class Entity implements Updateable, Renderable {
         this.isCollidable = isCollidable;
     }
 
+    /**
+     * Sets the player's maximum hit points.
+     * <p>
+     * Uses the absolute value of the provided parameter.
+     *
+     * @param The max hit points.
+     */
+    public final void setMaxHitPoints(final int maxHitPoints) {
+
+        this.maxHitPoints = Math.abs(maxHitPoints);
+    }
+
+    /**
+     * Sets the player's current hit points.
+     * <p>
+     * Uses the absolute value of the provided parameter. If larger than the
+     * maximum hit points, it is automatically set to the maximum value.
+     *
+     * @param The current hit points.
+     */
+    public final void setCurrentHitPoints(final int currentHitPoints) {
+        this.currentHitPoints = Math.min(Math.abs(currentHitPoints), this.maxHitPoints);
+    }
+
+    /**
+     * Sets the player's movement speed.
+     *
+     * @param speed The new movement speed in pixels per frame.
+     */
+    public final void setSpeed(final double speed) {
+        this.speed = speed;
+    }
+
     // ----- BUSINESS LOGIC METHODS -----
     /**
      * Checks if the entity is fully within the display of its parent panel.
@@ -450,8 +533,8 @@ public abstract class Entity implements Updateable, Renderable {
      * to provide futher functionality.
      * <p>
      * By default, two entities are considered equal if they have the same
-     * parent panel, position, sprite, hitbox, and invisibility and
-     * collidability statuses.
+     * parent panel, position, sprite, hitbox, invisibility and
+     * collidability statuses, hitpoints, and speed.
      *
      * @param obj the object to compare with
      * @return {@code true} if the entities are equal; {@code false} otherwise
@@ -471,7 +554,10 @@ public abstract class Entity implements Updateable, Renderable {
                 && Boolean.compare(isInvisible, other.isInvisible()) == 0
                 && Objects.equals(animation, other.getAnimation())
                 && Objects.equals(hitbox, other.getHitbox())
-                && Boolean.compare(isCollidable, other.isCollidable()) == 0;
+                && Boolean.compare(isCollidable, other.isCollidable()) == 0
+                && Integer.compare(maxHitPoints, other.getMaxHitPoints()) == 0
+                && Integer.compare(currentHitPoints, other.getCurrentHitPoints()) == 0
+                && Double.compare(speed, other.getSpeed()) == 0;
     }
 
     /**
@@ -491,7 +577,10 @@ public abstract class Entity implements Updateable, Renderable {
                 isInvisible,
                 animation,
                 hitbox,
-                isCollidable
+                isCollidable,
+                maxHitPoints,
+                currentHitPoints,
+                speed
         );
     }
 

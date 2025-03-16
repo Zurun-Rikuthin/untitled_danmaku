@@ -3,6 +3,7 @@ package com.rikuthin.graphics.screens.subpanels;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.util.ArrayList;
 
 import com.rikuthin.core.App;
 import com.rikuthin.core.GameManager;
@@ -19,7 +20,7 @@ public class GamePanel extends Subpanel {
     // ----- INSTANCE VARIABLES -----
     private GameManager gameManager;
     private Player player;
-    private BulletSpawner spawner;
+    private ArrayList<BulletSpawner> spawners;
 
     // ----- CONSTRUCTORS -----
     public GamePanel(final int width, final int height, final String backgroundImageURL) {
@@ -29,15 +30,26 @@ public class GamePanel extends Subpanel {
         setBackground(new Color(200, 170, 170));
         initialisePlayer(width, height);
 
+        spawners = new ArrayList<>();
+
         gameManager = GameManager.getInstance();
         gameManager.init();
 
         Animation bulletAnimation = new Animation(new Point(100, 100), true);
         bulletAnimation.loadStripFile("/images/animations/bullet-1.png", App.FRAME_RATE_MS, 15, 24);
 
-        spawner = new BulletSpawner(this, new Point(200, 200), null, bulletAnimation, 10, 250);
-        spawner.setBearing(new Bearing2D(0, 0, 20, -20));
-        spawner.start();
+        for (int i = 0; i < 10; i++) {
+            spawners.add(new BulletSpawner(
+                    this,
+                    new Point(200, 200),
+                    null,
+                    bulletAnimation,
+                    new Bearing2D(0, 0, 20 + (i * 10), -20),
+                    10,
+                    250
+            ));
+            spawners.get(i).start();
+        }
     }
 
     // ----- OVERRIDDEN METHODS -----
@@ -50,8 +62,10 @@ public class GamePanel extends Subpanel {
             player.move();
         }
 
-        if (spawner != null) {
-            spawner.update();
+        for (BulletSpawner spawner : spawners) {
+            if (spawner != null) {
+                spawner.update();
+            }
         }
 
         gameManager.update();
@@ -72,8 +86,10 @@ public class GamePanel extends Subpanel {
             player.safeRender(g2d);
         }
 
-        if (spawner != null) {
-            spawner.safeRender(g2d);
+        for (BulletSpawner spawner : spawners) {
+            if (spawner != null) {
+                spawner.safeRender(g2d);
+            }
         }
 
         gameManager.render(g2d);
@@ -81,7 +97,7 @@ public class GamePanel extends Subpanel {
 
     // ----- HELPER METHODS -----
     private void initialisePlayer(final int panelWidth, final int panelHeight) {
-        player = new Player(this, new Point(0, 0), "/images/sprites/white-queen.png", 5);
+        player = new Player(this, new Point(0, 0), "/images/sprites/white-queen.png", 20, 5);
 
         int x = Math.divideExact(panelWidth, 2) - Math.divideExact(player.getSpriteWidth(), 2);
         int y = Math.divideExact(panelHeight, 2);
