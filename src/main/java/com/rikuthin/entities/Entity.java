@@ -83,7 +83,7 @@ public abstract class Entity implements Updateable, Renderable {
         }
 
         this.panel = panel;
-        setPosition(position);
+        setPosition(new Point(position));
         setInvisibility(isInvisible);
         setSprite(spriteUrl);
         setAnimation(null);
@@ -114,7 +114,7 @@ public abstract class Entity implements Updateable, Renderable {
         }
 
         this.panel = panel;
-        setPosition(position);
+        setPosition(new Point(position));
         setInvisibility(false);
         setAnimation(animation);
         this.isAnimated = true;
@@ -272,7 +272,7 @@ public abstract class Entity implements Updateable, Renderable {
      * @param position The new coordinates.
      */
     public final void setPosition(final Point position) {
-        this.position = position;
+        this.position = new Point(position);
     }
 
     /**
@@ -392,8 +392,9 @@ public abstract class Entity implements Updateable, Renderable {
     // ----- BUSINESS LOGIC METHODS -----
     /**
      * Checks if the entity is fully within the display of its parent panel.
-     * 
-     * @return {@code true} if the sprite can be fully rendered inside the panel; {@code false} otherwise.
+     *
+     * @return {@code true} if the sprite can be fully rendered inside the
+     * panel; {@code false} otherwise.
      */
     public boolean isFullyWithinPanel() {
         return position.x >= 0
@@ -404,8 +405,9 @@ public abstract class Entity implements Updateable, Renderable {
 
     /**
      * Checks if the entity is fully outside the display of its parent panel.
-     * 
-     * @return {@code true} if the sprite cannot be rendered at all inside the panel; {@code false otherwise}.
+     *
+     * @return {@code true} if the sprite cannot be rendered at all inside the
+     * panel; {@code false otherwise}.
      */
     public boolean isFullyOutsidePanel() {
         Rectangle spriteBounds = new Rectangle(position.x, position.y, getSpriteWidth(), getSpriteHeight());
@@ -455,8 +457,7 @@ public abstract class Entity implements Updateable, Renderable {
      * @return {@code true} if the entities are equal; {@code false} otherwise
      */
     @Override
-    public boolean equals(final Object obj
-    ) {
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }

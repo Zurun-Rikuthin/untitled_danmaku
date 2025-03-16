@@ -3,16 +3,18 @@ package com.rikuthin.core;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.Timer;
 
 import com.rikuthin.entities.Bullet;
-import com.rikuthin.entities.Entity;
 import com.rikuthin.graphics.GameFrame;
 import com.rikuthin.graphics.dialogue.PauseMenuDialogue;
 import com.rikuthin.graphics.screens.subpanels.GamePanel;
 import com.rikuthin.graphics.screens.subpanels.InfoPanel;
+import com.rikuthin.interfaces.Renderable;
+import com.rikuthin.interfaces.Updateable;
 
 // import com.rikuthin.dialogue_panels.PauseMenuDialogue;
 // import com.rikuthin.game_objects.Blaster;
@@ -21,7 +23,7 @@ import com.rikuthin.graphics.screens.subpanels.InfoPanel;
 // import com.rikuthin.screen_panels.gameplay_subpanels.BubblePanel;
 // import com.rikuthin.screen_panels.gameplay_subpanels.StatusPanel;
 // import com.rikuthin.utility.RandomColour;
-public class GameManager {
+public class GameManager implements Updateable, Renderable {
 
     // ----- STATIC VARIABLES -----
     private static GameManager instance;
@@ -207,33 +209,37 @@ public class GameManager {
         bullets.remove(bullet);
     }
 
+    // ----- OVERRIDDEN METHODS -----
     /**
-     * Updates all bullets in the managed list.
-     *
-     * @param bullet
+     * Calls the update method for all managed objects.
      */
-    public void renderBullets(Graphics2D g2d) {
+    @Override
+    public void update() {
+        Iterator<Bullet> bulletIterator = bullets.iterator();
+
+        while (bulletIterator.hasNext()) {
+            Bullet b = bulletIterator.next();
+
+            if (b != null) {
+                b.update();
+
+                if (b.isFullyOutsidePanel()) {
+                    bulletIterator.remove();
+                }
+            }
+        }
+    }
+
+    /**
+     * Calls the render method for all managed objects.
+     *
+     * @param g2d
+     */
+    @Override
+    public void render(Graphics2D g2d) {
         for (Bullet b : bullets) {
             b.safeRender(g2d);
         }
-    }
-
-    /**
-     * Updates all bullets in the managed list.
-     *
-     * @param bullet
-     */
-    public void updateBullets() {
-        for (Bullet b : bullets) {
-            b.update();
-        }
-    }
-
-    /**
-     * Removes bullet that are fully off-screen.
-     */
-    public void removeOffScreenBullets() {
-        bullets.removeIf(Entity::isFullyOutsidePanel);
     }
 
     /**

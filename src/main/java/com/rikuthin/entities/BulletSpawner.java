@@ -264,7 +264,10 @@ public class BulletSpawner extends Entity {
     }
 
     /**
-     * Spawns a new bullet instance with a static sprite using the provided values.
+     * Spawns a new bullet instance using the provided values.
+     * <p>
+     * Must provide either an animation or a sparit sprite URL. If an animation
+     * is provided, it will be used instead of the static sprite.
      * <p>
      * Following creation, the new bullet is additionally added to the
      * GameManager's managed list of bullets.
@@ -275,14 +278,28 @@ public class BulletSpawner extends Entity {
      * frame.
      * @return the newly created {@link Bullet} instance
      */
-    public Bullet spawnBullet(final String bulletSpriteUrl, final Bearing2D bearing, final double shotSpeed) {
-        Bullet bullet = new Bullet(panel, position, bulletSpriteUrl, bearing, shotSpeed);
+    public Bullet spawnBullet(final Animation animation, final String bulletSpriteUrl, final Bearing2D bearing, final double shotSpeed) {
+        if (bulletAnimation == null && (bulletSpriteUrl == null || bulletSpriteUrl.isEmpty())) {
+            throw new IllegalArgumentException(String.format(
+                    "%s: Must have either a sprite URL or an animation.",
+                    this.getClass().getName()
+            ));
+        }
+
+        Bullet bullet;
+        if (bulletAnimation != null) {
+            bullet = new Bullet(panel, position, animation, bearing, shotSpeed);
+        } else {
+            bullet = new Bullet(panel, position, bulletSpriteUrl, bearing, shotSpeed);
+        }
+        
         GameManager.getInstance().addBullet(bullet);
         return bullet;
     }
 
     /**
-     * Spawns a new bullet instance with an animatedsprite using the provided values.
+     * Spawns a new bullet instance with an animatedsprite using the provided
+     * values.
      * <p>
      * Following creation, the new bullet is additionally added to the
      * GameManager's managed list of bullets.

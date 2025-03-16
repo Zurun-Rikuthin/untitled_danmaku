@@ -35,7 +35,7 @@ public class GamePanel extends Subpanel {
         Animation bulletAnimation = new Animation(new Point(100, 100), true);
         bulletAnimation.loadStripFile("/images/animations/bullet-1.png", App.FRAME_RATE_MS, 15, 24);
 
-        spawner = new BulletSpawner(this, new Point(200, 200), null, bulletAnimation, 20, 17);
+        spawner = new BulletSpawner(this, new Point(200, 200), null, bulletAnimation, 10, 250);
         spawner.setBearing(new Bearing2D(0, 0, 20, -20));
         spawner.start();
     }
@@ -54,8 +54,7 @@ public class GamePanel extends Subpanel {
             spawner.update();
         }
 
-        gameManager.updateBullets();
-        gameManager.removeOffScreenBullets();
+        gameManager.update();
     }
 
     public Player getPlayer() {
@@ -77,7 +76,7 @@ public class GamePanel extends Subpanel {
             spawner.safeRender(g2d);
         }
 
-        gameManager.renderBullets(g2d);
+        gameManager.render(g2d);
     }
 
     // ----- HELPER METHODS -----
