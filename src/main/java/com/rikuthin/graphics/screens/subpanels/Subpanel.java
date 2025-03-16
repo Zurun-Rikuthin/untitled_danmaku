@@ -18,33 +18,33 @@ import com.rikuthin.interfaces.Updateable;
 public abstract class Subpanel extends JPanel implements Updateable, Renderable {
 
     // ----- INSTANCE VARIABLES -----
-    protected String backgroundImageUrl;
+    protected String backgroundImageFilepath;
     protected BufferedImage backgroundImage;
 
     // ----- CONSTRUCTORS -----
-    protected Subpanel(final int width, final int height, final String backgroundImageUrl) {
+    protected Subpanel(final int width, final int height, final String backgroundImageFilepath) {
         Dimension panelSize = new Dimension(width, height);
         setPreferredSize(panelSize);
         setMinimumSize(panelSize);
         setMaximumSize(panelSize);
-        setBackgroundImage(backgroundImageUrl);
+        setBackgroundImage(backgroundImageFilepath);
     }
 
     // ----- SETTERS -----
     /**
-     * Sets the background image (and its URL) for this subpanel.
+     * Sets the background image (and its filepath) for this subpanel.
      *
-     * @param backgroundImageUrl The image URL.
+     * @param backgroundImageFilepath The image filepath.
      */
-    public final void setBackgroundImage(final String backgroundImageUrl) {
-        this.backgroundImageUrl = backgroundImageUrl;
-        backgroundImage = ImageManager.loadBufferedImage(backgroundImageUrl);
+    public final void setBackgroundImage(final String backgroundImageFilepath) {
+        this.backgroundImageFilepath = backgroundImageFilepath;
+        backgroundImage = ImageManager.loadBufferedImage(backgroundImageFilepath);
 
         if (backgroundImage == null) {
             System.err.println(String.format(
                     "%s: Could not load background image <'%s'>.",
                     this.getClass().getName(),
-                    backgroundImageUrl
+                    backgroundImageFilepath
             ));
         }
     }
@@ -74,7 +74,7 @@ public abstract class Subpanel extends JPanel implements Updateable, Renderable 
             System.err.println(String.format(
                     "%s: Could not load background image <'%s'>.",
                     this.getClass().getName(),
-                    backgroundImageUrl
+                    backgroundImageFilepath
             ));
             return;
         }

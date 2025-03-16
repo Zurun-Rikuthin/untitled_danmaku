@@ -37,8 +37,8 @@ public final class InfoPanel extends Subpanel {
     /**
      * Constructs the InfoPanel.
      */
-    public InfoPanel(final int width, final int height, final String backgroundImageUrl) {
-        super(width, height, backgroundImageUrl);
+    public InfoPanel(final int width, final int height, final String backgroundImageFilepath) {
+        super(width, height, backgroundImageFilepath);
 
         // Background colour used as a backup in case the image deosn't load.
         setBackground(new Color(87, 73, 100));

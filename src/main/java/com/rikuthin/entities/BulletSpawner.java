@@ -6,7 +6,7 @@ import java.util.Objects;
 import javax.swing.JPanel;
 
 import com.rikuthin.core.GameManager;
-import com.rikuthin.graphics.Animation;
+import com.rikuthin.graphics.animations.AnimationTemplate;
 import com.rikuthin.utility.Bearing2D;
 
 /**
@@ -28,14 +28,9 @@ public class BulletSpawner extends Entity {
     private Bearing2D bearing;
 
     /**
-     * The URL for the spawned bullet's sprite. Used if no animation is set.
+     * The {@link AnimationTemplate} for the spawned bullet's sprite.
      */
-    private String bulletSpriteUrl;
-
-    /**
-     * The spawned bullet's sprite animation.
-     */
-    private Animation bulletAnimation;
+    private AnimationTemplate bulletAnimationTemplate;
     /**
      *
      * The speed bullets are shot at in pixels per frame. Defaults to 0.
@@ -63,40 +58,28 @@ public class BulletSpawner extends Entity {
      * Constructs a new bullet spawner.
      *
      * @param panel The parent {@code JPanel} in which the bullets are spawned.
-     * @param x The initial x-coordinate.
-     * @param y The initial y-coordinate.
-     * @param bulletSpriteUrl The URL for the bullet's static sprite. Used if no
-     * animation is provided.
+     * @param position The initial x and y-coordinates.
+     * @param bulletAnimationTemplate The {@link AnimationTemplate} for the
+     * bullet's animated sprite.
      * @param bearing The bearing/direction to fire bullets in. If note is
      * provided, defaults to firing string down.
-     * @param bulletAnimation The animation for the bullet's sprite.
      * @param bulletSpeed The speed spawned bullets will move at in pixels per
      * frame.
-     * @param shotDelayMs How many milliseconds to wait before spawning more
+     * @param spawnDelayMs How many milliseconds to wait before spawning more
      * bullets.
      */
-    public BulletSpawner(final JPanel panel, final Point position, final String bulletSpriteUrl, final Animation bulletAnimation, final Bearing2D bearing, final int bulletSpeed, final long spawnDelayMs) {
+    public BulletSpawner(
+            final JPanel panel, final Point position, final AnimationTemplate bulletAnimationTemplate,
+            final Bearing2D bearing, final int bulletSpeed, final long spawnDelayMs) {
         super(panel, position, null, true, false, 0, 0);
-
-        if (bulletAnimation == null && (bulletSpriteUrl == null || bulletSpriteUrl.isEmpty())) {
-            throw new IllegalArgumentException(String.format(
-                    "%s: Must have either a sprite URL or an animation.",
-                    this.getClass().getName()
-            ));
-        }
-
-        this.bulletSpriteUrl = bulletSpriteUrl;
-        this.bulletAnimation = bulletAnimation;
+                
+        setBulletAnimation(bulletAnimationTemplate);
         setBearing(bearing);
         this.bulletSpeed = Math.abs(bulletSpeed);
         this.spawnDelayMs = Math.abs(spawnDelayMs);
         this.lastUpdateTime = System.currentTimeMillis();
         this.elapsedDelayTime = 0;
         this.isSpawning = false;
-
-        if (this.bulletAnimation != null) {
-            this.sprite = bulletAnimation.getCurrentFrameImage();
-        }
     }
 
     // ----- GETTERS -----
@@ -111,25 +94,17 @@ public class BulletSpawner extends Entity {
     }
 
     /**
-     * Returns the sprite URL for the spawned bullet's sprite.
+     * Returns the {@link AnimationTemplate} for the spawned bullet's sprite.
      *
-     * @return The bullet's sprite URL.
+     * @return The template for the bullet's sprite.
      */
-    public String getBulletSpriteUrl() {
-        return bulletSpriteUrl;
+    public AnimationTemplate getBulletAnimationTemplate() {
+        return bulletAnimationTemplate;
     }
 
     /**
-     * Returns the animation for the spawned bullet's sprite.
-     *
-     * @return The bullet's sprite animation.
-     */
-    public Animation getBulletAnimation() {
-        return bulletAnimation;
-    }
-
-    /**
-     * Returns the speed (in pixels/tick) at which the bullets will move.
+     * Returns the speed (in pixels/tick) at which the {@link Bullet} instances
+     * will leave the spawner.
      *
      * @return the speed of the bullets
      */
@@ -138,7 +113,7 @@ public class BulletSpawner extends Entity {
     }
 
     /**
-     * Returns whether the spawner is creating bullets.
+     * Returns whether the spawner is creating {@link Bullet} instances.
      *
      * @return {@code true} if the spawner is creating bullets; {@code false}
      * otherwise.
@@ -177,25 +152,19 @@ public class BulletSpawner extends Entity {
 
     // ----- SETTERS -----
     /**
-     * Sets the URL for the spawned bullet's static sprite.
+     * Sets the {@link AnimationTemplate} for the spawned {@link Bullet}
+     * instance's sprite animation.
      *
-     * @param bulletType The bullet's sprite URL.
+     * @param bulletAnimationTemplate The template for the bullet's sprite
+     * animation.
      */
-    public void setBulletSpriteUrl(final String bulletSpriteUrl) {
-        this.bulletSpriteUrl = bulletSpriteUrl;
+    public final void setBulletAnimation(final AnimationTemplate bulletAnimationTemplate) {
+        this.bulletAnimationTemplate = bulletAnimationTemplate;
     }
 
     /**
-     * Sets the animation for the spawned bullet's sprite.
-     *
-     * @param bulletAnimation The bullet's sprite animation.
-     */
-    public void setBulletAnimation(final Animation bulletAnimation) {
-        this.bulletAnimation = bulletAnimation;
-    }
-
-    /**
-     * Sets the bearing (direction) of the blaster's movement.
+     * Sets the bearing (direction) of the {@link Bullet} instances leaving the
+     * spawner.
      * <p>
      * If the passed value is {@code null}, defaults to aiming straight down.
      *
@@ -206,8 +175,8 @@ public class BulletSpawner extends Entity {
     }
 
     /**
-     * Sets the speed (in pixels/tick) of the bullets that will be shot from the
-     * blaster.
+     * Sets the speed (in pixels/tick) of the {@link Bullet} instances leaving
+     * the spawner.
      *
      * @param bulletSpeed the new bullet speed
      */
@@ -217,7 +186,7 @@ public class BulletSpawner extends Entity {
 
     /**
      * Sets how many milliseconds the spawner must wait before creating more
-     * bullets.
+     * {@link Bullet} instances.
      *
      * @param spawnDelayMs The delay.
      */
@@ -227,7 +196,7 @@ public class BulletSpawner extends Entity {
 
     // ----- BUSINESS LOGIC METHODS -----
     /**
-     * Begins the spawning of bullets.
+     * Begins the spawning of {@link Bullet} instances.
      */
     public void start() {
         isSpawning = true;
@@ -236,77 +205,33 @@ public class BulletSpawner extends Entity {
     }
 
     /**
-     * Stops the spawning of bullets.
+     * Stops the spawning of {@link bullet} instances.
      */
     public void stop() {
         isSpawning = false;
     }
 
     /**
-     * Spawns a new bullet instance using the current stored values.
-     * <p>
-     * The creation of animated bullets is prioritised. If no bullet animation
-     * is set, the spawner will use the set static sprite.
+     * Spawns a new {@link Bullet} instance using the current stored values.
      * <p>
      * Following creation, the new bullet is additionally added to the
      * GameManager's managed list of bullets.
      *
-     * @return the newly created {@link Bullet} instance
+     * @return the newly created bullet.
      */
     public Bullet spawnBullet() {
-        Bullet bullet;
-
-        if (bulletAnimation != null) {
-            bullet = new Bullet(panel, position, bulletAnimation, bearing, bulletSpeed);
-        } else {
-            bullet = new Bullet(panel, position, bulletSpriteUrl, bearing, bulletSpeed);
-        }
-
-        GameManager.getInstance().addBullet(bullet);
-        return bullet;
-    }
-
-    /**
-     * Spawns a new bullet instance using the provided values.
-     * <p>
-     * Must provide either an animation or a sparit sprite URL. If an animation
-     * is provided, it will be used instead of the static sprite.
-     * <p>
-     * Following creation, the new bullet is additionally added to the
-     * GameManager's managed list of bullets.
-     *
-     * @param bulletSpriteUrl The URL for the spawned bullet's sprite.
-     * @param bearing The direction the bullet will move in.
-     * @param bulletSpeed The movement speed of the new bullet in pixels per
-     * frame.
-     * @return the newly created {@link Bullet} instance
-     */
-    public Bullet spawnBullet(final Animation animation, final String bulletSpriteUrl, final Bearing2D bearing, final double bulletSpeed) {
-        if (bulletAnimation == null && (bulletSpriteUrl == null || bulletSpriteUrl.isEmpty())) {
-            throw new IllegalArgumentException(String.format(
-                    "%s: Must have either a sprite URL or an animation.",
-                    this.getClass().getName()
-            ));
-        }
-
-        Bullet bullet;
-        if (bulletAnimation != null) {
-            bullet = new Bullet(panel, position, animation, bearing, bulletSpeed);
-        } else {
-            bullet = new Bullet(panel, position, bulletSpriteUrl, bearing, bulletSpeed);
-        }
-
+        Bullet bullet = new Bullet(panel, position, bulletAnimationTemplate, bearing, bulletSpeed);
         GameManager.getInstance().addBullet(bullet);
         return bullet;
     }
 
     // ----- OVERRIDDEN METHODS -----
     /**
-     * Compares this spawner with another object for equality.
+     * Compares this {@link BulletSpawner} with another object for equality.
      * <p>
      * Extends {@code equals()} from the {@link Entity} class by comparing
-     * spawner-related attributes such at firing bearing/direction, bullet type,
-     * shot speed, and spawn delay.
+     * spawner-related attributes such at firing bearing/direction, bullet
+     * animation template, shot speed, and spawn delay.
      *
      * @param obj the object to compare with
      * @return {@code true} if the objects are equal; {@code false} otherwise
@@ -324,8 +249,7 @@ public class BulletSpawner extends Entity {
         BulletSpawner other = (BulletSpawner) obj;
         return super.equals(obj)
                 && Objects.equals(bearing, other.getBearing())
-                && Objects.equals(bulletSpriteUrl, other.getBulletSpriteUrl())
-                && Objects.equals(bulletAnimation, other.getBulletAnimation())
+                && Objects.equals(bulletAnimationTemplate, other.getBulletAnimationTemplate())
                 && java.lang.Double.compare(bulletSpeed, other.getBulletSpeed()) == 0
                 && Boolean.compare(isSpawning, other.isSpawning()) == 0
                 && Long.compare(spawnDelayMs, other.getSpawnDelayMs()) == 0
@@ -337,15 +261,15 @@ public class BulletSpawner extends Entity {
      * Computes the hash code for this spawner entity.
      *
      * Extends {@code hashCode()} from the {@link Entity} class by incorporating
-     * spawner attributes such as bullet type, firing bearing/direction, and
-     * shot speed.
+     * spawner attributes such as bullet animation template, firing
+     * bearing/direction, bullet speed, and spawn delay.
      *
      * @return the hash code of this blaster
      */
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(),
-                bulletSpriteUrl,
+                bulletAnimationTemplate,
                 bearing,
                 bulletSpeed
         );

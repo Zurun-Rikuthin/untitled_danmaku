@@ -30,7 +30,7 @@ public class MainMenuScreen extends Screen {
     private final JPanel buttonPanel;
     private final JPanel centreWrapper;
     private final JPanel titlePanel;
-    private final String backgroundImageURL;
+    private final String backgroundImageFilepath;
     private BufferedImage backgroundImage;
 
     /**
@@ -45,8 +45,8 @@ public class MainMenuScreen extends Screen {
         setBackground(new Color(87, 73, 100));
         setLayout(new BorderLayout());
 
-        backgroundImageURL = "/images/backgrounds/main-menu.png";
-        backgroundImage = ImageManager.loadBufferedImage(backgroundImageURL);
+        backgroundImageFilepath = "/images/backgrounds/main-menu.png";
+        backgroundImage = ImageManager.loadBufferedImage(backgroundImageFilepath);
 
         // ----- Title Section (Centered at the top) -----
         titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -99,7 +99,7 @@ public class MainMenuScreen extends Screen {
         if (backgroundImage != null && g2d != null) {
             g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
         } else {
-            System.err.println(String.format("%s: Could not load background image <'%s'>.", this.getClass().getName(), backgroundImageURL));
+            System.err.println(String.format("%s: Could not load background image <'%s'>.", this.getClass().getName(), backgroundImageFilepath));
         }
     }
 

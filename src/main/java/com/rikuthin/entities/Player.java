@@ -5,7 +5,7 @@ import java.util.Objects;
 
 import javax.swing.JPanel;
 
-import com.rikuthin.graphics.Animation;
+import com.rikuthin.graphics.animations.AnimationTemplate;
 
 /**
  * This class represents the player-controlled character and defines how it
@@ -29,39 +29,20 @@ public class Player extends Entity {
 
     // ----- CONSTRUCTORS -----
     /**
-     * Constructs a player entity with specified position, sprite, and movement
+     * Constructs a new {@link Player}.
      * <p>
      * The player remains stationary by default and moves only when directional
      * inputs are provided.
      *
      * @param panel The parent {@link JPanel} the player belongs to.
      * @param position The initial x and y-coordinates.
-     * @param spriteUrl The URL for the player's sprite.
+     * @param animationTemplate The {@link AnimationTemplate} for the player's
+     * sprite.
      * @param maxHitpoints The player's maximum hitpoints.
      * @param speed The movement speed in pixels per frame.
      */
-    public Player(final JPanel panel, final Point position, final String spriteUrl, final int maxHitPoints, final int speed) {
-        super(panel, position, spriteUrl, false, true, maxHitPoints, speed);
-        this.movingUp = false;
-        this.movingDown = false;
-        this.movingLeft = false;
-        this.movingRight = false;
-    }
-
-    /**
-     * Constructs a player entity with specified position, sprite, and movement
-     * <p>
-     * The player remains stationary by default and moves only when directional
-     * inputs are provided.
-     *
-     * @param panel The parent {@link JPanel} the player belongs to.
-     * @param position The initial x and y-coordinates.
-     * @param spriteUrl The URL for the player's sprite.
-     * @param maxHitpoints The player's maximum hitpoints.
-     * @param speed The movement speed in pixels per frame.
-     */
-    public Player(final JPanel panel, final Point position, final Animation animation, final int maxHitPoints, final int speed) {
-        super(panel, position, animation, true, maxHitPoints, speed);
+    public Player(final JPanel panel, final Point position, final AnimationTemplate animationTemplate, final int maxHitPoints, final int speed) {
+        super(panel, position, animationTemplate, false, true, maxHitPoints, speed);
         this.movingUp = false;
         this.movingDown = false;
         this.movingLeft = false;

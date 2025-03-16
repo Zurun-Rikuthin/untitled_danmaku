@@ -5,7 +5,7 @@ import java.util.Objects;
 
 import javax.swing.JPanel;
 
-import com.rikuthin.graphics.Animation;
+import com.rikuthin.graphics.animations.AnimationTemplate;
 import com.rikuthin.utility.Bearing2D;
 
 /**
@@ -24,30 +24,17 @@ public class Bullet extends Entity {
 
     // ----- CONSTRUCTORS -----
     /**
-     * Constructs a new Bullet with a static sprite.
+     * Constructs a new {@link Bullet} with an animated sprite.
      *
      * @param panel The {@link JPanel} to which the bullet belongs.
-     * @param x The initial x-coordinate.
-     * @param y The initial y-coordinate.
-     * @param spriteUrl The URL for the bullet's sprite.
-     */
-    public Bullet(final JPanel panel, final Point position, final String spriteUrl, final Bearing2D bearing, final double speed) {
-        super(panel, position, spriteUrl, false, true, 0, speed);
-        this.bearing = bearing;
-    }
-
-    /**
-     * Constructs a new Bullet with an animated sprite.
-     *
-     * @param panel The {@link JPanel} to which the bullet belongs.
-     * @param x The initial x-coordinate.
-     * @param y The initial y-coordinate.
-     * @param animation The bullet's sprite animation
+     * @param position The initial x and y-coordinates.
+     * @param animationTemplate The {@AnimationTemplate} for the bullet's
+     * sprite.
      * @param bearing The direction the bullet should move in.
      * @param speed The bullet's movement speed in pixels per frame.
      */
-    public Bullet(final JPanel panel, final Point position, final Animation animation, final Bearing2D bearing, final double speed) {
-        super(panel, position, animation, true, 0, speed);
+    public Bullet(final JPanel panel, final Point position, final AnimationTemplate animationTemplate, final Bearing2D bearing, final double speed) {
+        super(panel, position, animationTemplate, false, true, 0, speed);
         this.bearing = bearing;
     }
 

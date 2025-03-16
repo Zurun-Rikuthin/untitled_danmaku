@@ -5,11 +5,11 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.util.ArrayList;
 
-import com.rikuthin.core.App;
 import com.rikuthin.core.GameManager;
 import com.rikuthin.entities.BulletSpawner;
 import com.rikuthin.entities.Player;
-import com.rikuthin.graphics.Animation;
+import com.rikuthin.graphics.animations.AnimationManager;
+import com.rikuthin.graphics.animations.AnimationTemplate;
 import com.rikuthin.utility.Bearing2D;
 
 /**
@@ -23,8 +23,8 @@ public class GamePanel extends Subpanel {
     private ArrayList<BulletSpawner> spawners;
 
     // ----- CONSTRUCTORS -----
-    public GamePanel(final int width, final int height, final String backgroundImageURL) {
-        super(width, height, backgroundImageURL);
+    public GamePanel(final int width, final int height, final String backgroundImageFilepath) {
+        super(width, height, backgroundImageFilepath);
 
         // Background colour used as a backup in case the image deosn't load.
         setBackground(new Color(200, 170, 170));
@@ -35,15 +35,19 @@ public class GamePanel extends Subpanel {
         gameManager = GameManager.getInstance();
         gameManager.init();
 
-        Animation bulletAnimation = new Animation(new Point(100, 100), true);
-        bulletAnimation.loadStripFile("/images/animations/bullet-1.png", App.FRAME_RATE_MS, 15, 24);
+        AnimationTemplate bulletAnimationTemplate = AnimationManager.getInstance().getAnimation("bullet-1");
+
+        if (bulletAnimationTemplate == null) {
+            throw new RuntimeException("getAnimation(\"bullet-1\") returned null, even though key exists.");
+        } else {
+            System.out.println("Retrieved 'bullet-1' animation template: " + bulletAnimationTemplate);
+        }
 
         for (int i = 0; i < 10; i++) {
             spawners.add(new BulletSpawner(
                     this,
                     new Point(200, 200),
-                    null,
-                    bulletAnimation,
+                    bulletAnimationTemplate,
                     new Bearing2D(0, 0, 20 + (i * 10), -20),
                     10,
                     250
@@ -97,7 +101,13 @@ public class GamePanel extends Subpanel {
 
     // ----- HELPER METHODS -----
     private void initialisePlayer(final int panelWidth, final int panelHeight) {
-        player = new Player(this, new Point(0, 0), "/images/sprites/white-queen.png", 20, 5);
+        player = new Player(
+                this,
+                new Point(0, 0),
+                AnimationManager.getInstance().getAnimation("player"),
+                20,
+                5
+        );
 
         int x = Math.divideExact(panelWidth, 2) - Math.divideExact(player.getSpriteWidth(), 2);
         int y = Math.divideExact(panelHeight, 2);
