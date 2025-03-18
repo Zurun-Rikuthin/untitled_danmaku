@@ -8,21 +8,31 @@ import javax.swing.Timer;
 import javax.swing.WindowConstants;
 
 import static com.rikuthin.core.App.FRAME_RATE_MS;
+import com.rikuthin.core.GameManager;
 import com.rikuthin.graphics.animations.AnimationLoader;
-import com.rikuthin.graphics.animations.AnimationManager;
+import com.rikuthin.graphics.screens.GameplayScreen;
 import com.rikuthin.graphics.screens.MainMenuScreen;
 import com.rikuthin.graphics.screens.Screen;
 
 public final class GameFrame extends JFrame {
 
+    // ----- STATIC VARIABLES -----
+    /**
+     * The width of the app window in pixels.
+     */
     public static final int FRAME_WIDTH = 1024;
+    /**
+     * The height of the app window in pixels.
+     */
     public static final int FRAME_HEIGHT = 720;
 
+    // ----- INSTANCE VARIABLES -----
     private final Timer gameLoopTimer;
     private Graphics2D g2d;
     private BufferedImage backBuffer;
     private Screen currentScreen;
 
+    // ----- CONSTRUCTORS -----
     /**
      * Constructor to initialize the game frame, set the size, title, and add
      * the main menu and gameplay panels. Also initializes the GameManager
@@ -30,7 +40,6 @@ public final class GameFrame extends JFrame {
      */
     public GameFrame() {
         AnimationLoader.loadAllAnimations();
-        System.out.println(AnimationManager.getInstance().getAllAnimations());
 
         setTitle("<Untitled Danmaku>");
         setSize(FRAME_WIDTH, FRAME_HEIGHT);
@@ -51,7 +60,7 @@ public final class GameFrame extends JFrame {
             renderGame();
             currentScreen.repaint();
         });
-        gameLoopTimer.start();        
+        gameLoopTimer.start();
     }
 
     /**
@@ -85,6 +94,15 @@ public final class GameFrame extends JFrame {
         currentScreen.repaint();
         currentScreen.setFocusable(true);
         currentScreen.requestFocusInWindow();
+
+        if (newScreen instanceof GameplayScreen gameplayScreen) {
+            GameManager.getInstance().setGameplayActive(true);
+            GameManager.getInstance().init(gameplayScreen.getGamePanel(),
+                    gameplayScreen.getInfoPanel());
+        } else {
+            GameManager.getInstance().setGameplayActive(false);
+            GameManager.getInstance().clear();
+        }
     }
 
     /**
@@ -93,6 +111,16 @@ public final class GameFrame extends JFrame {
     public void updateGame() {
         if (currentScreen != null) {
             currentScreen.update();
+        }
+
+        GameManager gameManager = GameManager.getInstance();
+
+        // Ensures GameManager stores active game data.
+        if (!(currentScreen instanceof GameplayScreen)) {
+            gameManager.setGameplayActive(false);
+            gameManager.clear();
+        } else {
+            gameManager.setGameplayActive(true);
         }
     }
 

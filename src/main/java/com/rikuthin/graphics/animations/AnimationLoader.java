@@ -81,17 +81,21 @@ public class AnimationLoader {
      */
     public static void loadAllAnimations() {
         String[] spriteSheetPaths = {
-            ANIMATION_FOLDER + "bullet-1.png",
-            ANIMATION_FOLDER + "player.png"
+            ANIMATION_FOLDER + "player-bullet-1.png",
+            ANIMATION_FOLDER + "enemy-bullet-1.png",
+            ANIMATION_FOLDER + "player.png",
+            ANIMATION_FOLDER + "Agis.png"
         };
 
         // "width" = column count, "height" = row count
         Dimension[] spriteSheetDimensions = {
-            new Dimension(24, 24),
-            new Dimension(1, 1)
+            new Dimension(8, 1),
+            new Dimension(8, 1),
+            new Dimension(1, 1),
+            new Dimension(15, 1)
         };
 
-        boolean[] looping = {true, true}; // Looping flag for each animation
+        boolean[] looping = {true, true, true, true, true}; // Looping flag for each animation
 
         // Load each animation and add it to the AnimationManager
         for (int i = 0; i < spriteSheetPaths.length; i++) {
@@ -100,7 +104,7 @@ public class AnimationLoader {
             try {
                 // Load the frames from the sprite sheet
                 List<AnimationFrame> frames = AnimationLoader.loadFromSpriteSheet(
-                        spriteSheetPath, App.FRAME_RATE_MS, spriteSheetDimensions[i].width, spriteSheetDimensions[i].height
+                        spriteSheetPath, App.FRAME_RATE_MS, spriteSheetDimensions[i].height, spriteSheetDimensions[i].width
                 );
 
                 // Create the animation template

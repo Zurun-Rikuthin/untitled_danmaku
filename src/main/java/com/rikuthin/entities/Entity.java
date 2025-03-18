@@ -4,223 +4,248 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.swing.JPanel;
 
 import com.rikuthin.graphics.animations.AnimationInstance;
+import com.rikuthin.graphics.animations.AnimationManager;
 import com.rikuthin.graphics.animations.AnimationTemplate;
 import com.rikuthin.interfaces.Renderable;
 import com.rikuthin.interfaces.Updateable;
 
 /**
- * The base class for all entities in the game.
+ * Represents a base entity in the game, providing common functionality for all
+ * objects within the game world. This class handles entity position, animation,
+ * collision detection, hit points, and rendering.
  * <p>
- * This class represents any object that has behavior (e.g., movement,
- * animation, or interaction with other entities) in the game world.
+ * The entity can be fully customized through the builder pattern, supporting
+ * features such as animations, speed, invisibility, and collision handling.
+ * <p>
+ * Entities may interact with other entities and are capable of rendering
+ * themselves within a game panel.
  */
 public abstract class Entity implements Updateable, Renderable {
 
     // ----- INSTANCE VARIABLES -----
     /**
-     * The parent {@link JPanel} to which the entity belongs.
+     * The {@link JPanel} where the entity will be rendered.
      */
-    protected JPanel panel;
+    protected final JPanel panel;
+
     /**
-     * The x and y coordinates of the entity sprite's top left corner.
+     * The position of the entity in the game world.
      */
     protected Point position;
+
     /**
-     * The entity's current sprite image.
-     */
-    protected BufferedImage currentSprite;
-    /**
-     * {@code true} if the should not render its sprite; {@code false}
-     * otherwise.
+     * Flag indicating whether the entity is invisible or not.
      */
     protected boolean isInvisible;
+
     /**
-     * The {@link AnimationInstance} for the entity's sprite.
+     * A set of all the animation keys (names) associated with the entity.
      */
-    protected AnimationInstance animation;
+    protected HashSet<String> animationKeys;
+
     /**
-     * The entity's rectangular hitbox.
+     * The key of the currently active animation.
+     */
+    protected String currentAnimationKey;
+
+    /**
+     * The currently active animation. Set through a query to
+     * {@link AnimationManager}.
+     */
+    protected AnimationInstance currentAnimation;
+
+    /**
+     * The hitbox used for collision detection.
      */
     protected Rectangle hitbox;
+
     /**
-     * {@code true} if the entity can collide with others; {@code false}
-     * otherwise.
+     * Flag indicating whether the entity can collide with other entities.
      */
     protected boolean isCollidable;
+
     /**
-     * The maximum number of hit points the player can have.
+     * The maximum hit points of the entity.
      */
     protected int maxHitPoints;
+
     /**
-     * The player's current hit points. Defaults to the max HP's value upon
-     * construction.
+     * The current hit points of the entity.
      */
     protected int currentHitPoints;
-    /**
-     * How many pixels to move each frame. Defaults to 0 (stationary).
-     */
-    protected double speed;
 
     // ----- CONSTRUCTORS -----
     /**
-     * Constructs an new {@link Entity}.
-     * <p>
-     * The entity's hitbox defaults to the dimensions and position of the
-     * animation's first sprite if one is available.
-     * <p>
-     * Note: Currently, ALL hitboxes are standard rectangles.
+     * Private constructor used by the builder pattern to instantiate an Entity.
      *
-     * @param panel The parent {@link JPanel} to which the entity belongs.
-     * @param position The initial position.
-     * @param animationTemplate The shared {@link AnimationTemplate} for the
-     * entity's sprite.
-     * @param isInvisible {@code true} if the entity will visible render;
-     * otherwise {@code false}.
-     * @param isCollidable {@code true} if entity can collide with others;
-     * otherwise {@code false}.
-     * @param maxHitPoints The entity's maximum hit points.
-     * @param speed How many pixels per frame the entity can move.
+     * @param builder The builder instance used to construct the entity.
      */
-    protected Entity(final JPanel panel, final Point position, final AnimationTemplate animationTemplate, final boolean isInvisible, final boolean isCollidable, final int maxHitPoints, final double speed) {
-        if (panel == null) {
+    protected Entity(EntityBuilder<?> builder) {
+        if (builder == null) {
             throw new IllegalArgumentException(String.format(
-                    "%s: Panel cannot be null",
+                    "%s: Builder cannot be null.",
                     this.getClass().getName()
             ));
         }
 
-        this.panel = panel;
-        setPosition(new Point(position));
-        this.isInvisible = isInvisible;
-        setAnimation(animationTemplate);
-        setHitboxFromCurrentSprite();
-        setCollidability(isCollidable);
-        setMaxHitPoints(maxHitPoints);
-        setCurrentHitPoints(currentHitPoints);
-        setSpeed(speed);
+        this.panel = builder.panel;
+        this.position = builder.position;
+        this.isInvisible = builder.isInvisible;
+        this.animationKeys = builder.animationKeys;
+        this.hitbox = builder.hitbox;
+        this.isCollidable = builder.isCollidable;
+        setMaxHitPoints(builder.maxHitPoints);
+        setCurrentHitPoints(builder.currentHitPoints);
 
-        // Start the animation once everything else is loaded.
-        if (this.animation != null) {
-            this.animation.start();
-        }
+        // Set initial animation and hitbox
+        setAnimation(builder.currentAnimationKey);
+        setHitboxFromCurrentSprite();
     }
 
     // ----- GETTERS -----
     /**
-     * Returns the parent {@link JPanel} to which the entity belongs.
+     * Returns the panel where the entity is rendered.
      *
-     * @return The parent panel.
+     * @return The {@link JPanel} for rendering.
      */
     public JPanel getPanel() {
         return panel;
     }
 
     /**
-     * Returns the x-coordinate of the entity's top-left corner.
+     * Returns the current position of the entity.
      *
-     * @return The x-coordinate.
-     */
-    public int getX() {
-        return position.x;
-    }
-
-    /**
-     * Returns the y-coordinate of the entity's top-left corner.
-     *
-     * @return The y-coordinate.
-     */
-    public int getY() {
-        return position.y;
-    }
-
-    /**
-     * Returns the coordinates of the entity's top-left corner.
-     *
-     * @return The coordinates.
+     * @return The position as a {@link Point}.
      */
     public Point getPosition() {
         return position;
     }
 
     /**
-     * Returns whether the entity is invisible.
+     * Returns the X-coordinate of the entity's position.
      *
-     * @return {@code true} if the entity is invisible, otherwise {@code false}.
+     * @return The X-coordinate.
+     */
+    public int getX() {
+        return position.x;
+    }
+
+    /**
+     * Returns the Y-coordinate of the entity's position.
+     *
+     * @return The Y-coordinate.
+     */
+    public int getY() {
+        return position.y;
+    }
+
+    /**
+     * Returns whether the entity is invisible (doesn't render its sprite).
+     *
+     * @return {@code true} if the entity is invisible, {@code false} otherwise.
      */
     public boolean isInvisible() {
         return isInvisible;
     }
 
     /**
-     * Returns the entity's current sprite image.
+     * Returns the set of keys this entity can use to query
+     * {@link AnimationManager} for an {@link AnimationTemplate}.
      *
-     * @return The current sprite image if one exists, otherwise {@code null}.
+     * @return The set of animation keys.
      */
-    public BufferedImage getCurrentSprite() {
-        return animation != null ? animation.getCurrentFrameImage() : null;
+    public Set<String> getAnimationKeys() {
+        return animationKeys;
     }
 
     /**
-     * Returns the width of the entity's sprite in pixels.
+     * Returns the key associated with the current {@link AnimationInstance}.
      *
-     * @return The sprite image's width if one exists, otherwise zero (0).
+     * @return
      */
-    public final int getSpriteWidth() {
+    public String getCurrentAnimationKey() {
+        return currentAnimationKey;
+    }
+
+    /**
+     * Returns the entity's current animation.
+     *
+     * @return The current {@link AnimationInstance}.
+     */
+    public AnimationInstance getCurrentAnimation() {
+        return currentAnimation;
+    }
+
+    /**
+     * Returns the current sprite image of the entity.
+     *
+     * @return The current sprite of the {@AnimationInstance} as a
+     * {@link BufferedImage} (if one is set); {@code null} otherwise.
+     */
+    public BufferedImage getCurrentSprite() {
+        if (currentAnimation == null) {
+            return null;
+        }
+        return currentAnimation.getCurrentFrameImage();
+    }
+
+    /**
+     * Returns the width of the current sprite.
+     *
+     * @return The sprite width.
+     */
+    public int getSpriteWidth() {
+        BufferedImage currentSprite = currentAnimation.getCurrentFrameImage();
         return currentSprite != null ? currentSprite.getWidth() : 0;
     }
 
     /**
-     * Returns the height of the entity's sprite in pixels.
+     * Returns the height of the current sprite.
      *
-     * @return The sprite image's height.
+     * @return The sprite height.
      */
-    public final int getSpriteHeight() {
+    public int getSpriteHeight() {
+        BufferedImage currentSprite = currentAnimation.getCurrentFrameImage();
         return currentSprite != null ? currentSprite.getHeight() : 0;
     }
 
     /**
-     * Returns the entity's sprite animation.
+     * Returns the hitbox of the entity.
      *
-     * @return The sprite animation.
-     */
-    public AnimationInstance getAnimation() {
-        return animation;
-    }
-
-    /**
-     * Returns the entity's hitbox.
-     *
-     * @return The hitbox.
+     * @return The hitbox as a {@link Rectangle}.
      */
     public Rectangle getHitbox() {
         return hitbox;
     }
 
     /**
-     * Returns whether the entity can collide with others.
+     * Returns whether the entity is collidable with others.
      *
-     * @return {@code true} if the entity can collide, otherwise {@code false}.
+     * @return {@code true} if the entity is collidable, {@code false}
+     * otherwise.
      */
     public boolean isCollidable() {
         return isCollidable;
     }
 
     /**
-     * Returns the player's maximum hit points.
+     * Returns the maximum hit points of the entity.
      *
-     * @return The max hit points.
+     * @return The maximum hit points.
      */
     public int getMaxHitPoints() {
         return maxHitPoints;
     }
 
     /**
-     * Returns the player's current hit points.
+     * Returns the current hit points of the entity.
      *
      * @return The current hit points.
      */
@@ -228,224 +253,225 @@ public abstract class Entity implements Updateable, Renderable {
         return currentHitPoints;
     }
 
-    /**
-     * Returns the player's movement speed.
-     *
-     * @return The speed in pixels per frame.
-     */
-    public double getSpeed() {
-        return speed;
-    }
-
     // ----- SETTERS -----
     /**
-     * Sets the x-coordinate of the entity's top-left corner.
+     * Sets the position of the entity.
      *
-     * @param x The new x-coordinate.
+     * @param position The new position to set.
      */
-    public final void setX(final int x) {
-        position.x = x;
-    }
-
-    /**
-     * Sets the y-coordinate of the entity's top-left corner.
-     *
-     * @param y The new y-coordinate.
-     */
-    public final void setY(final int y) {
-        position.y = y;
-    }
-
-    /**
-     * Sets the position of the entity's top-left corner.
-     *
-     * @param x The new x-coordinate.
-     * @param y The new y-coordinate.
-     */
-    public final void setPosition(final int x, final int y) {
-        position.x = x;
-        position.y = y;
-    }
-
-    /**
-     * Sets the position of the entity's top-left corner.
-     *
-     * @param position The new coordinates.
-     */
-    public final void setPosition(final Point position) {
+    public void setPosition(Point position) {
         this.position = new Point(position);
     }
 
     /**
-     * Sets the entity's invisibility.
+     * Sets whether the entity is invisible.
      *
-     * @param isInvisible {@code true} if the entity is invisible, otherwise
-     * {@code false}.
+     * @param isInvisible true to make the entity invisible, false to make it
+     * visible.
      */
-    public void setInvisibility(final boolean isInvisible) {
+    public void setInvisibility(boolean isInvisible) {
         this.isInvisible = isInvisible;
     }
 
     /**
-     * Sets the animation used for (and updates) the entity's sprite.
+     * Sets the set of keys this entity can query {@link AnimationManager} with.
      *
-     * @param animation The template for the animation.
+     * @param animationKeys The set of animation keys.
+     * @throws IllegalArgumentException if, when a non-{@code null} set is
+     * passed, it contains {@code null} or blank keys, or contains a key that
+     * doesn't exist in {@link AnimationManager}'s key set.
      */
-    public final void setAnimation(final AnimationTemplate animationTemplate) {
-        if (animationTemplate != null) {
-            animation = new AnimationInstance(animationTemplate);
-            updateCurrentSprite();
+    public final void setAnimationKeys(final Set<String> animationKeys) throws IllegalArgumentException {
+        if (animationKeys == null) {
+            this.animationKeys = new HashSet<>();
+            return;
         }
+
+        for (String key : animationKeys) {
+            if (key == null || key.isBlank()) {
+                throw new IllegalArgumentException(String.format(
+                        "%s: Keys cannot be null nor empty.",
+                        this.getClass().getName()
+                ));
+            }
+            if (AnimationManager.getInstance().getAnimation(key) == null) {
+                throw new IllegalArgumentException(String.format(
+                        "%s: Keys must exist within AnimationManager's key set.",
+                        this.getClass().getName()
+                ));
+            }
+        }
+
+        this.animationKeys = new HashSet<>(animationKeys);
     }
 
     /**
-     * Sets the entity hitbox.
+     * Sets the animation for the entity.
+     * <p>
+     * Key must either be {@code null} (for no animation) or a valid (non-blank)
+     * string.
+     * <p>
+     * Valid strings must be a {@link AnimationTemplate} key within
+     * {@link AnimationManager} and must exist within the entity's current key
+     * set.
      *
-     * @param x The x-coordinate of the hitbox's upper-left corner.
-     * @param y The y-coordinate of the hitbox's upper-left corner.
-     * @param width The width of the hitbox in pixels
-     * @param height The height of the hitbox in pixels
+     * @param key The key identifying the animation.
+     * @throws IllegalAccessException if the provided key (when not
+     * {@code null}) is blank, is not within the entity's animation key set, or
+     * does not map to a loaded template within {@link AnimationManager}.
      */
-    public final void setHitbox(final int x, final int y, final int width, final int height) {
-        hitbox = new Rectangle(x, y, width, height);
+    public final void setAnimation(String key) throws IllegalArgumentException {
+        if (key == null) {
+            currentAnimation = null;
+            return;
+        }
+
+        if (key.isBlank()) {
+            throw new IllegalArgumentException(String.format(
+                    "%s: Non-null keys cannot be blank.",
+                    this.getClass().getName()
+            ));
+        }
+
+        if (!animationKeys.contains(key)) {
+            throw new IllegalArgumentException(String.format(
+                    "%s: Animation key <'%s'> not found within key set. Please add key to set.",
+                    this.getClass().getName(),
+                    key
+            ));
+        }
+
+        AnimationTemplate template = AnimationManager.getInstance().getAnimation(key);
+        if (template == null) {
+            throw new IllegalArgumentException(String.format(
+                    "%s: Could not find template in AnimationManager mapped to key <'%s'>.",
+                    this.getClass().getName(),
+                    key
+            ));
+        }
+        this.currentAnimation = new AnimationInstance(template);
     }
 
     /**
-     * Sets the entity hitbox.
-     *
-     * @param position The coordinates of the hitbox's upper-left corner.
-     * @param width The width of the hitbox in pixels
-     * @param height The height of the hitbox in pixels
+     * Updates the hitbox dimensions based on the current sprite. The hitbox is
+     * adjusted to match the width and height of the sprite.
      */
-    public final void setHitbox(final Point position, final int width, final int height) {
+    public final void setHitboxFromCurrentSprite() {
+        BufferedImage currentSprite = getCurrentSprite();
+
+        int width = currentSprite != null ? currentSprite.getWidth() : 0;
+        int height = currentSprite != null ? currentSprite.getHeight() : 0;
+
         hitbox = new Rectangle(position.x, position.y, width, height);
     }
 
     /**
-     * Sets the size of the entity's hitbox using the dimensions of the entity's
-     * current sprite.
-     * <p>
-     * Note: If there is no sprite, the width and height are both set to 0.
+     * Updates the hitbox dimensions based on the provided {@link Rectangle}.
      */
-    public final void setHitboxFromCurrentSprite() {
-        int hitboxWidth = currentSprite != null ? currentSprite.getWidth() : 0;
-        int hitboxHeight = currentSprite != null ? currentSprite.getHeight() : 0;
-
-        setHitbox(position, hitboxWidth, hitboxHeight);
+    public final void setHitboxFromRectangle(final Rectangle rectangle) {
+        hitbox = new Rectangle(rectangle);
     }
 
     /**
-     * Sets whether the entity can collide with others.
-     *
-     * @param isCollidable {@code true} if the entity can collide, otherwise
-     * {@code false}.
+     * Sets the maximum hit points of the entity. Requires a non-negative value.
      */
-    public final void setCollidability(final boolean isCollidable) {
-        this.isCollidable = isCollidable;
+    protected final void setMaxHitPoints(final int maxHitPoints) {
+        if (maxHitPoints < 0) {
+            throw new IllegalArgumentException(String.format(
+                    "%s: Maximum hit points cannot be less than zero (0).",
+                    this.getClass().getName()
+            ));
+        }
+        this.maxHitPoints = maxHitPoints;
     }
 
     /**
-     * Sets the player's maximum hit points.
-     * <p>
-     * Uses the absolute value of the provided parameter.
-     *
-     * @param The max hit points.
+     * Sets the current hit points of the entity. Requires a non-negative value
+     * less than or equal to the maximum value.
      */
-    public final void setMaxHitPoints(final int maxHitPoints) {
+    protected final void setCurrentHitPoints(final int currentHitPoints) {
+        if (currentHitPoints < 0) {
+            throw new IllegalArgumentException(String.format(
+                    "%s: Current hit points cannot be less than zero (0).",
+                    this.getClass().getName()
+            ));
+        }
 
-        this.maxHitPoints = Math.abs(maxHitPoints);
-    }
-
-    /**
-     * Sets the player's current hit points.
-     * <p>
-     * Uses the absolute value of the provided parameter. If larger than the
-     * maximum hit points, it is automatically set to the maximum value.
-     *
-     * @param The current hit points.
-     */
-    public final void setCurrentHitPoints(final int currentHitPoints) {
-        this.currentHitPoints = Math.min(Math.abs(currentHitPoints), this.maxHitPoints);
-    }
-
-    /**
-     * Sets the player's movement speed.
-     *
-     * @param speed The new movement speed in pixels per frame.
-     */
-    public final void setSpeed(final double speed) {
-        this.speed = speed;
+        if (currentHitPoints > maxHitPoints) {
+            throw new IllegalArgumentException(String.format(
+                    "%s: Current hit points cannot be greater than maximum hit points <%d>.",
+                    this.getClass().getName(),
+                    maxHitPoints
+            ));
+        }
+        this.currentHitPoints = currentHitPoints;
     }
 
     // ----- BUSINESS LOGIC METHODS -----
     /**
-     * Checks if the entity is fully within the display of its parent panel.
+     * Determines if the entity is fully within the bounds of the panel.
      *
-     * @return {@code true} if the sprite can be fully rendered inside the
-     * panel; {@code false} otherwise.
+     * @return {@code true} if the entity is fully within the panel,
+     * {@code false} otherwise.
      */
     public boolean isFullyWithinPanel() {
-        return position.x >= 0
-                && position.y >= 0
+        return position.x >= 0 && position.y >= 0
                 && position.x + getSpriteWidth() <= panel.getWidth()
                 && position.y + getSpriteHeight() <= panel.getHeight();
     }
 
     /**
-     * Checks if the entity is fully outside the display of its parent panel.
+     * Determines if the entity is fully outside the bounds of the panel.
      *
-     * @return {@code true} if the sprite cannot be rendered at all inside the
-     * panel; {@code false otherwise}.
+     * @return {@code true} if the entity is fully outside the panel,
+     * {@code false} otherwise.
      */
     public boolean isFullyOutsidePanel() {
         Rectangle spriteBounds = new Rectangle(position.x, position.y, getSpriteWidth(), getSpriteHeight());
         Rectangle panelBounds = new Rectangle(0, 0, panel.getWidth(), panel.getHeight());
-
         return !spriteBounds.intersects(panelBounds);
     }
 
     /**
-     * Checks whether this entity's (rectangular) hitbox intersects with another
-     * rectangular space.
+     * Checks if the entity collides with a given rectanglular space.
      *
-     * @param x The rectangular space being checked for collision.
-     * @return {@code true} if the two spaces intersect;
-     * {@code false otherwise}.
+     * @param rectangle The {@link rectangle} to check for intersection.
+     * @return {@code true} if the entity collides with the rectangle,
+     * {@code false} otherwise.
      */
-    public boolean collides(final Rectangle rectangle) {
-        if (!isCollidable || hitbox == null || rectangle == null) {
-            return false;
-        }
-
-        return hitbox.intersects(rectangle);
+    public boolean collides(Rectangle rectangle) {
+        return isCollidable && hitbox != null && rectangle != null && hitbox.intersects(rectangle);
     }
 
     /**
-     * Checks whether this entity's (rectangular) hitbox intersects with
-     * another's.
+     * Checks if the entity collides with another entity.
      *
-     * @param entity The other entity being checked for collision.
-     * @return {@code true} if the two spaces intersect;
-     * {@code false otherwise}.
+     * @param entity The other entity to check for collision.
+     * @return {@code true} if the two entities collide, {@code false}
+     * otherwise.
      */
-    public boolean collides(final Entity entity) {
+    public boolean collides(Entity entity) {
         return collides(entity.getHitbox());
+    }
+
+    public void addAnimationKey(final String key) {
+        if (key == null || key.isBlank()) {
+            throw new IllegalArgumentException(String.format(
+                    "%s: Cannot add a blank or null key.",
+                    this.getClass().getName()
+            ));
+        }
     }
 
     // ----- OVERRIDDEN METHODS -----
     /**
-     * Compares this entity with another object for equality. May be overridden
-     * to provide futher functionality.
-     * <p>
-     * By default, two entities are considered equal if they have the same
-     * parent panel, position, sprite, hitbox, invisibility and collidability
-     * statuses, hitpoints, and speed.
+     * Compares this entity to another object for equality.
      *
-     * @param obj the object to compare with
-     * @return {@code true} if the entities are equal; {@code false} otherwise
+     * @param obj The {@link Object} to compare with.
+     * @return {@code true} if the objects are equal, {@code false} otherwise.
      */
     @Override
-    public boolean equals(final Object obj) {
+    public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
@@ -453,71 +479,186 @@ public abstract class Entity implements Updateable, Renderable {
             return false;
         }
         Entity other = (Entity) obj;
-        return panel.equals(other.getPanel())
+        return Objects.equals(panel, other.getPanel())
                 && Objects.equals(position, other.getPosition())
-                && Objects.equals(currentSprite, other.getCurrentSprite())
-                && Boolean.compare(isInvisible, other.isInvisible()) == 0
-                && Objects.equals(animation, other.getAnimation())
+                && isInvisible == other.isInvisible()
+                && Objects.equals(animationKeys, other.getAnimationKeys())
+                && Objects.equals(currentAnimationKey, other.getCurrentAnimationKey())
                 && Objects.equals(hitbox, other.getHitbox())
-                && Boolean.compare(isCollidable, other.isCollidable()) == 0
-                && Integer.compare(maxHitPoints, other.getMaxHitPoints()) == 0
-                && Integer.compare(currentHitPoints, other.getCurrentHitPoints()) == 0
-                && Double.compare(speed, other.getSpeed()) == 0;
+                && isCollidable == other.isCollidable()
+                && maxHitPoints == other.getMaxHitPoints()
+                && currentHitPoints == other.getCurrentHitPoints();
     }
 
     /**
-     * Computes the hash code for this entity.
-     * <p>
-     * By default, the hash is calculated using the entity's parent panel,
-     * position, sprite, hitbox, and invisibility and collidability statuses.
+     * Returns a hash code for this entity.
      *
-     * @return the hash code of this entity
+     * @return The hash code of the entity.
      */
     @Override
     public int hashCode() {
         return Objects.hash(
                 panel,
                 position,
-                currentSprite,
                 isInvisible,
-                animation,
+                animationKeys,
+                currentAnimationKey,
                 hitbox,
                 isCollidable,
                 maxHitPoints,
-                currentHitPoints,
-                speed
+                currentHitPoints
         );
     }
 
+    /**
+     * Updates the entity's state.
+     */
     @Override
     public void update() {
-        if (animation != null) {
-            animation.update();
-            updateCurrentSprite();
+        if (currentAnimation != null) {
+            currentAnimation.update();
             setHitboxFromCurrentSprite();
         }
     }
 
     /**
-     * Renders the entity's sprite at its current x and y position.
+     * Renders the entity on the provided graphics context.
      *
-     * @param g2 The Graphics2D object used for rendering the entity.
+     * @param g2d The graphics context to draw on.
      */
     @Override
-    public void render(final Graphics2D g2d) {
-        if (isInvisible) {
-            return;
-        }
+    public void render(Graphics2D g2d) {
+        BufferedImage currentSprite = currentAnimation.getCurrentFrameImage();
 
-        if (currentSprite != null) {
+        if (!isInvisible && currentSprite != null) {
             g2d.drawImage(currentSprite, position.x, position.y, getSpriteWidth(), getSpriteHeight(), null);
         }
     }
 
-    // ----- HELPER METHODS -----
-    private void updateCurrentSprite() {
-        if (animation != null) {
-            currentSprite = animation.getCurrentFrameImage();
+    // ----- BUILDER PATTERN -----
+    /**
+     * The EntityBuilder class provides a fluent API for constructing an Entity
+     * object.
+     */
+    public static class EntityBuilder<T extends EntityBuilder<T>> {
+
+        private JPanel panel;
+        private Point position = new Point(0, 0);
+        private boolean isInvisible = false;
+        private HashSet<String> animationKeys = new HashSet<>();
+        private String currentAnimationKey = null;
+        private Rectangle hitbox = new Rectangle(0, 0, 0, 0);
+        private boolean isCollidable = true;
+        private int maxHitPoints = 100;
+        private int currentHitPoints = 100;
+
+        /**
+         * Creates a EntityBuilder for constructing an Entity.
+         *
+         * @param panel The {@link JPanel} where the entity will be rendered.
+         */
+        public EntityBuilder(final JPanel panel) {
+            if (panel == null) {
+                throw new IllegalArgumentException("Panel cannot be null.");
+            }
+            this.panel = panel;
         }
+
+        /**
+         * Sets the position of the entity.
+         *
+         * @param position The position to set.
+         * @return The builder instance.
+         */
+        public T position(final Point position) {
+            this.position = position;
+            return self();
+        }
+
+        /**
+         * Sets the invisibility flag for the entity.
+         *
+         * @param isInvisible The invisibility flag.
+         * @return The builder instance.
+         */
+        public T invisibility(boolean isInvisible) {
+            this.isInvisible = isInvisible;
+            return self();
+        }
+
+        /**
+         * Sets the set of keys this entity can query {@link AnimationManager}
+         * with.
+         *
+         * @param animationKeys The set of animation keys.
+         * @return The builder instance.
+         */
+        public T animationKeys(final Set<String> animationKeys) {
+            this.animationKeys = (animationKeys == null) ? new HashSet<>() : new HashSet<>(animationKeys);
+            return self();
+        }
+
+        /**
+         * Sets the animation for the entity.
+         *
+         * @param currentAnimationKey The key identifying the current animation.
+         * @return The builder instance.
+         */
+        public T animation(String currentAnimationKey) {
+            this.currentAnimationKey = currentAnimationKey;
+            return self();
+        }
+
+        /**
+         * Sets the collidability flag for the entity.
+         *
+         * @param isCollidable The collidability flag.
+         * @return The builder instance.
+         */
+        public T collidability(boolean isCollidable) {
+            this.isCollidable = isCollidable;
+            return self();
+        }
+
+        /**
+         * Sets the maximum hit points for the entity.
+         *
+         * @param maxHitPoints The maximum hit points.
+         * @return The builder instance.
+         */
+        public T maxHitPoints(int maxHitPoints) {
+            this.maxHitPoints = maxHitPoints;
+            return self();
+        }
+
+        /**
+         * Sets the current hit points for the entity.
+         *
+         * @param currentHitPoints The current hit points.
+         * @return The builder instance.
+         */
+        public T currentHitPoints(int currentHitPoints) {
+            this.currentHitPoints = currentHitPoints;
+            return self();
+        }
+
+        /**
+         * Sets the hitbox for the entity.
+         *
+         * @param hitbox The hitbox to set.
+         * @return The builder instance.
+         */
+        public T hitbox(Rectangle hitbox) {
+            this.hitbox = hitbox;
+            return self();
+        }
+
+        // ----- HELPER METHODS -----
+        @SuppressWarnings("unchecked")
+        protected T self() {
+            // cast to the generic type, ensures correct builder is returned
+            return (T) this;
+        }
+
     }
 }
