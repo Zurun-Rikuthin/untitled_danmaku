@@ -13,11 +13,16 @@ public abstract class MobileEntity extends Entity {
     // ----- INSTANCE VARIABLES -----
     /**
      * The movement speed of the entity along the x-axis in pixels per frame.
+     * <p>
+     * Uses the Cartesian coordinate system (i.e., -x moves left, +x moves
+     * left).
      */
     protected double velocityX;
 
     /**
      * The movement speed of the entity along the y-axis in pixels per frame.
+     * <p>
+     * Uses the Cartesian coordinate system (i.e., -y moves down, +y moves up).
      */
     protected double velocityY;
 
@@ -28,7 +33,7 @@ public abstract class MobileEntity extends Entity {
      *
      * @param builder The builder used to construct the entity.
      */
-    protected MobileEntity(MobileEntityBuilder builder) {
+    protected MobileEntity(MobileEntityBuilder<?> builder) {
         super(builder);
     }
 
@@ -36,6 +41,9 @@ public abstract class MobileEntity extends Entity {
     /**
      * Returns the movement speed of the entity along the x-axis in pixels per
      * frame.
+     * <p>
+     * Uses the Cartesian coordinate system (i.e., -x moves left, +x moves
+     * left).
      *
      * @return The speed.
      */
@@ -46,6 +54,8 @@ public abstract class MobileEntity extends Entity {
     /**
      * Returns the movement speed of the entity along the y-axis in pixels per
      * frame.
+     * <p>
+     * Uses the Cartesian coordinate system (i.e., -y moves down, +x moves up).
      *
      * @return The speed.
      */
@@ -54,12 +64,44 @@ public abstract class MobileEntity extends Entity {
     }
 
     // ----- SETTERS -----
+    /**
+     * Sets the movement speed of the entity along the x-axis in pixels per
+     * frame.
+     * <p>
+     * Uses the Cartesian coordinate system (i.e., -x moves left, +x moves
+     * left).
+     *
+     * @return The speed.
+     */
     public void setVelocityX(double velocityX) {
         this.velocityX = velocityX;
     }
 
+    /**
+     * Returns the movement speed of the entity along the y-axis in pixels per
+     * frame.
+     * <p>
+     * Uses the Cartesian coordinate system (i.e., -y moves down, +x moves up).
+     *
+     * @return The speed.
+     */
     public void setVelocityY(double velocityY) {
         this.velocityY = velocityY;
+    }
+
+    // ---- BUSINESS LOGIC METHODS -----
+    /**
+     * Updates the enntity's current position using their current movement speed
+     * values for the x and y axes.
+     * <p>
+     * Automatically converts the Cartesian speed modifiers to be compatible
+     * with screen-coordinates.
+     *
+     * @return The speed.
+     */
+    public void move() {
+        position.x += velocityX;
+        position.y -= velocityY; // Inverted for screen coordinates
     }
 
     // ----- OVERRIDDEN METHODS -----
@@ -101,9 +143,7 @@ public abstract class MobileEntity extends Entity {
     public void update() {
         super.update(); // Update animations and hitbox
 
-        // Update position based on velocity
-        position.x += velocityX;
-        position.y += velocityY;
+        move();
 
         // Update hitbox position
         setHitboxFromCurrentSprite();

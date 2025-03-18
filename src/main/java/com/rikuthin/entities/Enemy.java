@@ -6,7 +6,7 @@ import javax.swing.JPanel;
  * Represents a enemy in the game that is mobile and can move around the game
  * world.
  */
-public class Enemy extends Entity {
+public class Enemy extends MobileEntity {
 
     // ----- CONSTRUCTORS -----
     /**
@@ -14,12 +14,12 @@ public class Enemy extends Entity {
      *
      * @param builder The builder used to construct the enemy.
      */
-    public Enemy(EntityBuilder builder) {
+    public Enemy(EnemyBuilder builder) {
         super(builder);
     }
 
     // ----- STATIC BUILDER FOR PLAYER -----
-    public static class EnemyBuilder extends EntityBuilder {
+    public static class EnemyBuilder extends MobileEntityBuilder<EnemyBuilder> {
 
         public EnemyBuilder(JPanel panel) {
             super(panel);

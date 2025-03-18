@@ -81,8 +81,8 @@ public class AnimationLoader {
      */
     public static void loadAllAnimations() {
         String[] spriteSheetPaths = {
-            ANIMATION_FOLDER + "player-bullet-1.png",
-            ANIMATION_FOLDER + "enemy-bullet-1.png",
+            ANIMATION_FOLDER + "player-bullet.png",
+            ANIMATION_FOLDER + "enemy-bullet.png",
             ANIMATION_FOLDER + "player.png",
             ANIMATION_FOLDER + "Agis.png"
         };

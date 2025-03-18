@@ -183,6 +183,4 @@ public final class InfoPanel extends Subpanel {
     //     // label.setBorder(new RoundedBorder(Color.BLACK, Color.WHITE, 10));
     //     return label;
     // }
-    @Override
-    public void update() {}
 }

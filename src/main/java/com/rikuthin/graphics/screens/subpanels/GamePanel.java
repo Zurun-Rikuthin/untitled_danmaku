@@ -27,24 +27,13 @@ public class GamePanel extends Subpanel {
 
     // ----- OVERRIDDEN METHODS -----
     /**
-     * Updates the screen logic every frame.
-     */
-    @Override
-    public void update() {
-        if (!gameManager.wasInitCalled()) {
-            return;
-        }
-        gameManager.update();
-    }
-
-    /**
      * Renders the screen's graphical components.
      */
     @Override
     public void render(Graphics2D g2d) {
         super.render(g2d);
 
-        if (!gameManager.wasInitCalled()) {
+        if (!gameManager.isRunning()) {
             return;
         }
 

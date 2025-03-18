@@ -9,13 +9,12 @@ import javax.swing.JPanel;
 
 import com.rikuthin.graphics.ImageManager;
 import com.rikuthin.interfaces.Renderable;
-import com.rikuthin.interfaces.Updateable;
 
 /**
  * Abstract base class for all game screens (e.g., main menu, gameplay).
  * Provides a structure for updating and rendering screens.
  */
-public abstract class Subpanel extends JPanel implements Updateable, Renderable {
+public abstract class Subpanel extends JPanel implements Renderable {
 
     // ----- INSTANCE VARIABLES -----
     protected String backgroundImageFilepath;

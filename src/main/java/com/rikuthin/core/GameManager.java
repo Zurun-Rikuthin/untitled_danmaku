@@ -2,6 +2,7 @@ package com.rikuthin.core;
 
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.lang.StackWalker.StackFrame;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -11,6 +12,7 @@ import java.util.stream.Stream;
 import javax.swing.Timer;
 
 import com.rikuthin.entities.Bullet;
+import com.rikuthin.entities.BulletSpawner;
 import com.rikuthin.entities.Enemy;
 import com.rikuthin.entities.Player;
 import com.rikuthin.graphics.GameFrame;
@@ -22,26 +24,86 @@ import com.rikuthin.interfaces.Updateable;
 
 public class GameManager implements Updateable {
 
+    // ----- ENUMERATORS -----
+    /**
+     * Enum representing the possible game states.
+     */
+    private enum GameState {
+        NOT_INITIALIZED {
+            @Override
+            public void handleState(GameManager gameManager) {
+                // Cannot run game, must initialize first.
+                throw new IllegalStateException("Game is not initialized.");
+            }
+        },
+        INITIALIZING {
+            @Override
+            public void handleState(GameManager gameManager) {
+                // Game is in the process of initializing, don't allow any operations.
+                throw new IllegalStateException("Game is currently initializing.");
+            }
+        },
+        PAUSED {
+            @Override
+            public void handleState(GameManager gameManager) {
+                // Implement pause behavior
+                gameManager.showPauseMenu();
+            }
+        },
+        RUNNING {
+            @Override
+            public void handleState(GameManager gameManager) {
+                // Handle game running logic (timer, game updates)
+                gameManager.update();
+            }
+        },
+        STOPPED {
+            @Override
+            public void handleState(GameManager gameManager) {
+                gameManager.clear();
+            }
+        };
+
+        public abstract void handleState(GameManager gameManager);
+    }
+
     // ----- STATIC VARIABLES -----
     private static GameManager instance;
 
     // ----- INSTANCE VARIABLES -----
+    private GameState currentState = GameState.NOT_INITIALIZED;
+    /**
+     * Measures how long the current game has been active.
+     */
     private Timer gameplayTimer;
+    /**
+     * The player character.
+     */
     private Player player;
+    /**
+     * Stores references to all active enemies on screen.
+     */
     private HashSet<Enemy> enemies;
+    /**
+     * Stores references to all active bullets on screen.
+     */
     private HashSet<Bullet> bullets;
-    private boolean isPaused;
-    private boolean isGameplayActive;
+    /**
+     * Reference to the where all game entities are displayed.
+     */
     private GamePanel gamePanel;
+    /**
+     * Reference to the panel where game information is displayed.
+     */
     private InfoPanel infoPanel;
-    private boolean wasInitCalled;
 
     // ----- CONSTRUCTORS -----
     /**
-     * Private constructor to hide the public one.
+     * Private constructor to prevent direct instantiation. Singleton pattern.
      */
     private GameManager() {
-        wasInitCalled = false;
+        // Start in a non-initialized state.
+        currentState = GameState.NOT_INITIALIZED;
     }
 
     // ----- GETTERS -----
@@ -63,12 +125,7 @@ public class GameManager implements Updateable {
      * @return The player.
      */
     public Player getPlayer() {
-        if (!wasInitCalled) {
-            throw new IllegalStateException(String.format(
-                    "%s: Call init() before attempting to access the player.",
-                    this.getClass().getName()
-            ));
-        }
+        ensureInitialized("getPlayer");
         return player;
     }
 
@@ -78,12 +135,7 @@ public class GameManager implements Updateable {
      * @return The enemies.
      */
     public Set<Enemy> getEnemies() {
-        if (!wasInitCalled) {
-            throw new IllegalStateException(String.format(
-                    "%s: Call init() before attempting to access managed enemies.",
-                    this.getClass().getName()
-            ));
-        }
+        ensureInitialized("getEnemies");
         return enemies;
     }
 
@@ -93,12 +145,7 @@ public class GameManager implements Updateable {
      * @return The bullets.
      */
     public Set<Bullet> getBullets() {
-        if (!wasInitCalled) {
-            throw new IllegalStateException(String.format(
-                    "%s: Call init() before attempting to access manages bullets.",
-                    this.getClass().getName()
-            ));
-        }
+        ensureInitialized("getBullets");
         return bullets;
     }
 
@@ -108,46 +155,26 @@ public class GameManager implements Updateable {
      * @return {@code true} if the game is paused; {@code false} otherwise.
      */
     public boolean isPaused() {
-        return isPaused;
+        return currentState == GameState.PAUSED;
     }
 
-    public boolean isGameplayActive() {
-        return isGameplayActive;
+    public boolean isRunning() {
+        return currentState == GameState.RUNNING;
     }
 
-    public boolean wasInitCalled() {
-        return wasInitCalled;
-    }
-
-    // ----- SETTERS -----
-    public void setGameplayActive(boolean b) {
-        this.isGameplayActive = b;
-    }
-
-    // /**
-    //  * Sets the active {@link Player} instance.
-    //  *
-    //  * @param player The player.
-    //  */
-    // public void setPlayer(Player player) {
-    //     if (!wasInitCalled) {
-    //         throw new IllegalStateException(String.format(
-    //                 "%s: Call init() before attempting to set the player.",
-    //                 this.getClass().getName()
-    //         ));
-    //     }
-    //     this.player = player;
-    // }
     // ----- BUSINESS LOGIC METHODS -----
     /**
-     * Initialises the GameManager for a new game.
-     * <p>
-     * Only works if the {@link GameplayScreen} is currently active.
+     * Initializes the GameManager for a new game. This method must be called
+     * before the game can run. It sets up all the necessary objects to start
+     * the game.
+     *
+     * @param gamePanel The panel where the game is displayed.
+     * @param infoPanel The panel where the game information is displayed.
      */
     public final void init(final GamePanel gamePanel, final InfoPanel infoPanel) {
-        if (!isGameplayActive) {
+        if (currentState != GameState.NOT_INITIALIZED && currentState != GameState.INITIALIZING) {
             System.err.println(String.format(
-                    "%s: Cannot initialize unless gameplay is active.",
+                    "%s: Cannot initialize unless the game is in the NOT_INITIALIZED or INITIALIZING state.",
                     this.getClass().getName()
             ));
             return;
@@ -163,37 +190,30 @@ public class GameManager implements Updateable {
         this.gamePanel = gamePanel;
         this.infoPanel = infoPanel;
 
-        // if (gameplayTimer != null) {
-        //     gameplayTimer.stop(); // Stop any existing timer to prevent conflicts
-        // }
-        // gameplayTimer = new Timer(1000, e -> update()); // 16ms ~ 60 FPS
-        // gameplayTimer.start();
-        initialisePlayer(); // Player setup happens AFTER `gamePanel` is assigned
+        // Transition to initializing state during setup
+        currentState = GameState.INITIALIZING;
+
+        initialisePlayer();
         enemies = new HashSet<>();
         bullets = new HashSet<>();
-        isPaused = false;
-        wasInitCalled = true;
+        setGamePaused(false);
+
+        // Initialization complete. Begin running.
+        currentState = GameState.RUNNING;
     }
 
     /**
      * Clears game data (used when transitioning back to the main menu).
      */
     public final void clear() {
-        if (!wasInitCalled) {
-            return;
+        if (currentState != GameState.NOT_INITIALIZED) {
+            stopGameplayTimer();
+            gamePanel = null;
+            infoPanel = null;
+            player = null;
+            enemies.clear();
+            bullets.clear();
         }
-
-        if (gameplayTimer != null) {
-            gameplayTimer.stop();
-            gameplayTimer = null;
-        }
-        gamePanel = null;
-        infoPanel = null;
-        player = null;
-        enemies.clear();
-        bullets.clear();
-        isPaused = false;
-        wasInitCalled = false;
     }
 
     /**
@@ -204,12 +224,7 @@ public class GameManager implements Updateable {
      * @param enemy The new enemy.
      */
     public void addEnemy(final Enemy enemy) {
-        if (!wasInitCalled) {
-            throw new IllegalStateException(String.format(
-                    "%s: Call init() before attempting to add an enemy.",
-                    this.getClass().getName()
-            ));
-        }
+        ensureInitialized("addEnemy");
         enemies.add(enemy);
     }
 
@@ -221,12 +236,7 @@ public class GameManager implements Updateable {
      * @param bullet The new bullet
      */
     public void addBullet(final Bullet bullet) {
-        if (!wasInitCalled) {
-            throw new IllegalStateException(String.format(
-                    "%s: Call init() before attempting to add a bullet.",
-                    this.getClass().getName()
-            ));
-        }
+        ensureInitialized("addBullet");
         bullets.add(bullet);
     }
 
@@ -239,13 +249,18 @@ public class GameManager implements Updateable {
      * @param bullet
      */
     public void removeBullet(final Bullet bullet) {
-        if (!wasInitCalled) {
-            throw new IllegalStateException(String.format(
-                    "%s: Call init() before attempting to remove a bullet.",
-                    this.getClass().getName()
-            ));
-        }
+        ensureInitialized("removeBullet");
         bullets.remove(bullet);
+    }
+
+    /**
+     * Pauses the game when the pause button is clicked. Stops the timer and
+     * displays the pause menu dialogue.
+     *
+     * @param e The action event triggered by clicking the pause button.
+     */
+    public void onPause(ActionEvent e) {
+        setGamePaused(true);
     }
 
     // ----- OVERRIDDEN METHODS -----
@@ -256,12 +271,7 @@ public class GameManager implements Updateable {
      */
     @Override
     public void update() {
-        if (!wasInitCalled) {
-            throw new IllegalStateException(String.format(
-                    "%s: Call init() before attempting to update.",
-                    this.getClass().getName()
-            ));
-        }
+        ensureInitialized("update");
 
         if (player != null) {
             player.update();
@@ -270,54 +280,63 @@ public class GameManager implements Updateable {
         updateBullets();
     }
 
-    /**
-     * Pauses the game when the pause button is clicked. Stops the timer and
-     * displays the pause menu dialogue.
-     *
-     * @param e The action event triggered by clicking the pause button.
-     */
-    public void onPause(ActionEvent e) {
-        isPaused = true;
-        gameplayTimer.stop();
-        showPauseMenu();
+    // ----- HELPER METHODS -----
+    private void ensureInitialized(String methodName) {
+        if (currentState == GameState.NOT_INITIALIZED || currentState == GameState.INITIALIZING) {
+            StackWalker walker = StackWalker.getInstance();
+            StackFrame caller = walker.walk(frames -> frames.skip(1).findFirst().orElse(null));
+
+            throw new IllegalStateException(String.format(
+                    "%s.%s: Cannot call %s() before init().",
+                    caller != null ? caller.getClassName() : "UnknownClass",
+                    caller != null ? caller.getMethodName() : "UnknownMethod",
+                    methodName
+            ));
+        }
     }
 
-    // ----- HELPER METHODS -----
     /**
      * Initialises the {@link Player} character.
      * <p>
      * Only works if the {@link GameplayScreen} is the current screen.
      */
     private void initialisePlayer() {
-        if (!wasInitCalled || gamePanel == null) {
-            throw new IllegalStateException("GameManager.init() must be called before initializing the player.");
+        if (currentState != GameState.INITIALIZING) {
+            throw new IllegalStateException(
+                    "Cannot initialise player without being in the INITIALIZING state."
+            );
         }
 
-        HashSet<String> animations = Stream.of(
-            "player"
-                // "player-idle",
-                // "player-move-up",
-                // "player-move-down",
-                // "player-move-left",
-                // "player-move-right"
+        HashSet<String> playerAnimationKeys = Stream.of(
+                "player"
+        // "player-idle",
+        // "player-move-up",
+        // "player-move-down",
+        // "player-move-left",
+        // "player-move-right"
         ).collect(Collectors.toCollection(HashSet::new));
 
         player = new Player.PlayerBuilder(gamePanel)
-                .animationKeys(animations)
+                .animationKeys(playerAnimationKeys)
+                .currentAnimationKey("player")
                 .build();
-        // ,
-        //         new Point(0, 0)
-        // ,
-        //         AnimationManager.getInstance().getAnimation("player")
-        // ,
-        //         20,
-        //         5
-        // );
 
         int x = (gamePanel.getWidth() - player.getSpriteWidth()) / 2;
         int y = (gamePanel.getHeight() - player.getSpriteHeight()) / 2;
 
         player.setPosition(new Point(x, y));
+
+        HashSet<String> playerBulletAnimationKeys = Stream.of("player-bullet").collect(Collectors.toCollection(HashSet::new));
+
+        BulletSpawner spawner = new BulletSpawner.BulletSpawnerBuilder(player)
+                .bulletDamage(1)
+                .isSpawning(true)
+                .bulletVelocityY(20)
+                .bulletAnimationKeys(playerBulletAnimationKeys)
+                .currentBulletAnimationKey("player-bullet")
+                .build();
+
+        player.setBulletSpawner(spawner);
     }
 
     /**
@@ -332,26 +351,19 @@ public class GameManager implements Updateable {
     }
 
     /**
-     * Resumes the game by restarting the game timer.
+     * Resumes the game.
      */
     private void onResume() {
-        gameplayTimer.start();
-        isPaused = false;
+        setGamePaused(false);
     }
 
     /**
-     * Updates the list of managed enemies. Removes any enemy whose hitpoints
-     * are fully depleted.
+     * Updates the list of managed enemies and removes any defeated enemies.
      */
     private void updateEnemies() {
-        if (!wasInitCalled) {
-            throw new IllegalStateException(String.format(
-                    "%s: Call init() before attempting to update the enemies.",
-                    this.getClass().getName()
-            ));
-        }
+        ensureInitialized("updateEnemies");
 
-        if (enemies == null || enemies.isEmpty()) {
+        if (enemies.isEmpty()) {
             return;
         }
 
@@ -369,20 +381,15 @@ public class GameManager implements Updateable {
     }
 
     /**
-     * Updates the list of managed bullets. Removes any bullet that is fully
+     * Updates the list of managed bullets and removes any bullets that are
      * outside the panel boundaries.
      *
      * @param bullets The list of bullets.
      */
     private void updateBullets() {
-        if (!wasInitCalled) {
-            throw new IllegalStateException(String.format(
-                    "%s: Call init() before attempting to update the bullets.",
-                    this.getClass().getName()
-            ));
-        }
+        ensureInitialized("updateBullets");
 
-        if (bullets == null || bullets.isEmpty()) {
+        if (bullets.isEmpty()) {
             return;
         }
 
@@ -395,6 +402,41 @@ public class GameManager implements Updateable {
                     it.remove();
                 }
             }
+        }
+    }
+
+    /**
+     * Pauses or resumes the game based on the given parameter.
+     *
+     * @param paused Whether the game should be paused.
+     */
+    private void setGamePaused(boolean paused) {
+        if (paused) {
+            currentState = GameState.PAUSED;
+            stopGameplayTimer();
+            showPauseMenu();
+        } else {
+            currentState = GameState.RUNNING;
+            startGameplayTimer();
+        }
+    }
+
+    /**
+     * Starts the current gameplay timer.
+     */
+    private void startGameplayTimer() {
+        if (gameplayTimer == null) {
+            gameplayTimer = new Timer(1000 / 60, e -> update());
+        }
+        gameplayTimer.start();
+    }
+
+    /**
+     * Stops the gameplay timer.
+     */
+    private void stopGameplayTimer() {
+        if (gameplayTimer != null) {
+            gameplayTimer.stop();
         }
     }
 }

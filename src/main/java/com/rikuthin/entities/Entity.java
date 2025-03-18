@@ -320,7 +320,7 @@ public abstract class Entity implements Updateable, Renderable {
      * {@code null}) is blank, is not within the entity's animation key set, or
      * does not map to a loaded template within {@link AnimationManager}.
      */
-    public final void setAnimation(String key) throws IllegalArgumentException {
+    public final void setAnimation(final String key) throws IllegalArgumentException {
         if (key == null) {
             currentAnimation = null;
             return;
@@ -439,7 +439,7 @@ public abstract class Entity implements Updateable, Renderable {
      * @return {@code true} if the entity collides with the rectangle,
      * {@code false} otherwise.
      */
-    public boolean collides(Rectangle rectangle) {
+    public boolean collides(final Rectangle rectangle) {
         return isCollidable && hitbox != null && rectangle != null && hitbox.intersects(rectangle);
     }
 
@@ -450,7 +450,7 @@ public abstract class Entity implements Updateable, Renderable {
      * @return {@code true} if the two entities collide, {@code false}
      * otherwise.
      */
-    public boolean collides(Entity entity) {
+    public boolean collides(final Entity entity) {
         return collides(entity.getHitbox());
     }
 
@@ -471,7 +471,7 @@ public abstract class Entity implements Updateable, Renderable {
      * @return {@code true} if the objects are equal, {@code false} otherwise.
      */
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }
@@ -527,7 +527,7 @@ public abstract class Entity implements Updateable, Renderable {
      * @param g2d The graphics context to draw on.
      */
     @Override
-    public void render(Graphics2D g2d) {
+    public void render(final Graphics2D g2d) {
         BufferedImage currentSprite = currentAnimation.getCurrentFrameImage();
 
         if (!isInvisible && currentSprite != null) {
@@ -542,7 +542,7 @@ public abstract class Entity implements Updateable, Renderable {
      */
     public static class EntityBuilder<T extends EntityBuilder<T>> {
 
-        private JPanel panel;
+        private JPanel panel = null;
         private Point position = new Point(0, 0);
         private boolean isInvisible = false;
         private HashSet<String> animationKeys = new HashSet<>();
@@ -581,7 +581,7 @@ public abstract class Entity implements Updateable, Renderable {
          * @param isInvisible The invisibility flag.
          * @return The builder instance.
          */
-        public T invisibility(boolean isInvisible) {
+        public T invisibility(final boolean isInvisible) {
             this.isInvisible = isInvisible;
             return self();
         }
@@ -599,12 +599,13 @@ public abstract class Entity implements Updateable, Renderable {
         }
 
         /**
-         * Sets the animation for the entity.
+         * Sets the animation for the entity. Must set a collection of available
+         * keys using animationKeys() first.
          *
          * @param currentAnimationKey The key identifying the current animation.
          * @return The builder instance.
          */
-        public T animation(String currentAnimationKey) {
+        public T currentAnimationKey(final String currentAnimationKey) {
             this.currentAnimationKey = currentAnimationKey;
             return self();
         }
@@ -615,7 +616,7 @@ public abstract class Entity implements Updateable, Renderable {
          * @param isCollidable The collidability flag.
          * @return The builder instance.
          */
-        public T collidability(boolean isCollidable) {
+        public T collidability(final boolean isCollidable) {
             this.isCollidable = isCollidable;
             return self();
         }
@@ -626,7 +627,7 @@ public abstract class Entity implements Updateable, Renderable {
          * @param maxHitPoints The maximum hit points.
          * @return The builder instance.
          */
-        public T maxHitPoints(int maxHitPoints) {
+        public T maxHitPoints(final int maxHitPoints) {
             this.maxHitPoints = maxHitPoints;
             return self();
         }
@@ -637,7 +638,7 @@ public abstract class Entity implements Updateable, Renderable {
          * @param currentHitPoints The current hit points.
          * @return The builder instance.
          */
-        public T currentHitPoints(int currentHitPoints) {
+        public T currentHitPoints(final int currentHitPoints) {
             this.currentHitPoints = currentHitPoints;
             return self();
         }
@@ -648,7 +649,7 @@ public abstract class Entity implements Updateable, Renderable {
          * @param hitbox The hitbox to set.
          * @return The builder instance.
          */
-        public T hitbox(Rectangle hitbox) {
+        public T hitbox(final Rectangle hitbox) {
             this.hitbox = hitbox;
             return self();
         }

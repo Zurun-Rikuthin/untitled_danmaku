@@ -9,6 +9,7 @@ import javax.swing.JPanel;
  */
 public class Player extends MobileEntity {
 
+    protected BulletSpawner bulletSpawner;
     protected boolean isFiringBullets;
 
     // ----- CONSTRUCTORS -----
@@ -19,16 +20,29 @@ public class Player extends MobileEntity {
      */
     protected Player(PlayerBuilder builder) {
         super(builder);
+        setBulletSpawner(builder.bulletSpawner);
         this.isFiringBullets = false;
     }
 
     // ---- GETTERS -----
+    public BulletSpawner getBulletSpawner() {
+        return bulletSpawner;
+    }
+
     public boolean isFiringBullets() {
         return isFiringBullets;
     }
 
     // ---- SETTERS -----
+    public final void setBulletSpawner(final BulletSpawner bulletSpawner) {
+        this.bulletSpawner = bulletSpawner;
+    }
+
     public void setIsFiringBullets(final boolean isFiringBullets) {
+        if (bulletSpawner == null) {
+            this.isFiringBullets = false;
+            return;
+        }
         this.isFiringBullets = isFiringBullets;
     }
 
@@ -48,7 +62,9 @@ public class Player extends MobileEntity {
             return false;
         }
         Player other = (Player) obj;
-        return super.equals(other) && isFiringBullets == other.isFiringBullets();
+        return super.equals(other)
+                && Objects.equals(bulletSpawner, other.getBulletSpawner())
+                && isFiringBullets == other.isFiringBullets();
     }
 
     /**
@@ -58,19 +74,41 @@ public class Player extends MobileEntity {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), isFiringBullets);
+        return Objects.hash(super.hashCode(), bulletSpawner, isFiringBullets);
+    }
+
+    @Override
+    public void move() {
+        super.move();
+        correctPosition();
+    }
+
+    // ----- HELPER METHODS -----
+    /**
+     * Ensures the player remains within the visible screen boundaries.
+     */
+    private void correctPosition() {
+        // Trying to use Math.clamp gave out of bounds issues or something. This is simpler.
+        position.x = Math.max(0, Math.min(position.x, panel.getWidth() - getSpriteWidth()));
+        position.y = Math.max(0, Math.min(position.y, panel.getHeight() - getSpriteHeight()));
     }
 
     // ----- STATIC BUILDER FOR PLAYER -----
     public static class PlayerBuilder extends MobileEntityBuilder<PlayerBuilder> {
 
         // ----- INSTANCE VARIABLES -----
+        private BulletSpawner bulletSpawner = null;
+
         // ----- CONSTRUCTOR -----
         public PlayerBuilder(final JPanel panel) {
             super(panel);
         }
 
         // ---- SETTERS -----
+        // public PlayerBuilder bulletSpawner(final BulletSpawner bulletSpawner) {
+        //     this.bulletSpawner = bulletSpawner;
+        //     return self();
+        // }
         // ----- BUSINESS LOGIC METHODS -----
         public Player build() {
             return new Player(this);

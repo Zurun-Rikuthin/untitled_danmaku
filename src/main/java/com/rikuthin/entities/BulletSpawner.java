@@ -142,7 +142,7 @@ public class BulletSpawner implements Updateable {
     }
 
     // ---- SETTERS -----
-    public void setBulletDamage(final int bulletDamage) {
+    public final void setBulletDamage(final int bulletDamage) {
         if (bulletDamage < 0) {
             throw new IllegalArgumentException(String.format(
                     "%s: Bullet damage cannot be less than zero (0).",
@@ -318,7 +318,7 @@ public class BulletSpawner implements Updateable {
      * The EntityBuilder class provides a fluent API for constructing an Entity
      * object.
      */
-    protected static class BulletSpawnerBuilder {
+    public static class BulletSpawnerBuilder {
 
         // ----- INSTANCE VARIABLES -----
         /**
@@ -416,7 +416,7 @@ public class BulletSpawner implements Updateable {
          *
          * @param bulletAnimationKeys The set of animation keys.
          */
-        public final BulletSpawnerBuilder setAnimationKeys(final Set<String> bulletAnimationKeys) {
+        public final BulletSpawnerBuilder bulletAnimationKeys(final Set<String> bulletAnimationKeys) {
             this.bulletAnimationKeys = (bulletAnimationKeys == null) ? new HashSet<>() : new HashSet<>(bulletAnimationKeys);
             return this;
         }
@@ -433,7 +433,7 @@ public class BulletSpawner implements Updateable {
          *
          * @param key The key identifying the animation.
          */
-        public final BulletSpawnerBuilder setCurrentBulletAnimationKey(String key) {
+        public final BulletSpawnerBuilder currentBulletAnimationKey(String key) {
             this.currentBulletAnimationKey = key;
             return this;
         }
@@ -449,44 +449,6 @@ public class BulletSpawner implements Updateable {
     }
 }
 
-// package com.rikuthin.entities;
-// import java.awt.Point;
-// import java.util.HashMap;
-// import java.util.Map;
-// import com.rikuthin.core.GameManager;
-// import com.rikuthin.graphics.animations.AnimationInstance;
-// import com.rikuthin.graphics.animations.AnimationTemplate;
-// /**
-//  * Represents an invisible object used by other entites to shoot bullets.
-//  * <p>
-//  * Bullets start at the spawner's own position and move at a specified speed in
-//  * a specified direction, "dying" once fully off-screen.
-//  * <p>
-//  * The spawner itself exists at the central coordinates of its host entity and
-//  * moves relative to its host's movement.
-//  */
-//     // ----- INSTANCE VARIABLES -----
-//     /**
-//      * The {@link Entity} that owns/controls the spawner.
-//      */
-//     private Entity owner;
-//     /**
-//      * The navigational bearing (direction) that bullets initially move along
-//      * when leaving the blaster. Defaults to 0° (north) upon construction.
-//      */
-//     /**
-//      * The {@link AnimationTemplate} for the spawned bullet's sprite.
-//      */
-//     private AnimationTemplate bulletAnimationTemplate;
-//     /**
-//      *
-//      * The speed bullets are shot at in pixels per frame. Defaults to 0.
-//      */
-//     private double bulletSpeed;
-//     /**
-//      * Whether the spawner is currently spawning bullets. Defaults to false.
-//      */
-//     private boolean isSpawning;
 //     /**
 //      * How many milliseconds to wait before spawning more bullets.
 //      */
@@ -525,42 +487,7 @@ public class BulletSpawner implements Updateable {
 //         this.elapsedDelayTime = 0;
 //         this.isSpawning = false;
 //     // ----- GETTERS -----
-//     /**
-//      * Returns the {@link Entity} that owns/controls the spawner.
-//      *
-//      * @return The spawner's owner.
-//      */
-//     public Entity getOwner() {
-//         return owner;
-//     /**
-//      * Returns the current bearing (direction) of the blaster relative to the
-//      * mouse pointer.
-//      *
-//      * @return the {@link Bearing2D} representing the current bearing
-//      */
-//     public Bearing2D getBearing() {
-//         return bearing;
-//     /**
-//      * Returns the {@link AnimationTemplate} for the spawned bullet's sprite.
-//      *
-//      * @return The template for the bullet's sprite.
-//      */
-//     public AnimationTemplate getBulletAnimationTemplate() {
-//         return bulletAnimationTemplate;
-//     /**
-//      * Returns the speed (in pixels/tick) at which the {@link Bullet} instances
-//      * will leave the spawner.
-//      *
-//      * @return the speed of the bullets
-//      */
-//     public double getBulletSpeed() {
-//         return bulletSpeed;
-//     /**
-//      * Returns whether the spawner is creating {@link Bullet} instances.
-//      *
-//      * @return {@code true} if the spawner is creating bullets; {@code false}
-//      * otherwise.
-//      */
+
 //     public boolean isSpawning() {
 //         return isSpawning;
 //     /**
@@ -586,33 +513,7 @@ public class BulletSpawner implements Updateable {
 //     private long getLastUpdateTime() {
 //         return lastUpdateTime;
 //     // ----- SETTERS -----
-//     /**
-//      * Sets the {@link AnimationTemplate} for the spawned {@link Bullet}
-//      * instance's sprite animation.
-//      *
-//      * @param bulletAnimationTemplate The template for the bullet's sprite
-//      * animation.
-//      */
-//     public final void setBulletAnimation(final AnimationTemplate bulletAnimationTemplate) {
-//         this.bulletAnimationTemplate = bulletAnimationTemplate;
-//     /**
-//      * Sets the bearing (direction) of the {@link Bullet} instances leaving the
-//      * spawner.
-//      * <p>
-//      * If the passed value is {@code null}, defaults to aiming straight down.
-//      *
-//      * @param bearing the new {@link Bearing2D} direction
-//      */
-//     public final void setBearing(Bearing2D bearing) {
-//         this.bearing = bearing != null ? bearing : new Bearing2D(0, 0, 0, -20);
-//     /**
-//      * Sets the speed (in pixels/tick) of the {@link Bullet} instances leaving
-//      * the spawner.
-//      *
-//      * @param bulletSpeed the new bullet speed
-//      */
-//     public void setBulletSpeed(double bulletSpeed) {
-//         this.bulletSpeed = Math.abs(bulletSpeed);
+
 //     /**
 //      * Sets how many milliseconds the spawner must wait before creating more
 //      * {@link Bullet} instances.
@@ -646,49 +547,7 @@ public class BulletSpawner implements Updateable {
 //         Bullet bullet = new Bullet(panel, position, bulletAnimationTemplate, bearing, bulletSpeed);
 //         GameManager.getInstance().addBullet(bullet);
 //         return bullet;
-//     // ----- OVERRIDDEN METHODS -----
-//     /**
-//      * Compares this {@link BulletSpawner} with another object for equality.
-//      * <p>
-//      * Extends {@code equals()} from the {@link Entity} class by comparing
-//      * spawner-related attributes such at firing bearing/direction, bullet
-//      * animation template, shot speed, and spawn delay.
-//      *
-//      * @param obj the object to compare with
-//      * @return {@code true} if the objects are equal; {@code false} otherwise
-//      */
-//     @Override
-//     public boolean equals(Object obj) {
-//         if (this == obj) {
-//             return true;
-//         if (!(obj instanceof BulletSpawner)) {
-//             return false;
-//         BulletSpawner other = (BulletSpawner) obj;
-//         return super.equals(obj)
-//                 && Objects.equals(owner, other.getOwner())
-//                 && Objects.equals(bearing, other.getBearing())
-//                 && Objects.equals(bulletAnimationTemplate, other.getBulletAnimationTemplate())
-//                 && java.lang.Double.compare(bulletSpeed, other.getBulletSpeed()) == 0
-//                 && Boolean.compare(isSpawning, other.isSpawning()) == 0
-//                 && Long.compare(spawnDelayMs, other.getSpawnDelayMs()) == 0
-//                 && Long.compare(lastUpdateTime, other.getLastUpdateTime()) == 0
-//                 && Long.compare(elapsedDelayTime, other.getElapsedDelayTime()) == 0;
-//     /**
-//      * Computes the hash code for this spawner entity.
-//      *
-//      * Extends {@code hashCode()} from the {@link Entity} class by incorporating
-//      * spawner attributes such as bullet animation template, firing
-//      * bearing/direction, bullet speed, and spawn delay.
-//      *
-//      * @return the hash code of this blaster
-//      */
-//     @Override
-//     public int hashCode() {
-//         return Objects.hash(super.hashCode(),
-//                 bulletAnimationTemplate,
-//                 bearing,
-//                 bulletSpeed
-//         );
+
 //     /**
 //      * Updates the bullet spawner based on elapsed time.
 //      */

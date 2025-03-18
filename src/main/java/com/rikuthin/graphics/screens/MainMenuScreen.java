@@ -31,7 +31,7 @@ public class MainMenuScreen extends Screen {
     private final JPanel centreWrapper;
     private final JPanel titlePanel;
     private final String backgroundImageFilepath;
-    private BufferedImage backgroundImage;
+    private final transient BufferedImage backgroundImage;
 
     /**
      * Constructs the main menu screen panel with buttons for starting the game,
