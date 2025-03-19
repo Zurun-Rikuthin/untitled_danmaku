@@ -11,10 +11,11 @@ import java.util.Set;
 import javax.swing.JPanel;
 
 import com.rikuthin.graphics.animations.AnimationInstance;
-import com.rikuthin.graphics.animations.AnimationManager;
 import com.rikuthin.graphics.animations.AnimationTemplate;
 import com.rikuthin.interfaces.Renderable;
 import com.rikuthin.interfaces.Updateable;
+
+import managers.AnimationManager;
 
 /**
  * Represents a base entity in the game, providing common functionality for all

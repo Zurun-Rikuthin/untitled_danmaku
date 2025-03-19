@@ -1,4 +1,4 @@
-package com.rikuthin.core;
+package managers;
 
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -12,9 +12,9 @@ import java.util.stream.Stream;
 
 import javax.swing.Timer;
 
-import com.rikuthin.entities.Bullet;
-import com.rikuthin.entities.BulletSpawner;
 import com.rikuthin.entities.Player;
+import com.rikuthin.entities.bullets.Bullet;
+import com.rikuthin.entities.bullets.BulletSpawner;
 import com.rikuthin.entities.enemies.Enemy;
 import com.rikuthin.graphics.GameFrame;
 import com.rikuthin.graphics.dialogue.PauseMenuDialogue;
@@ -68,7 +68,14 @@ public class GameManager implements Updateable {
     }
 
     // ----- STATIC VARIABLES -----
-    private static final int ENEMY_LIMIT = 20;
+    /**
+     * Singleton instance of the {@link GameManager}.
+     * <p>
+     * This static field holds the unique instance of the {@link GameManager}.
+     * It is lazily initialized when {@link #getInstance()} is first called. The
+     * singleton pattern ensures that only one instance of the
+     * {@link GameManager} exists throughout the lifetime of the application.
+     */
     private static GameManager instance;
 
     // ----- INSTANCE VARIABLES -----
@@ -82,14 +89,6 @@ public class GameManager implements Updateable {
      */
     private Player player;
     /**
-     * Stores references to all active enemies on screen.
-     */
-    private HashSet<Enemy> enemies;
-    /**
-     * Stores references to all active bullets on screen.
-     */
-    private HashSet<Bullet> bullets;
-    /**
      * Reference to the where all game entities are displayed.
      */
     private GamePanel gamePanel;
@@ -98,12 +97,14 @@ public class GameManager implements Updateable {
      */
     private InfoPanel infoPanel;
 
+    private EnemyManager enemyManager;
+    private BulletManager bulletManager;
+
     // ----- CONSTRUCTORS -----
     /**
      * Private constructor to prevent direct instantiation. Singleton pattern.
      */
     private GameManager() {
-        // Start in a non-initialized state.
         currentState = GameState.NOT_INITIALIZED;
     }
 
@@ -120,6 +121,10 @@ public class GameManager implements Updateable {
         return instance;
     }
 
+    public GamePanel getGamePanel() {
+        return gamePanel;
+    }
+
     /**
      * Returns the current active {@link Player}.
      *
@@ -130,24 +135,25 @@ public class GameManager implements Updateable {
         return player;
     }
 
-    /**
-     * Returns all active {@link Enemy} instances.
-     *
-     * @return The enemies.
-     */
-    public Set<Enemy> getEnemies() {
-        ensureInitialized("getEnemies");
-        return enemies;
+    public EnemyManager getEnemyManager() {
+        ensureRunning("getEnemyManager");
+        return enemyManager;
     }
 
+    public BulletManager getBulletManager() {
+        ensureRunning("getBulletManager");
+        return bulletManager;
+    }
+
+    // ----- BUSINESS LOGIC METHODS -----
     /**
-     * Returns all active {@link Bullet} instances.
+     * Returns whether the game is currently initializing.
      *
-     * @return The bullets.
+     * @return {@code true} if the game is initializing; {@code false}
+     * otherwise.
      */
-    public Set<Bullet> getBullets() {
-        ensureInitialized("getBullets");
-        return bullets;
+    public boolean isInitializing() {
+        return currentState == GameState.INITIALIZING;
     }
 
     /**
@@ -159,11 +165,15 @@ public class GameManager implements Updateable {
         return currentState == GameState.PAUSED;
     }
 
+    /**
+     * Returns whether the game is currently running.
+     *
+     * @return {@code true} if the game is running; {@code false} otherwise.
+     */
     public boolean isRunning() {
         return currentState == GameState.RUNNING;
     }
 
-    // ----- BUSINESS LOGIC METHODS -----
     /**
      * Initializes the GameManager for a new game. This method must be called
      * before the game can run. It sets up all the necessary objects to start
@@ -190,18 +200,20 @@ public class GameManager implements Updateable {
 
         this.gamePanel = gamePanel;
         this.infoPanel = infoPanel;
+        enemyManager = new EnemyManager();
+        bulletManager = new BulletManager();
 
         // Transition to initializing state during setup
         currentState = GameState.INITIALIZING;
 
         initialisePlayer();
-        enemies = new HashSet<>();
-        bullets = new HashSet<>();
+        enemyManager.init();
+        bulletManager.init();
         setGamePaused(false);
 
         // Initialization complete. Begin running.
         currentState = GameState.RUNNING;
-        createRandomEnemy();
+        // EnemyManager.getInstance().createRandomEnemy(player);
     }
 
     /**
@@ -213,46 +225,9 @@ public class GameManager implements Updateable {
             gamePanel = null;
             infoPanel = null;
             player = null;
-            enemies.clear();
-            bullets.clear();
+            enemyManager.clear();
+            bulletManager.clear();
         }
-    }
-
-    /**
-     * Adds a new {@link Enemy} instance to the managed list.
-     *
-     * @param enemy The new enemy.
-     */
-    public void addEnemy(final Enemy enemy) {
-        ensureInitialized("addEnemy");
-
-        if (enemy != null){
-            enemies.add(enemy);
-        }
-    }
-
-    /**
-     * Adds a new bullet to the managed list.
-     *
-     * @param bullet The new bullet
-     */
-    public void addBullet(final Bullet bullet) {
-        ensureInitialized("addBullet");
-
-        if (bullet != null) {
-            bullets.add(bullet);
-        }
-    }
-
-    /**
-     * Removes the first occurance of a specific bullet instance from the
-     * managed list.
-     *
-     * @param bullet
-     */
-    public void removeBullet(final Bullet bullet) {
-        ensureInitialized("removeBullet");
-        bullets.remove(bullet);
     }
 
     /**
@@ -276,8 +251,8 @@ public class GameManager implements Updateable {
         if (player != null) {
             player.update();
         }
-        updateEnemies();
-        updateBullets();
+        enemyManager.update();
+        bulletManager.update();
     }
 
     // ----- HELPER METHODS -----
@@ -288,6 +263,20 @@ public class GameManager implements Updateable {
 
             throw new IllegalStateException(String.format(
                     "%s.%s: Cannot call %s() before init().",
+                    caller != null ? caller.getClassName() : "UnknownClass",
+                    caller != null ? caller.getMethodName() : "UnknownMethod",
+                    methodName
+            ));
+        }
+    }
+
+    private void ensureRunning(String methodName) {
+        if (currentState != GameState.RUNNING) {
+            StackWalker walker = StackWalker.getInstance();
+            StackFrame caller = walker.walk(frames -> frames.skip(1).findFirst().orElse(null));
+
+            throw new IllegalStateException(String.format(
+                    "%s.%s: Cannot call %s() while not in the RUNNING state.",
                     caller != null ? caller.getClassName() : "UnknownClass",
                     caller != null ? caller.getMethodName() : "UnknownMethod",
                     methodName
@@ -341,51 +330,6 @@ public class GameManager implements Updateable {
     }
 
     /**
-     * Creates a random {@link Enemy} and adds it to the managed list.
-     */
-    private void createRandomEnemy() {
-        if (currentState != GameState.RUNNING) {
-            throw new IllegalStateException(
-                    "Cannot create enemies without being in the RUNNING state."
-            );
-        }
-
-        Random random = new Random();
-
-        HashSet<String> enemyAnimationKeys = Stream.of(
-                "mage-guardian-magenta"
-        ).collect(Collectors.toCollection(HashSet::new));
-
-        Enemy newEnemy = new Enemy.EnemyBuilder(gamePanel)
-                .invisibility(false)
-                .collidability(true)
-                .animationKeys(enemyAnimationKeys)
-                .currentAnimationKey("mage-guardian-magenta")
-                .maxHitPoints(20)
-                .currentHitPoints(20)
-                .build();
-
-        
-        // Trying to do this dynamically wasn't working, so hard-coding for now
-        int x = 300;
-        int y = 200;
-
-        newEnemy.setPosition(new Point(x, y));
-
-        HashSet<String> playerBulletAnimationKeys = Stream.of("enemy-bullet").collect(Collectors.toCollection(HashSet::new));
-
-        BulletSpawner spawner = new BulletSpawner.BulletSpawnerBuilder(gamePanel, player)
-                .bulletDamage(1)
-                .bulletVelocityY(20)
-                .bulletAnimationKeys(playerBulletAnimationKeys)
-                .currentBulletAnimationKey("enemy-bullet")
-                .build();
-
-        newEnemy.setBulletSpawner(spawner);
-        addEnemy(newEnemy);
-    }
-
-    /**
      * Displays the pause menu dialogue.
      */
     private void showPauseMenu() {
@@ -401,54 +345,6 @@ public class GameManager implements Updateable {
      */
     private void onResume() {
         setGamePaused(false);
-    }
-
-    /**
-     * Updates the list of managed enemies and removes any defeated enemies.
-     */
-    private void updateEnemies() {
-        ensureInitialized("updateEnemies");
-
-        if (enemies.isEmpty()) {
-            return;
-        }
-
-        Iterator<Enemy> it = enemies.iterator();
-        while (it.hasNext()) {
-            Enemy e = it.next();
-            if (e != null) {
-                e.update();
-
-                if (e.getCurrentHitPoints() <= 0) {
-                    it.remove();
-                }
-            }
-        }
-    }
-
-    /**
-     * Updates the list of managed bullets and removes any bullets that are
-     * outside the panel boundaries.
-     *
-     * @param bullets The list of bullets.
-     */
-    private void updateBullets() {
-        ensureInitialized("updateBullets");
-
-        if (bullets.isEmpty()) {
-            return;
-        }
-
-        Iterator<Bullet> it = bullets.iterator();
-        while (it.hasNext()) {
-            Bullet b = it.next();
-            if (b != null) {
-                b.update();
-                if (b.isFullyOutsidePanel()) {
-                    it.remove();
-                }
-            }
-        }
     }
 
     /**
@@ -487,12 +383,6 @@ public class GameManager implements Updateable {
     }
 }
 
-// private Color nextRandomColour() {
-//     if (!gameActive) {
-//         throw new IllegalStateException("Cannot select color when game is not active.");
-//     }
-//     return RandomColour.getRandomColour();
-// }
 // public int getScore() {
 //     return score;
 // }

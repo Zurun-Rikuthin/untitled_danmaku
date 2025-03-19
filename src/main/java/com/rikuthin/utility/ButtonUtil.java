@@ -10,7 +10,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JToggleButton;
 
-import com.rikuthin.graphics.ImageManager;
+import managers.ImageManager;
 
 /**
  * Utility class for creating various buttons in the UI.

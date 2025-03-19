@@ -16,8 +16,10 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import com.rikuthin.graphics.GameFrame;
-import com.rikuthin.graphics.ImageManager;
 import com.rikuthin.graphics.UIConstants;
+
+import managers.ImageManager;
+
 import static com.rikuthin.utility.ButtonUtil.createButtonWithText;
 
 /**

@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.rikuthin.core.App;
-import com.rikuthin.graphics.ImageManager;
+
+import managers.AnimationManager;
+import managers.ImageManager;
 
 /**
  * Utility class for loading animations from sprite sheets (strip files).

@@ -7,11 +7,12 @@ import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.rikuthin.core.GameManager;
 import com.rikuthin.entities.Player;
 import com.rikuthin.graphics.GameFrame;
 import com.rikuthin.graphics.screens.subpanels.GamePanel;
 import com.rikuthin.graphics.screens.subpanels.InfoPanel;
+
+import managers.GameManager;
 
 /**
  * The main gameplay screen where the game logic and rendering occur. Handles

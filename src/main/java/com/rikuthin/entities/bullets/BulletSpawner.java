@@ -1,4 +1,4 @@
-package com.rikuthin.entities;
+package com.rikuthin.entities.bullets;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
@@ -8,10 +8,14 @@ import java.util.Set;
 
 import javax.swing.JPanel;
 
-import com.rikuthin.core.GameManager;
+import com.rikuthin.entities.Entity;
+import com.rikuthin.entities.Entity.EntityBuilder;
 import com.rikuthin.graphics.animations.AnimationInstance;
-import com.rikuthin.graphics.animations.AnimationManager;
 import com.rikuthin.graphics.animations.AnimationTemplate;
+
+import managers.AnimationManager;
+import managers.BulletManager;
+import managers.GameManager;
 
 /**
  * Represents an invisible {@link Bullet} spawner controlled by a game
@@ -336,7 +340,7 @@ public class BulletSpawner extends Entity {
      * Spawns a new {@link Bullet} instance using the current stored values.
      * <p>
      * Following creation, the new bullet is additionally added to the
-     * GameManager's managed list of bullets.
+     * BulletManager's managed list of bullets.
      *
      * @return the newly created bullet.
      */
@@ -350,7 +354,7 @@ public class BulletSpawner extends Entity {
                 .animationKeys(bulletAnimationKeys)
                 .currentAnimationKey(currentBulletAnimationKey)
                 .build();
-        GameManager.getInstance().addBullet(bullet);
+        GameManager.getInstance().getBulletManager().addBullet(bullet);
         return bullet;
     }
 
@@ -555,117 +559,3 @@ public class BulletSpawner extends Entity {
         }
     }
 }
-
-//     /**
-//      * How many milliseconds to wait before spawning more bullets.
-//      */
-//     private long spawnDelayMs;
-//     /**
-//      * When the spawner was last updated.
-//      */
-//     private long lastUpdateTime;
-//     /**
-//      * How much of the delay has already passed.
-//      */
-//     // ----- CONSTRUCTORS -----
-//     /**
-//      * Constructs a new bullet spawner.
-//      *
-//      * @param panel The parent {@code JPanel} in which the bullets are spawned.
-//      * @param position The initial x and y-coordinates.
-//      * @param bulletAnimationTemplate The {@link AnimationTemplate} for the
-//      * bullet's animated sprite.
-//      * @param bearing The bearing/direction to fire bullets in. If note is
-//      * provided, defaults to firing string down.
-//      * @param bulletSpeed The speed spawned bullets will move at in pixels per
-//      * frame.
-//      * @param spawnDelayMs How many milliseconds to wait before spawning more
-//      * bullets.
-//      */
-//     public BulletSpawner(
-//             final JPanel panel, final Entity host, final Point position, final AnimationTemplate bulletAnimationTemplate,
-//             final Bearing2D bearing, final int bulletSpeed, final long spawnDelayMs) {
-//         setBulletAnimation(bulletAnimationTemplate);
-//         setBearing(bearing);
-//         this.owner = host;
-//         this.bulletSpeed = Math.abs(bulletSpeed);
-//         this.spawnDelayMs = Math.abs(spawnDelayMs);
-//         this.lastUpdateTime = System.currentTimeMillis();
-//         this.elapsedDelayTime = 0;
-//         this.isSpawning = false;
-//     // ----- GETTERS -----
-//     public boolean isSpawning() {
-//         return isSpawning;
-//     /**
-//      * Returns how many milliseconds the spawner must wait before spawning more
-//      * bullets.
-//      *
-//      * @return The delay;
-//      */
-//     public long getSpawnDelayMs() {
-//         return spawnDelayMs;
-//     /**
-//      * Returns how many milliseconds of the delay have passed.
-//      *
-//      * @return The elasped time.
-//      */
-//     private long getElapsedDelayTime() {
-//         return elapsedDelayTime;
-//     /**
-//      * Returns the last time the spawner was updated in milliseconds.
-//      *
-//      * @return The last update time.
-//      */
-//     private long getLastUpdateTime() {
-//         return lastUpdateTime;
-//     // ----- SETTERS -----
-//     /**
-//      * Sets how many milliseconds the spawner must wait before creating more
-//      * {@link Bullet} instances.
-//      *
-//      * @param spawnDelayMs The delay.
-//      */
-//     public void setSpawnDelayMs(final long spawnDelayMs) {
-//         this.spawnDelayMs = Math.abs(spawnDelayMs);
-//     // ----- BUSINESS LOGIC METHODS -----
-//     /**
-//      * Begins the spawning of {@link Bullet} instances.
-//      */
-//     public void start() {
-//         isSpawning = true;
-//         lastUpdateTime = System.currentTimeMillis();
-//         elapsedDelayTime = 0;
-//     /**
-//      * Stops the spawning of {@link bullet} instances.
-//      */
-//     public void stop() {
-//         isSpawning = false;
-//     /**
-//      * Spawns a new {@link Bullet} instance using the current stored values.
-//      * <p>
-//      * Following creation, the new bullet is additionally added to the
-//      * GameManager's managed list of bullets.
-//      *
-//      * @return the newly created bullet.
-//      */
-//     public Bullet spawnBullet() {
-//         Bullet bullet = new Bullet(panel, position, bulletAnimationTemplate, bearing, bulletSpeed);
-//         GameManager.getInstance().addBullet(bullet);
-//         return bullet;
-//     /**
-//      * Updates the bullet spawner based on elapsed time.
-//      */
-//     @Override
-//     public void update() {
-//         if (!isSpawning) {
-//             return;
-//         long currentTime = System.currentTimeMillis();
-//         elapsedDelayTime += currentTime - lastUpdateTime;
-//         while (elapsedDelayTime >= spawnDelayMs) {
-//             spawnBullet();
-//             elapsedDelayTime -= spawnDelayMs; // Ensures correct timing
-//         }
-//     }
-
-    
-// }

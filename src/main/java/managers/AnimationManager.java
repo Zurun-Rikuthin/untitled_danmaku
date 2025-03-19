@@ -1,7 +1,9 @@
-package com.rikuthin.graphics.animations;
+package managers;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import com.rikuthin.graphics.animations.AnimationTemplate;
 
 /**
  * Singleton manager responsible for storing and retrieving shared animation

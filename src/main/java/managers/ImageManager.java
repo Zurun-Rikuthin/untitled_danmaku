@@ -1,4 +1,4 @@
-package com.rikuthin.graphics;
+package managers;
 
 import java.awt.Graphics2D;
 import java.awt.Image;

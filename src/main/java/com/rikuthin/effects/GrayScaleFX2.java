@@ -5,8 +5,9 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
-import com.rikuthin.graphics.ImageManager;
 import com.rikuthin.graphics.screens.subpanels.GamePanel;
+
+import managers.ImageManager;
 
 public class GrayScaleFX2 implements ImageFX {
 

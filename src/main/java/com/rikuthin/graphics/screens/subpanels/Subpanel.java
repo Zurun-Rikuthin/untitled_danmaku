@@ -7,8 +7,9 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
-import com.rikuthin.graphics.ImageManager;
 import com.rikuthin.interfaces.Renderable;
+
+import managers.ImageManager;
 
 /**
  * Abstract base class for all game screens (e.g., main menu, gameplay).

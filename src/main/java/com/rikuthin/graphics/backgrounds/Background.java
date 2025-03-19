@@ -3,7 +3,7 @@ package com.rikuthin.graphics.backgrounds;
 import java.awt.Graphics2D;
 import java.awt.Image;
 
-import com.rikuthin.graphics.ImageManager;
+import managers.ImageManager;
 
 /**
  * Represents a background image that scrolls infinitely in the vertical

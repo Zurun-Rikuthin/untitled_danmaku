@@ -4,6 +4,8 @@ import java.util.Objects;
 
 import javax.swing.JPanel;
 
+import com.rikuthin.entities.bullets.BulletSpawner;
+
 /**
  * Represents a player controlled character in the game.
  */

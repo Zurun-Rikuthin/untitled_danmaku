@@ -6,9 +6,9 @@ import java.util.Objects;
 
 import javax.swing.JPanel;
 
-import com.rikuthin.entities.Bullet;
-import com.rikuthin.entities.BulletSpawner;
 import com.rikuthin.entities.MobileEntity;
+import com.rikuthin.entities.bullets.Bullet;
+import com.rikuthin.entities.bullets.BulletSpawner;
 import com.rikuthin.utility.Bearing2D;
 
 /**
