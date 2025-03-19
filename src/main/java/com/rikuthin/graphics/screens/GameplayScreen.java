@@ -113,28 +113,28 @@ public final class GameplayScreen extends Screen {
                 int speed = keyStates.getOrDefault(KeyEvent.VK_SHIFT, false) ? BASE_SPEED / 2 : BASE_SPEED;
                 int velocityX = 0;
                 int velocityY = 0;
-                String animation = "player-idle";
+                String animationKey = "player-idle";
 
                 if (keyStates.getOrDefault(KeyEvent.VK_W, false) || keyStates.getOrDefault(KeyEvent.VK_UP, false)) {
                     velocityY = speed;
-                    animation = "player-walk-up";
+                    animationKey = "player-walk-up";
                 }
                 if (keyStates.getOrDefault(KeyEvent.VK_S, false) || keyStates.getOrDefault(KeyEvent.VK_DOWN, false)) {
                     velocityY = -speed;
-                    animation = "player-walk-up";
+                    animationKey = "player-walk-up";
                 }
                 if (keyStates.getOrDefault(KeyEvent.VK_A, false) || keyStates.getOrDefault(KeyEvent.VK_LEFT, false)) {
                     velocityX = -speed;
-                    animation = "player-walk-up-left";
+                    animationKey = "player-walk-up-left";
                 }
                 if (keyStates.getOrDefault(KeyEvent.VK_D, false) || keyStates.getOrDefault(KeyEvent.VK_RIGHT, false)) {
                     velocityX = speed;
-                    animation = "player-walk-up-right";
+                    animationKey = "player-walk-up-right";
                 }
 
                 player.setVelocityX(velocityX);
                 player.setVelocityY(velocityY);
-                player.setAnimation((velocityX == 0 && velocityY == 0) ? "player-idle" : animation);
+                player.setAnimation((velocityX == 0 && velocityY == 0) ? "player-idle" : animationKey);
             }
 
             @Override
