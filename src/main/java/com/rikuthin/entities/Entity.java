@@ -350,6 +350,7 @@ public abstract class Entity implements Updateable, Renderable {
             ));
         }
         this.currentAnimation = new AnimationInstance(template);
+        currentAnimation.start();
     }
 
     /**

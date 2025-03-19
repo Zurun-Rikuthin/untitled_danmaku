@@ -5,7 +5,6 @@ com\rikuthin\entities\Enemy$EnemyBuilder.class
 com\rikuthin\interfaces\Updateable.class
 com\rikuthin\effects\ImageFX.class
 com\rikuthin\effects\GrayScaleFX.class
-com\rikuthin\graphics\screens\GameplayScreen$KeyHandler.class
 com\rikuthin\core\GameManager$GameState$5.class
 com\rikuthin\entities\Entity$EntityBuilder.class
 com\rikuthin\entities\Enemy.class
