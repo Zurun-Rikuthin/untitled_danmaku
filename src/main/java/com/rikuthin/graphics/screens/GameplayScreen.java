@@ -32,7 +32,7 @@ public final class GameplayScreen extends Screen {
 
         gameManager = GameManager.getInstance();
         gameManager.init(gamePanel, infoPanel);
-        
+
         Player player = gameManager.getPlayer();
 
         addKeyListener(new KeyAdapter() {
@@ -41,63 +41,59 @@ public final class GameplayScreen extends Screen {
                 int keyCode = e.getKeyCode();
                 int playerSpeed = 5;
 
-                // Move up if W or up arrow pressed (but not if S or down arrow already pressed)
-                if ((keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_UP)
-                        && !(keyCode == KeyEvent.VK_S || keyCode == KeyEvent.VK_DOWN)) {
-                    player.setVelocityY(playerSpeed);
-                    player.setAnimation("player-walk-up");
-                }
-
-                // Move down if S or down arrow pressed (but not if W or up arrow already pressed)
-                if ((keyCode == KeyEvent.VK_S || keyCode == KeyEvent.VK_DOWN)
-                        && !(keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_UP)) {
-                    player.setVelocityY(-playerSpeed);
-                    player.setAnimation("player-walk-up");
-                }
-
-                // Move left if A or left arrow pressed (but not if D or right arrow already pressed)
-                if ((keyCode == KeyEvent.VK_A || keyCode == KeyEvent.VK_LEFT)
-                        && !(keyCode == KeyEvent.VK_D || keyCode == KeyEvent.VK_RIGHT)) {
-                    player.setVelocityX(-playerSpeed);
-                    player.setAnimation("player-walk-up-left");
-                }
-
-                // Move left if D or right arrow pressed (but not if A or left arrow already pressed)
-                if ((keyCode == KeyEvent.VK_D || keyCode == KeyEvent.VK_RIGHT)
-                        && !(keyCode == KeyEvent.VK_A || keyCode == KeyEvent.VK_LEFT)) {
-                    player.setVelocityX(playerSpeed);
-                    player.setAnimation("player-walk-up-right");
-                }
-
-                // Fire bullets when the SPACE key is pressed
-                if (keyCode == KeyEvent.VK_SPACE) {
-                    player.getBulletSpawner().setIsSpawning(true);
+                // Tried to use pattern match guards here instead of the if-statements,
+                // but it kept claiming syntax errors despite there being none.
+                switch (keyCode) {
+                    case KeyEvent.VK_W, KeyEvent.VK_UP -> {
+                        if (!(e.isShiftDown() || e.isControlDown())) {
+                            player.setVelocityY(playerSpeed);
+                            player.setAnimation("player-walk-up");
+                        }
+                    }
+                    case KeyEvent.VK_S, KeyEvent.VK_DOWN -> {
+                        if (!(e.isShiftDown() || e.isControlDown())) {
+                            player.setVelocityY(-playerSpeed);
+                            // Player always faces towards the top of the screen, so down is the same as up.
+                            player.setAnimation("player-walk-up");
+                        }
+                    }
+                    case KeyEvent.VK_A, KeyEvent.VK_LEFT -> {
+                        if (!(e.isShiftDown() || e.isControlDown())) {
+                            player.setVelocityX(-playerSpeed);
+                            player.setAnimation("player-walk-up-left");
+                        }
+                    }
+                    case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> {
+                        if (!(e.isShiftDown() || e.isControlDown())) {
+                            player.setVelocityX(playerSpeed);
+                            player.setAnimation("player-walk-up-right");
+                        }
+                    }
+                    case KeyEvent.VK_SPACE -> {
+                        player.getBulletSpawner().setIsSpawning(true);
+                    }
+                    default -> {
+                        System.out.println("Unexpected key: " + keyCode);
+                    }
                 }
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
                 int keyCode = e.getKeyCode();
-                String idleAnimationKey = "player-idle";
 
-                if (keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_UP) {
-                    player.setVelocityY(0);
-                    player.setAnimation(idleAnimationKey);
-                }
-                if (keyCode == KeyEvent.VK_S || keyCode == KeyEvent.VK_DOWN) {
-                    player.setVelocityY(0);
-                    player.setAnimation(idleAnimationKey);
-                }
-                if (keyCode == KeyEvent.VK_A || keyCode == KeyEvent.VK_LEFT) {
-                    player.setVelocityX(0);
-                    player.setAnimation(idleAnimationKey);
-                }
-                if (keyCode == KeyEvent.VK_D || keyCode == KeyEvent.VK_RIGHT) {
-                    player.setVelocityX(0);
-                    player.setAnimation(idleAnimationKey);
-                }
-                if (keyCode == KeyEvent.VK_SPACE) {
-                    player.getBulletSpawner().setIsSpawning(false);
+                switch (keyCode) {
+                    case KeyEvent.VK_W, KeyEvent.VK_UP, KeyEvent.VK_S, KeyEvent.VK_DOWN, KeyEvent.VK_A, KeyEvent.VK_LEFT, KeyEvent.VK_D, KeyEvent.VK_RIGHT -> {
+                        player.setVelocityX(0);
+                        player.setVelocityY(0);
+                        player.setAnimation("player-idle");
+                    }
+                    case KeyEvent.VK_SPACE -> {
+                        player.getBulletSpawner().setIsSpawning(false);
+                    }
+                    default -> {
+                        System.out.println("Unexpected key: " + keyCode);
+                    }
                 }
             }
         });
