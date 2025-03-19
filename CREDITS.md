@@ -6,11 +6,11 @@ This project includes assets created by various artists and developers. Below is
 
 ## 📚 Tutorials & Learning Resources  
 
-- **"Collision Detection (An Overview) (UPDATED!)"** by *MacroPixel* ([YouTube](https://www.youtube.com/watch?v=oOEnWQZIePs))
+- **"Collision Detection (An Overview) (UPDATED!)"** by *MacroPixel* ([YouTube](https://www.youtube.com/watch?v=oOEnWQZIePs)).
 
-- **"Bounding Box Collision Detection"** by *Teklectic* ([Youtube](https://www.youtube.com/watch?v=8b_reDI7iPM))
+- **"Bounding Box Collision Detection"** by *Teklectic* ([Youtube](https://www.youtube.com/watch?v=8b_reDI7iPM)).
 
-- **"Sparen's Danmaku Design Studio - Danmaku Design Guides"** by *Andrew Fan/Sparen* ([GitHub](https://sparen.github.io/ph3tutorials/danmakudesign.html))
+- **"Sparen's Danmaku Design Studio - Danmaku Design Guides"** by *Andrew Fan/Sparen* ([GitHub](https://sparen.github.io/ph3tutorials/danmakudesign.html)).
 
 ---
 
@@ -22,7 +22,7 @@ This project includes assets created by various artists and developers. Below is
     - "Feel free [to] use any images generated in your games or other projects. Do not distribute any images generated on their own, or in an asset pack."
     - Licensed under the [MIT License](https://mit-license.org/).
 
-- **"[Free] Agis"** [animation](https://papoycore.itch.io/free-agis) by [Papoy Core](https://papoycore.itch.io)
+- **"[Free] Agis"** [animation](https://papoycore.itch.io/free-agis) by [Papoy Core](https://papoycore.itch.io).
 
   - **License Notes:**  
     - This asset pack is free for commercial and non-commercial use.  
@@ -30,7 +30,7 @@ This project includes assets created by various artists and developers. Below is
     - Redistribution or resale of the graphics outside of a packaged game is prohibited.  
     - Credit is appreciated but not required.
 
-- **"500 Pixel Bullet 24x24 Free"** [bullet animation sprites](https://bdragon1727.itch.io/500-pixel-bullet-24x24) by [BDragon1727](https://bdragon1727.itch.io/)
+- **"500 Pixel Bullet 24x24 Free"** [bullet animation sprites](https://bdragon1727.itch.io/500-pixel-bullet-24x24) by [BDragon1727](https://bdragon1727.itch.io/).
 
   - **License Notes:**
     - Free to use on non-commercial games.
@@ -39,20 +39,26 @@ This project includes assets created by various artists and developers. Below is
     - You cannot do:
       - Resell / redistribute this asset.
 
+- **"Free NPC mage"** [enemy animation sprites](https://creativekind.itch.io/npc-mage-free) by [CreativeKind](https://creativekind.itch.io/).
+
+  - **License Notes:**
+    - Whether your project is commercial or non-commercial, feel free to use this asset.
+
+    - This asset is customizable, so you can make any necessary modifications.
+
+    - It is prohibited to distribute or resell this asset.
+
+- **"The Adventurer - Female" (Free Demo Version)** [player animation sprites](https://sscary.itch.io/the-adventurer-female) by [Sscary](https://sscary.itch.io/the-adventurer-female)
+
+  - **License Notes:**
+    - Assets can be used both in free and commercial games.
+    - Assets can be modified freely to fit the needs of your game.
+    - You may not redistribute it or resell it.
+    - Credit is not required for Free and Premium version, but much appreciated a lot!
+
 ---
 
-## 🎵 Music & Sound Effects  
-
-<!-- - **"Epic Soundtrack"** by *Composer Name* (License: Royalty-Free)  
-- **Sound Effects** from [Freesound.org](https://freesound.org) (Various licenses, see specific sound pages)  
-- **UI Click Sounds** from [Kenney.nl](https://www.kenney.nl) (License: CC0 - Public Domain)   -->
-
----
-
-## 🔤 Fonts  
-
-<!-- - **"Press Start 2P"** by *Codeman38* (License: Open Font License)  
-- **"Cooper Black"** by Adobe (Commercial License Required)   -->
+## 🎵 Music & Sound Effects
 
 ---
 
@@ -92,4 +98,4 @@ For more information, refer to the individual asset license pages.
 
 ---
 
-*Last Updated: [2025-03-14 14:57 UTC-04:00]*
+*Last Updated: [2025-03-18 20:54 UTC-04:00]*

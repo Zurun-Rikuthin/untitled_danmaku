@@ -1,9 +1,14 @@
 package com.rikuthin.entities;
 
+import java.awt.Dimension;
+import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.swing.JPanel;
+
+import com.rikuthin.core.GameManager;
 import com.rikuthin.graphics.animations.AnimationInstance;
 import com.rikuthin.graphics.animations.AnimationManager;
 import com.rikuthin.graphics.animations.AnimationTemplate;
@@ -13,51 +18,56 @@ import com.rikuthin.interfaces.Updateable;
  * Represents an invisible {@link Bullet} spawner controlled by a game
  * {@link Entity}.
  */
-public class BulletSpawner implements Updateable {
+public class BulletSpawner extends Entity {
 
     /**
      * The {@link Entity} that owns/controls the spawner.
      */
     protected Entity owner;
-
     /**
      * {@code true} if the spawner is currently creating bullets; {@code false}
      * otherwise.
      */
     protected boolean isSpawning;
-
     /**
      * How many points of damage the spawned bullets should do.
      */
     protected int bulletDamage;
-
     /**
      * The number of pixels along the x-axis that a spawned {@link Bullet} will
      * move per frame.
      */
     protected double bulletVelocityX;
-
     /**
      * The number of pixels along the y-axis that a spawned {@link Bullet} will
      * move per frame.
      */
     protected double bulletVelocityY;
-
     /**
      * A map of all the animations associated with the spawned bullets, keyed by
      * animation name.
      */
     protected HashSet<String> bulletAnimationKeys;
-
     /**
      * The key of the spawned bullet's initial active animation.
      */
     protected String currentBulletAnimationKey;
-
     /**
      * The key of the animation used for spawned bullets.
      */
     protected String currentAnimationKey;
+    /**
+     * How many milliseconds to wait before spawning more bullets.
+     */
+    private long spawnDelayMs;
+    /**
+     * When the spawner was last updated.
+     */
+    private long lastUpdateTime;
+    /**
+     * How much of the delay has already passed.
+     */
+    private long elapsedDelayTime;
 
     // ----- CONSTRUCTORS -----
     /**
@@ -66,6 +76,8 @@ public class BulletSpawner implements Updateable {
      * @param builder The builder used to construct the player.
      */
     public BulletSpawner(BulletSpawnerBuilder builder) {
+        super(builder);
+
         this.owner = builder.owner;
         setBulletDamage(builder.bulletDamage);
         this.isSpawning = builder.isSpawning;
@@ -73,6 +85,9 @@ public class BulletSpawner implements Updateable {
         this.bulletVelocityY = builder.bulletVelocityY;
         setBulletAnimationKeys(builder.bulletAnimationKeys);
         setCurrentBulletAnimationKey(builder.currentBulletAnimationKey);
+        this.spawnDelayMs = Math.abs(spawnDelayMs);
+        this.lastUpdateTime = System.currentTimeMillis();
+        this.elapsedDelayTime = 0;
     }
 
     // ---- GETTERS -----
@@ -102,6 +117,34 @@ public class BulletSpawner implements Updateable {
      */
     public boolean isSpawning() {
         return isSpawning;
+    }
+
+    /**
+     * Returns how many milliseconds the spawner must wait before spawning more
+     * bullets.
+     *
+     * @return The delay;
+     */
+    public long getSpawnDelayMs() {
+        return spawnDelayMs;
+    }
+
+    /**
+     * Returns how many milliseconds of the delay have passed.
+     *
+     * @return The elasped time.
+     */
+    private long getElapsedDelayTime() {
+        return elapsedDelayTime;
+    }
+
+    /**
+     * Returns the last time the spawner was updated in milliseconds.
+     *
+     * @return The last update time.
+     */
+    private long getLastUpdateTime() {
+        return lastUpdateTime;
     }
 
     /**
@@ -261,6 +304,61 @@ public class BulletSpawner implements Updateable {
         this.currentAnimationKey = key;
     }
 
+    // ----- BUSINESS LOGIC METHODS -----
+    public Dimension getBulletSpriteDimensions() {
+        if (currentAnimationKey == null) {
+            return new Dimension(0, 0);
+        }
+
+        AnimationInstance bulletAnimation = new AnimationInstance(
+                AnimationManager.getInstance().getAnimation(currentAnimationKey)
+        );
+
+        BufferedImage bulletSprite = bulletAnimation.getCurrentFrameImage();
+        if (bulletSprite != null) {
+            return new Dimension(bulletSprite.getWidth(), bulletSprite.getHeight());
+        }
+        return new Dimension(0, 0);
+    }
+
+    /**
+     * // * Begins the spawning of {@link Bullet} instances. //
+     */
+    public void start() {
+        isSpawning = true;
+        lastUpdateTime = System.currentTimeMillis();
+        elapsedDelayTime = 0;
+    }
+
+    /**
+     * Stops the spawning of {@link bullet} instances.
+     */
+    public void stop() {
+        isSpawning = false;
+    }
+
+    /**
+     * Spawns a new {@link Bullet} instance using the current stored values.
+     * <p>
+     * Following creation, the new bullet is additionally added to the
+     * GameManager's managed list of bullets.
+     *
+     * @return the newly created bullet.
+     */
+    public Bullet spawnBullet() {
+        Bullet bullet = new Bullet.BulletBuilder(panel, owner)
+                .position(position)
+                .invisibility(true)
+                .damage(bulletDamage)
+                .velocityX(bulletVelocityX)
+                .velocityY(bulletVelocityY)
+                .animationKeys(bulletAnimationKeys)
+                .currentAnimationKey(currentBulletAnimationKey)
+                .build();
+        GameManager.getInstance().addBullet(bullet);
+        return bullet;
+    }
+
     // ----- OVERRIDDEN METHODS -----
     /**
      * Compares this entity to another object for equality.
@@ -309,7 +407,12 @@ public class BulletSpawner implements Updateable {
     @Override
     public void update() {
         if (isSpawning) {
-            // Bullet newBullet = Bullet()
+            long currentTime = System.currentTimeMillis();
+            elapsedDelayTime += currentTime - lastUpdateTime;
+            while (elapsedDelayTime >= spawnDelayMs) {
+                spawnBullet();
+                elapsedDelayTime -= spawnDelayMs; // Ensures correct timing
+            }
         }
     }
 
@@ -318,7 +421,7 @@ public class BulletSpawner implements Updateable {
      * The EntityBuilder class provides a fluent API for constructing an Entity
      * object.
      */
-    public static class BulletSpawnerBuilder {
+    public static class BulletSpawnerBuilder extends EntityBuilder<BulletSpawnerBuilder> {
 
         // ----- INSTANCE VARIABLES -----
         /**
@@ -361,7 +464,9 @@ public class BulletSpawner implements Updateable {
         protected String currentBulletAnimationKey = null;
 
         // ------ CONSTRUCTORS -----
-        public BulletSpawnerBuilder(final Entity owner) {
+        public BulletSpawnerBuilder(final JPanel panel, final Entity owner) {
+            super(panel);
+
             if (owner == null) {
                 throw new IllegalArgumentException(String.format(
                         "%s: Owner cannot be null.",
@@ -369,6 +474,7 @@ public class BulletSpawner implements Updateable {
                 ));
             }
             this.owner = owner;
+            this.isSpawning = false;
         }
 
         // ---- SETTERS -----
@@ -487,7 +593,6 @@ public class BulletSpawner implements Updateable {
 //         this.elapsedDelayTime = 0;
 //         this.isSpawning = false;
 //     // ----- GETTERS -----
-
 //     public boolean isSpawning() {
 //         return isSpawning;
 //     /**
@@ -513,7 +618,6 @@ public class BulletSpawner implements Updateable {
 //     private long getLastUpdateTime() {
 //         return lastUpdateTime;
 //     // ----- SETTERS -----
-
 //     /**
 //      * Sets how many milliseconds the spawner must wait before creating more
 //      * {@link Bullet} instances.
@@ -547,7 +651,6 @@ public class BulletSpawner implements Updateable {
 //         Bullet bullet = new Bullet(panel, position, bulletAnimationTemplate, bearing, bulletSpeed);
 //         GameManager.getInstance().addBullet(bullet);
 //         return bullet;
-
 //     /**
 //      * Updates the bullet spawner based on elapsed time.
 //      */

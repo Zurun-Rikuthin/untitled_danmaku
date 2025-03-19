@@ -2,8 +2,8 @@ package com.rikuthin.utility;
 
 /**
  * Represents a bearing (direction) in 2D space, measured in degrees. Bearings
- * are used to indicate direction from one Cartesian point to another and are normalized
- * to the range [0, 360).
+ * are used to indicate direction from one Cartesian point to another and are
+ * normalized to the range [0, 360).
  *
  * Bearings are defined as follows: - 0 degrees = North (up) - 90 degrees = East
  * (right) - 180 degrees = South (down) - 270 degrees = West (left)
@@ -12,8 +12,10 @@ package com.rikuthin.utility;
  */
 public final class Bearing2D {
 
+    // ----- INSTANCE VARIABLES -----
     private double degrees;
 
+    // ----- CONSTRUCTORS -----
     /**
      * Creates a Bearing2D instance with a specified angle in degrees. The angle
      * is automatically normalized to the range [0, 360).
@@ -37,6 +39,7 @@ public final class Bearing2D {
         this.degrees = normalize(Math.toDegrees(Math.atan2(endY - startY, endX - startX)));
     }
 
+    // ----- GETTERS -----
     /**
      * Returns the bearing angle in degrees, normalized to the range [0, 360).
      *
@@ -46,6 +49,7 @@ public final class Bearing2D {
         return degrees;
     }
 
+    // ----- SETTERS -----
     /**
      * Sets a new bearing angle in degrees. The value is automatically
      * normalized to the range [0, 360).
@@ -56,6 +60,7 @@ public final class Bearing2D {
         this.degrees = normalize(degrees);
     }
 
+    // ----- BUSINESS LOGIC METHODS -----
     /**
      * Normalizes an angle to ensure it falls within the range [0, 360).
      *
@@ -66,6 +71,7 @@ public final class Bearing2D {
         return Math.floorMod((int) degrees, 360);
     }
 
+    // ----- OVERRIDDEN METHODS -----
     /**
      * Compares this Bearing2D object with another object for equality.
      *

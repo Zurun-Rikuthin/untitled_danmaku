@@ -87,7 +87,7 @@ public abstract class Entity implements Updateable, Renderable {
      *
      * @param builder The builder instance used to construct the entity.
      */
-    protected Entity(EntityBuilder<?> builder) {
+    protected Entity(EntityBuilder<?> builder) throws IllegalArgumentException {
         if (builder == null) {
             throw new IllegalArgumentException(String.format(
                     "%s: Builder cannot be null.",
@@ -375,7 +375,7 @@ public abstract class Entity implements Updateable, Renderable {
     /**
      * Sets the maximum hit points of the entity. Requires a non-negative value.
      */
-    protected final void setMaxHitPoints(final int maxHitPoints) {
+    protected final void setMaxHitPoints(final int maxHitPoints) throws IllegalArgumentException {
         if (maxHitPoints < 0) {
             throw new IllegalArgumentException(String.format(
                     "%s: Maximum hit points cannot be less than zero (0).",
@@ -389,7 +389,7 @@ public abstract class Entity implements Updateable, Renderable {
      * Sets the current hit points of the entity. Requires a non-negative value
      * less than or equal to the maximum value.
      */
-    protected final void setCurrentHitPoints(final int currentHitPoints) {
+    protected final void setCurrentHitPoints(final int currentHitPoints) throws IllegalArgumentException {
         if (currentHitPoints < 0) {
             throw new IllegalArgumentException(String.format(
                     "%s: Current hit points cannot be less than zero (0).",
@@ -454,13 +454,37 @@ public abstract class Entity implements Updateable, Renderable {
         return collides(entity.getHitbox());
     }
 
-    public void addAnimationKey(final String key) {
+    /**
+     * Adds a new key to the set of keys this entity can query {@link AnimationManager} with.
+     *
+     * @param key The new animation key.
+     * @throws IllegalArgumentException if a {@code null} or blank key is passed, or the key
+     * doesn't exist in {@link AnimationManager}'s key set.
+     */
+    public void addAnimationKey(final String key) throws IllegalArgumentException {
         if (key == null || key.isBlank()) {
             throw new IllegalArgumentException(String.format(
-                    "%s: Cannot add a blank or null key.",
+                    "%s: Keys cannot be null nor empty.",
                     this.getClass().getName()
             ));
         }
+        if (AnimationManager.getInstance().getAnimation(key) == null) {
+            throw new IllegalArgumentException(String.format(
+                    "%s: Keys must exist within AnimationManager's key set.",
+                    this.getClass().getName()
+            ));
+        }
+        animationKeys.add(key);
+    }
+
+    /**
+     * Returns the central coordinates of the entity's sprite.
+     */
+    public Point getCentreCoordinates() {
+        return new Point(
+            (position.x + getSpriteWidth()) / 2,
+            (position.y + getSpriteHeight()) / 2
+        );
     }
 
     // ----- OVERRIDDEN METHODS -----
@@ -548,16 +572,16 @@ public abstract class Entity implements Updateable, Renderable {
         private HashSet<String> animationKeys = new HashSet<>();
         private String currentAnimationKey = null;
         private Rectangle hitbox = new Rectangle(0, 0, 0, 0);
-        private boolean isCollidable = true;
-        private int maxHitPoints = 100;
-        private int currentHitPoints = 100;
+        private boolean isCollidable = false;
+        private int maxHitPoints = 0;
+        private int currentHitPoints = 0;
 
         /**
          * Creates a EntityBuilder for constructing an Entity.
          *
          * @param panel The {@link JPanel} where the entity will be rendered.
          */
-        public EntityBuilder(final JPanel panel) {
+        public EntityBuilder(final JPanel panel) throws IllegalArgumentException {
             if (panel == null) {
                 throw new IllegalArgumentException("Panel cannot be null.");
             }

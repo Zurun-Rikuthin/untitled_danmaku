@@ -32,6 +32,7 @@ public final class GameplayScreen extends Screen {
 
         gameManager = GameManager.getInstance();
         gameManager.init(gamePanel, infoPanel);
+        
         Player player = gameManager.getPlayer();
 
         addKeyListener(new KeyAdapter() {
@@ -44,41 +45,59 @@ public final class GameplayScreen extends Screen {
                 if ((keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_UP)
                         && !(keyCode == KeyEvent.VK_S || keyCode == KeyEvent.VK_DOWN)) {
                     player.setVelocityY(playerSpeed);
+                    player.setAnimation("player-walk-up");
                 }
 
                 // Move down if S or down arrow pressed (but not if W or up arrow already pressed)
                 if ((keyCode == KeyEvent.VK_S || keyCode == KeyEvent.VK_DOWN)
                         && !(keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_UP)) {
                     player.setVelocityY(-playerSpeed);
+                    player.setAnimation("player-walk-up");
                 }
 
                 // Move left if A or left arrow pressed (but not if D or right arrow already pressed)
                 if ((keyCode == KeyEvent.VK_A || keyCode == KeyEvent.VK_LEFT)
                         && !(keyCode == KeyEvent.VK_D || keyCode == KeyEvent.VK_RIGHT)) {
                     player.setVelocityX(-playerSpeed);
+                    player.setAnimation("player-walk-up-left");
                 }
 
                 // Move left if D or right arrow pressed (but not if A or left arrow already pressed)
                 if ((keyCode == KeyEvent.VK_D || keyCode == KeyEvent.VK_RIGHT)
                         && !(keyCode == KeyEvent.VK_A || keyCode == KeyEvent.VK_LEFT)) {
                     player.setVelocityX(playerSpeed);
+                    player.setAnimation("player-walk-up-right");
+                }
+
+                // Fire bullets when the SPACE key is pressed
+                if (keyCode == KeyEvent.VK_SPACE) {
+                    player.getBulletSpawner().setIsSpawning(true);
                 }
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
                 int keyCode = e.getKeyCode();
+                String idleAnimationKey = "player-idle";
+
                 if (keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_UP) {
                     player.setVelocityY(0);
+                    player.setAnimation(idleAnimationKey);
                 }
                 if (keyCode == KeyEvent.VK_S || keyCode == KeyEvent.VK_DOWN) {
                     player.setVelocityY(0);
+                    player.setAnimation(idleAnimationKey);
                 }
                 if (keyCode == KeyEvent.VK_A || keyCode == KeyEvent.VK_LEFT) {
                     player.setVelocityX(0);
+                    player.setAnimation(idleAnimationKey);
                 }
                 if (keyCode == KeyEvent.VK_D || keyCode == KeyEvent.VK_RIGHT) {
                     player.setVelocityX(0);
+                    player.setAnimation(idleAnimationKey);
+                }
+                if (keyCode == KeyEvent.VK_SPACE) {
+                    player.getBulletSpawner().setIsSpawning(false);
                 }
             }
         });

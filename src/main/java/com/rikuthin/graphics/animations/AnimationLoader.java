@@ -36,22 +36,20 @@ public class AnimationLoader {
      * space in-between them or along the sheet's margins.
      *
      * @param filePath Path to the sprite sheet image.
-     * @param numRows The number of rows in the sprite sheet.
-     * @param numColumns The number of columns in the sprite sheet.
-     * @param frameDurationMs Duration of each frame in milliseconds.
+     * @param frameDurationMs Duration of each frame in milliseconds. (Minimum value: 1)
+     * @param numRows The number of rows in the sprite sheet. (Minimum value: 1)
+     * @param numColumns The number of columns in the sprite sheet. (Minimum value: 1)
      * @return List of AnimationFrame objects extracted from the sprite sheet.
      * @throws IOException If the image file cannot be loaded.
      */
-    public static List<AnimationFrame> loadFromSpriteSheet(String filePath, long frameDurationMs, int numRows, int numColumns) throws IllegalArgumentException, IOException {
+    public static List<AnimationFrame> loadFromSpriteSheet(final String filePath, long frameDurationMs, int numRows, int numColumns) throws IllegalArgumentException, IOException {
         if (filePath == null || filePath.isEmpty()) {
             throw new IllegalArgumentException("AnimationLoader: Must provide the file path of the sprite sheet to be loaded.");
         }
-        if (frameDurationMs <= 0) {
-            throw new IllegalArgumentException("AnimationLoader: Frame duration must be greater than zero (0) milliseconds.");
-        }
-        if (numRows <= 0 || numColumns <= 0) {
-            throw new IllegalArgumentException("AnimationLoader: Row and column counts must both be greater than zero (0).");
-        }
+        
+        frameDurationMs = Math.max(frameDurationMs, 1);        
+        numRows = Math.max(numRows, 1);
+        numColumns = Math.max(numColumns, 1);
 
         BufferedImage spriteSheet = ImageManager.loadBufferedImage(filePath);
         if (spriteSheet == null) {
@@ -80,38 +78,31 @@ public class AnimationLoader {
      * Hard-coding this for now. Might try to make it more dynamic later.
      */
     public static void loadAllAnimations() {
-        String[] spriteSheetPaths = {
-            ANIMATION_FOLDER + "player-bullet.png",
-            ANIMATION_FOLDER + "enemy-bullet.png",
-            ANIMATION_FOLDER + "player.png",
-            ANIMATION_FOLDER + "Agis.png"
+        SpriteSheetInfo[] spriteSheets = {
+            new SpriteSheetInfo("enemy-bullet.png", 8, 1, true),
+            new SpriteSheetInfo("mage-guardian-blue.png", 14, 1, true),
+            new SpriteSheetInfo("mage-guardian-magenta.png", 14, 1, true),
+            new SpriteSheetInfo("player-bullet.png", 8, 1, true),
+            new SpriteSheetInfo("player-death.png", 8, 1, false),
+            new SpriteSheetInfo("player-idle.png", 8, 1, true),
+            new SpriteSheetInfo("player-walk-up-left.png", 8, 1, true),
+            new SpriteSheetInfo("player-walk-up-right.png", 8, 1, true),
+            new SpriteSheetInfo("player-walk-up.png", 8, 1, true)
         };
-
-        // "width" = column count, "height" = row count
-        Dimension[] spriteSheetDimensions = {
-            new Dimension(8, 1),
-            new Dimension(8, 1),
-            new Dimension(1, 1),
-            new Dimension(15, 1)
-        };
-
-        boolean[] looping = {true, true, true, true, true}; // Looping flag for each animation
 
         // Load each animation and add it to the AnimationManager
-        for (int i = 0; i < spriteSheetPaths.length; i++) {
-            String spriteSheetPath = spriteSheetPaths[i];
-
+        for (SpriteSheetInfo sheet : spriteSheets) {
             try {
                 // Load the frames from the sprite sheet
                 List<AnimationFrame> frames = AnimationLoader.loadFromSpriteSheet(
-                        spriteSheetPath, App.FRAME_RATE_MS, spriteSheetDimensions[i].height, spriteSheetDimensions[i].width
+                        ANIMATION_FOLDER + sheet.fileName, App.FRAME_RATE_MS, sheet.numGridRows, sheet.numGridColumns
                 );
 
                 // Create the animation template
-                AnimationTemplate animationTemplate = new AnimationTemplate(frames, looping[i]);
+                AnimationTemplate animationTemplate = new AnimationTemplate(frames, sheet.isLooping);
 
                 // Generate a unique key for the animation from the sprite sheet filename (minus the extension, i.e., "bullet-1" instead of "bullet-1.png").
-                String animationKey = spriteSheetPath.substring(spriteSheetPath.lastIndexOf('/') + 1, spriteSheetPath.lastIndexOf('.'));
+                String animationKey = sheet.fileName.substring(sheet.fileName.lastIndexOf('/') + 1, sheet.fileName.lastIndexOf('.'));
 
                 // Add the animation template to the AnimationManager
                 AnimationManager.getInstance().addAnimation(animationKey, animationTemplate);
@@ -145,4 +136,52 @@ public class AnimationLoader {
         g.dispose();
         return frame;
     }
+
+    // ----- PRIVATE INNER CLASSES -----
+    /**
+     * Represents metadata for a sprite sheet used in animations.
+     */
+    private static class SpriteSheetInfo {
+
+        /**
+         * File name of the sprite sheet.
+         */
+        String fileName;
+        /**
+         * Number of rows in the sprite sheet. (Minimum value of 1.)
+         */
+        int numGridRows;
+        /**
+         * Number of columns in the sprite sheet. (Minimum value of 1.)
+         */
+        int numGridColumns;
+        /**
+         * Whether the animation should loop.
+         */
+        boolean isLooping;
+
+        /**
+         * Creates a new SpriteSheetInfo object.
+         *
+         * @param fileName Name of the sprite sheet file.
+         * @param numGridRows Number of rows in the sprite sheet's grid.
+         * (Minimum value of 1.)
+         * @param numGridColumns Number of columns in the sprite sheet's grid.
+         * (Minimum value of 1.)
+         * @param isLooping Whether the animation should loop.
+         */
+        public SpriteSheetInfo(final String fileName, final int numGridRows, final int numGridColumns, final boolean isLooping) throws IllegalArgumentException {
+            if (fileName == null || fileName.isBlank()) {
+                throw new IllegalArgumentException(String.format(
+                        "%s: File namme cannot be null nor blank.",
+                        this.getClass().getName()
+                ));
+            }
+            this.fileName = fileName;
+            this.numGridRows = Math.max(numGridRows, 1);
+            this.numGridColumns = Math.max(numGridColumns, 1);
+            this.isLooping = isLooping;
+        }
+    }
+
 }

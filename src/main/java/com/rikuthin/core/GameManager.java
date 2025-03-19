@@ -193,7 +193,7 @@ public class GameManager implements Updateable {
         // Transition to initializing state during setup
         currentState = GameState.INITIALIZING;
 
-        initialisePlayer();
+        initialisePlayer(gamePanel);
         enemies = new HashSet<>();
         bullets = new HashSet<>();
         setGamePaused(false);
@@ -228,6 +228,13 @@ public class GameManager implements Updateable {
         enemies.add(enemy);
     }
 
+    // /**
+    //  * Creates a new mage enemy.
+    //  */
+    // public Enemy createMage(final String colour) {
+    //     ensureInitialized("createMage");
+    //     Enemy newMage = Enemy.EnemyBuilder(gamePanel).build();
+    // }
     /**
      * Adds a new bullet to the managed list.
      * <p>
@@ -300,7 +307,7 @@ public class GameManager implements Updateable {
      * <p>
      * Only works if the {@link GameplayScreen} is the current screen.
      */
-    private void initialisePlayer() {
+    private void initialisePlayer(final GamePanel gamePanel) {
         if (currentState != GameState.INITIALIZING) {
             throw new IllegalStateException(
                     "Cannot initialise player without being in the INITIALIZING state."
@@ -308,29 +315,32 @@ public class GameManager implements Updateable {
         }
 
         HashSet<String> playerAnimationKeys = Stream.of(
-                "player"
-        // "player-idle",
-        // "player-move-up",
-        // "player-move-down",
-        // "player-move-left",
-        // "player-move-right"
+                "player-death",
+                "player-idle",
+                "player-walk-up-left",
+                "player-walk-up-right",
+                "player-walk-up"
         ).collect(Collectors.toCollection(HashSet::new));
 
         player = new Player.PlayerBuilder(gamePanel)
+                .invisibility(false)
+                .collidability(true)
                 .animationKeys(playerAnimationKeys)
-                .currentAnimationKey("player")
+                .currentAnimationKey("player-idle")
+                .maxHitPoints(20)
+                .currentHitPoints(20)
                 .build();
 
-        int x = (gamePanel.getWidth() - player.getSpriteWidth()) / 2;
-        int y = (gamePanel.getHeight() - player.getSpriteHeight()) / 2;
+        // Trying to do this dynamically wasn't working, so hard-coding for now
+        int x = GameFrame.FRAME_WIDTH - GameFrame.FRAME_HEIGHT - (player.getSpriteWidth() / 2);
+        int y = GameFrame.FRAME_HEIGHT - (player.getSpriteHeight() / 2);
 
         player.setPosition(new Point(x, y));
 
         HashSet<String> playerBulletAnimationKeys = Stream.of("player-bullet").collect(Collectors.toCollection(HashSet::new));
 
-        BulletSpawner spawner = new BulletSpawner.BulletSpawnerBuilder(player)
+        BulletSpawner spawner = new BulletSpawner.BulletSpawnerBuilder(gamePanel, player)
                 .bulletDamage(1)
-                .isSpawning(true)
                 .bulletVelocityY(20)
                 .bulletAnimationKeys(playerBulletAnimationKeys)
                 .currentBulletAnimationKey("player-bullet")
