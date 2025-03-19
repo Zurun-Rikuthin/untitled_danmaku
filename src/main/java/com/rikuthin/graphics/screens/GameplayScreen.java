@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Graphics2D;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.rikuthin.core.GameManager;
@@ -12,16 +13,28 @@ import com.rikuthin.graphics.GameFrame;
 import com.rikuthin.graphics.screens.subpanels.GamePanel;
 import com.rikuthin.graphics.screens.subpanels.InfoPanel;
 
+/**
+ * The main gameplay screen where the game logic and rendering occur. Handles
+ * player input and updates the game state accordingly.
+ */
 public final class GameplayScreen extends Screen {
 
+    // ----- STATIC VARIABLES -----
+    private static final int BASE_SPEED = 5;
+
+    // INSTANCE VARIABLES -----
     private final transient GameManager gameManager;
     private final GamePanel gamePanel;
     private final InfoPanel infoPanel;
-    private boolean upPressed;
-    private boolean downPressed;
-    private boolean leftPressed;
-    private boolean rightPressed;
+    private final Map<Integer, Boolean> keyStates;
 
+    // ----- CONSTRUCTORS -----
+    /**
+     * Initializes the gameplay screen, setting up the game panels and input
+     * listeners.
+     *
+     * @param gameFrame The parent frame containing this screen.
+     */
     public GameplayScreen(GameFrame gameFrame) {
         super(gameFrame);
         setLayout(new BorderLayout());
@@ -37,121 +50,33 @@ public final class GameplayScreen extends Screen {
         gameManager = GameManager.getInstance();
         gameManager.init(gamePanel, infoPanel);
 
-        Player player = gameManager.getPlayer();
-
-        upPressed = false;
-        downPressed = false;
-        leftPressed = false;
-        rightPressed = false;
-
-        addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                int keyCode = e.getKeyCode();
-                int playerSpeed = 5;
-
-                // Halve the speed if Shift is held down
-                if (e.isShiftDown()) {
-                    playerSpeed /= 2;
-                }
-
-                // Handle movement keys
-                switch (keyCode) {
-                    case KeyEvent.VK_W, KeyEvent.VK_UP -> {
-                        upPressed = true;
-                        player.setVelocityY(playerSpeed);
-                        player.setAnimation("player-walk-up");
-                    }
-                    case KeyEvent.VK_S, KeyEvent.VK_DOWN -> {
-                        downPressed = true;
-                        player.setVelocityY(-playerSpeed);
-                        player.setAnimation("player-walk-up");
-                    }
-                    case KeyEvent.VK_A, KeyEvent.VK_LEFT -> {
-                        leftPressed = true;
-                        player.setVelocityX(-playerSpeed);
-                        player.setAnimation("player-walk-up-left");
-                    }
-                    case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> {
-                        rightPressed = true;
-                        player.setVelocityX(playerSpeed);
-                        player.setAnimation("player-walk-up-right");
-                    }
-                    case KeyEvent.VK_SPACE -> {
-                        player.getBulletSpawner().setIsSpawning(true);
-                    }
-                    default -> {
-                        // Doesn't do anything/ignore all other keys
-                        break;
-                    }
-                }
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                int keyCode = e.getKeyCode();
-
-                // Handle key release
-                switch (keyCode) {
-                    case KeyEvent.VK_W, KeyEvent.VK_UP -> {
-                        upPressed = false;
-                        if (!downPressed) {
-                            player.setVelocityY(0);  // Stop Y velocity if no other vertical key is pressed
-                        }
-                        if (!leftPressed && !rightPressed) {
-                            player.setAnimation("player-idle");  // Only reset animation if no direction is pressed
-                        }
-                    }
-                    case KeyEvent.VK_S, KeyEvent.VK_DOWN -> {
-                        downPressed = false;
-                        if (!upPressed) {
-                            player.setVelocityY(0);  // Stop Y velocity if no other vertical key is pressed
-                        }
-                        if (!leftPressed && !rightPressed) {
-                            player.setAnimation("player-idle");  // Only reset animation if no direction is pressed
-                        }
-                    }
-                    case KeyEvent.VK_A, KeyEvent.VK_LEFT -> {
-                        leftPressed = false;
-                        if (!rightPressed) {
-                            player.setVelocityX(0);  // Stop X velocity if no other horizontal key is pressed
-                        }
-                        if (!upPressed && !downPressed) {
-                            player.setAnimation("player-idle");  // Only reset animation if no direction is pressed
-                        }
-                    }
-                    case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> {
-                        rightPressed = false;
-                        if (!leftPressed) {
-                            player.setVelocityX(0);  // Stop X velocity if no other horizontal key is pressed
-                        }
-                        if (!upPressed && !downPressed) {
-                            player.setAnimation("player-idle");  // Only reset animation if no direction is pressed
-                        }
-                    }
-                    case KeyEvent.VK_SPACE -> {
-                        player.getBulletSpawner().setIsSpawning(false);
-                    }
-                    default -> {
-                        // Doesn't do anything/ignore all other keys
-                        break;
-                    }
-                }
-            }
-        });
-
+        keyStates = new HashMap<>();
+        addKeyListener(createKeyListener());
     }
 
     // ----- GETTERS -----
+    /**
+     * Retrieves the {@link GamePanel}.
+     *
+     * @return The main game panel.
+     */
     public GamePanel getGamePanel() {
         return gamePanel;
     }
 
+    /**
+     * Retrieves the {@link InfoPanel}.
+     *
+     * @return The information panel.
+     */
     public InfoPanel getInfoPanel() {
         return infoPanel;
     }
 
     // ----- OVERRIDDEN METHODS -----
+    /**
+     * Updates the game state if it is running.
+     */
     @Override
     public void update() {
         if (gameManager.isRunning()) {
@@ -159,6 +84,11 @@ public final class GameplayScreen extends Screen {
         }
     }
 
+    /**
+     * Renders the game screen.
+     *
+     * @param g2d The graphics context used for rendering.
+     */
     @Override
     public void render(Graphics2D g2d) {
         if (gameManager.isRunning()) {
@@ -167,48 +97,65 @@ public final class GameplayScreen extends Screen {
         }
     }
 
-    // ----- PRIVATE CLASSES -----
+    // ----- HELPER METHODS -----
     /**
-     * Handles key events for player movement and actions.
+     * Creates the key listener that handles player input.
+     *
+     * @return A KeyAdapter instance that listens for key events.
      */
-    private class KeyHandler extends KeyAdapter {
+    private KeyAdapter createKeyListener() {
+        return new KeyAdapter() {
+            /**
+             * Updates the player's movement based on the current key states.
+             */
+            private void updateMovement() {
+                Player player = gameManager.getPlayer();
+                int speed = keyStates.getOrDefault(KeyEvent.VK_SHIFT, false) ? BASE_SPEED / 2 : BASE_SPEED;
+                int velocityX = 0;
+                int velocityY = 0;
+                String animation = "player-idle";
 
-        // ----- INSTANCE VARIABLES -----
-        private final Map<Integer, Runnable> keyPressActions = Map.of(
-                KeyEvent.VK_W, () -> gameManager.getPlayer().setVelocityY(-20),
-                KeyEvent.VK_UP, () -> gameManager.getPlayer().setVelocityY(-20),
-                KeyEvent.VK_S, () -> gameManager.getPlayer().setVelocityY(20),
-                KeyEvent.VK_DOWN, () -> gameManager.getPlayer().setVelocityY(20),
-                KeyEvent.VK_A, () -> gameManager.getPlayer().setVelocityX(-20),
-                KeyEvent.VK_LEFT, () -> gameManager.getPlayer().setVelocityY(-20),
-                KeyEvent.VK_D, () -> gameManager.getPlayer().setVelocityX(20),
-                KeyEvent.VK_RIGHT, () -> gameManager.getPlayer().setVelocityX(20),
-                KeyEvent.VK_SPACE, () -> gameManager.getPlayer().setIsFiringBullets(true)
-        );
+                if (keyStates.getOrDefault(KeyEvent.VK_W, false) || keyStates.getOrDefault(KeyEvent.VK_UP, false)) {
+                    velocityY = speed;
+                    animation = "player-walk-up";
+                }
+                if (keyStates.getOrDefault(KeyEvent.VK_S, false) || keyStates.getOrDefault(KeyEvent.VK_DOWN, false)) {
+                    velocityY = -speed;
+                    animation = "player-walk-up";
+                }
+                if (keyStates.getOrDefault(KeyEvent.VK_A, false) || keyStates.getOrDefault(KeyEvent.VK_LEFT, false)) {
+                    velocityX = -speed;
+                    animation = "player-walk-up-left";
+                }
+                if (keyStates.getOrDefault(KeyEvent.VK_D, false) || keyStates.getOrDefault(KeyEvent.VK_RIGHT, false)) {
+                    velocityX = speed;
+                    animation = "player-walk-up-right";
+                }
 
-        private final Map<Integer, Runnable> keyReleaseActions = Map.of(
-                KeyEvent.VK_W, () -> gameManager.getPlayer().setVelocityY(0),
-                KeyEvent.VK_UP, () -> gameManager.getPlayer().setVelocityY(0),
-                KeyEvent.VK_S, () -> gameManager.getPlayer().setVelocityY(0),
-                KeyEvent.VK_DOWN, () -> gameManager.getPlayer().setVelocityY(0),
-                KeyEvent.VK_A, () -> gameManager.getPlayer().setVelocityX(0),
-                KeyEvent.VK_LEFT, () -> gameManager.getPlayer().setVelocityY(0),
-                KeyEvent.VK_D, () -> gameManager.getPlayer().setVelocityX(0),
-                KeyEvent.VK_RIGHT, () -> gameManager.getPlayer().setVelocityX(0),
-                KeyEvent.VK_SPACE, () -> gameManager.getPlayer().setIsFiringBullets(false)
-        );
+                player.setVelocityX(velocityX);
+                player.setVelocityY(velocityY);
+                player.setAnimation((velocityX == 0 && velocityY == 0) ? "player-idle" : animation);
+            }
 
-        // ----- OVERRIDDEN METHODS -----
-        @Override
-        public void keyPressed(KeyEvent e) {
-            keyPressActions.getOrDefault(e.getKeyCode(), () -> {
-            }).run();
-        }
+            @Override
+            public void keyPressed(KeyEvent e) {
+                keyStates.put(e.getKeyCode(), true);
+                updateMovement();
 
-        @Override
-        public void keyReleased(KeyEvent e) {
-            keyReleaseActions.getOrDefault(e.getKeyCode(), () -> {
-            }).run();
-        }
+                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                    gameManager.getPlayer().getBulletSpawner().setIsSpawning(true);
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                keyStates.put(e.getKeyCode(), false);
+                updateMovement();
+
+                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                    gameManager.getPlayer().getBulletSpawner().setIsSpawning(false);
+                }
+            }
+        };
     }
 }

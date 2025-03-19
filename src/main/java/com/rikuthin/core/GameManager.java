@@ -451,58 +451,6 @@ public class GameManager implements Updateable {
     }
 }
 
-// /**
-//  * Starts a new game by resetting/initialising game values/objects.
-//  */
-// public void startGame() {
-//     if (blasterPanel == null || bubblePanel == null) {
-//         throw new IllegalStateException("Error: Game cannot start. BlasterPanel and BubblePanel must be set first.");
-//     }
-//     remainingBubbles = 100;
-//     elapsedSeconds = 0;
-//     score = 0;
-//     blasterPanel.updateRemainingBubblesCounter(remainingBubbles);
-//     bubblePanel.initialiseWalls();
-//     gameActive = true;
-//     canShootBlaster = true;
-//     isPaused = false;
-//     // Initialise and start the game timer (updates every second).
-//     gameTimer = new Timer(1000, this::onTimerTick);
-//     gameTimer.start();
-// }
-// /**
-//  * Shoots a bubble towards a target point. Reduces the number of remaining
-//  * bubbles if possible.
-//  *
-//  * @param target The point to shoot the bubble towards.
-//  */
-// public void shootBubble(Point target) {
-//     if (!gameActive) {
-//         throw new IllegalStateException("Error: Cannot shoot bubble. Game has not started.");
-//     }
-//     if (remainingBubbles > 0) {
-//         if (canShootBlaster) {
-//             canShootBlaster = false;
-//             Blaster blaster = blasterPanel.getBlaster();
-//             Bubble newBubble = blaster.shootBubble(target, nextRandomColour());
-//             bubblePanel.addBubble(newBubble);
-//             remainingBubbles--;
-//             blasterPanel.updateRemainingBubblesCounter(remainingBubbles);
-//         } else {
-//             System.err.println("Warning: Bubble already fired. Wait for it to stop moving.");
-//         }
-//     } else {
-//         System.err.println("Warning: No more bubbles left to shoot.");
-//     }
-// }
-// public void onBubbleMovementComplete() {
-//     canShootBlaster = true;
-// }
-// /**
-//  * Chooses the next bubble's color randomly.
-//  *
-//  * @return The next random colour.
-//  */
 // private Color nextRandomColour() {
 //     if (!gameActive) {
 //         throw new IllegalStateException("Cannot select color when game is not active.");
