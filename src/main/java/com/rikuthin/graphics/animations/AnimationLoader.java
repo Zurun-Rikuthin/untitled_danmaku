@@ -1,6 +1,5 @@
 package com.rikuthin.graphics.animations;
 
-import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -79,15 +78,16 @@ public class AnimationLoader {
      */
     public static void loadAllAnimations() {
         SpriteSheetInfo[] spriteSheets = {
-            new SpriteSheetInfo("enemy-bullet.png", 8, 1, true),
-            new SpriteSheetInfo("mage-guardian-blue.png", 14, 1, true),
-            new SpriteSheetInfo("mage-guardian-magenta.png", 14, 1, true),
-            new SpriteSheetInfo("player-bullet.png", 8, 1, true),
-            new SpriteSheetInfo("player-death.png", 8, 1, false),
-            new SpriteSheetInfo("player-idle.png", 8, 1, true),
-            new SpriteSheetInfo("player-walk-up-left.png", 8, 1, true),
-            new SpriteSheetInfo("player-walk-up-right.png", 8, 1, true),
-            new SpriteSheetInfo("player-walk-up.png", 8, 1, true)
+            new SpriteSheetInfo("enemy-bullet.png", 1, 8, true),
+            new SpriteSheetInfo("mage-guardian-blue.png", 1, 14, true),
+            new SpriteSheetInfo("mage-guardian-magenta.png", 1, 14, true),
+            new SpriteSheetInfo("mage-guardian-red.png", 1, 14, true),
+            new SpriteSheetInfo("player-bullet.png", 1, 8, true),
+            new SpriteSheetInfo("player-death.png", 1, 8, false),
+            new SpriteSheetInfo("player-idle.png", 1, 8, true),
+            new SpriteSheetInfo("player-walk-up-left.png", 1, 8, true),
+            new SpriteSheetInfo("player-walk-up-right.png", 1, 8, true),
+            new SpriteSheetInfo("player-walk-up.png", 1, 8, true)
         };
 
         // Load each animation and add it to the AnimationManager

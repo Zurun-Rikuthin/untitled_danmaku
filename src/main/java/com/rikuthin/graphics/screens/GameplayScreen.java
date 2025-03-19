@@ -17,6 +17,10 @@ public final class GameplayScreen extends Screen {
     private final transient GameManager gameManager;
     private final GamePanel gamePanel;
     private final InfoPanel infoPanel;
+    private boolean upPressed;
+    private boolean downPressed;
+    private boolean leftPressed;
+    private boolean rightPressed;
 
     public GameplayScreen(GameFrame gameFrame) {
         super(gameFrame);
@@ -35,45 +39,50 @@ public final class GameplayScreen extends Screen {
 
         Player player = gameManager.getPlayer();
 
+        upPressed = false;
+        downPressed = false;
+        leftPressed = false;
+        rightPressed = false;
+
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 int keyCode = e.getKeyCode();
                 int playerSpeed = 5;
 
-                // Tried to use pattern match guards here instead of the if-statements,
-                // but it kept claiming syntax errors despite there being none.
+                // Halve the speed if Shift is held down
+                if (e.isShiftDown()) {
+                    playerSpeed /= 2;
+                }
+
+                // Handle movement keys
                 switch (keyCode) {
                     case KeyEvent.VK_W, KeyEvent.VK_UP -> {
-                        if (!(e.isShiftDown() || e.isControlDown())) {
-                            player.setVelocityY(playerSpeed);
-                            player.setAnimation("player-walk-up");
-                        }
+                        upPressed = true;
+                        player.setVelocityY(playerSpeed);
+                        player.setAnimation("player-walk-up");
                     }
                     case KeyEvent.VK_S, KeyEvent.VK_DOWN -> {
-                        if (!(e.isShiftDown() || e.isControlDown())) {
-                            player.setVelocityY(-playerSpeed);
-                            // Player always faces towards the top of the screen, so down is the same as up.
-                            player.setAnimation("player-walk-up");
-                        }
+                        downPressed = true;
+                        player.setVelocityY(-playerSpeed);
+                        player.setAnimation("player-walk-up");
                     }
                     case KeyEvent.VK_A, KeyEvent.VK_LEFT -> {
-                        if (!(e.isShiftDown() || e.isControlDown())) {
-                            player.setVelocityX(-playerSpeed);
-                            player.setAnimation("player-walk-up-left");
-                        }
+                        leftPressed = true;
+                        player.setVelocityX(-playerSpeed);
+                        player.setAnimation("player-walk-up-left");
                     }
                     case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> {
-                        if (!(e.isShiftDown() || e.isControlDown())) {
-                            player.setVelocityX(playerSpeed);
-                            player.setAnimation("player-walk-up-right");
-                        }
+                        rightPressed = true;
+                        player.setVelocityX(playerSpeed);
+                        player.setAnimation("player-walk-up-right");
                     }
                     case KeyEvent.VK_SPACE -> {
                         player.getBulletSpawner().setIsSpawning(true);
                     }
                     default -> {
-                        System.out.println("Unexpected key: " + keyCode);
+                        // Doesn't do anything/ignore all other keys
+                        break;
                     }
                 }
             }
@@ -82,21 +91,55 @@ public final class GameplayScreen extends Screen {
             public void keyReleased(KeyEvent e) {
                 int keyCode = e.getKeyCode();
 
+                // Handle key release
                 switch (keyCode) {
-                    case KeyEvent.VK_W, KeyEvent.VK_UP, KeyEvent.VK_S, KeyEvent.VK_DOWN, KeyEvent.VK_A, KeyEvent.VK_LEFT, KeyEvent.VK_D, KeyEvent.VK_RIGHT -> {
-                        player.setVelocityX(0);
-                        player.setVelocityY(0);
-                        player.setAnimation("player-idle");
+                    case KeyEvent.VK_W, KeyEvent.VK_UP -> {
+                        upPressed = false;
+                        if (!downPressed) {
+                            player.setVelocityY(0);  // Stop Y velocity if no other vertical key is pressed
+                        }
+                        if (!leftPressed && !rightPressed) {
+                            player.setAnimation("player-idle");  // Only reset animation if no direction is pressed
+                        }
+                    }
+                    case KeyEvent.VK_S, KeyEvent.VK_DOWN -> {
+                        downPressed = false;
+                        if (!upPressed) {
+                            player.setVelocityY(0);  // Stop Y velocity if no other vertical key is pressed
+                        }
+                        if (!leftPressed && !rightPressed) {
+                            player.setAnimation("player-idle");  // Only reset animation if no direction is pressed
+                        }
+                    }
+                    case KeyEvent.VK_A, KeyEvent.VK_LEFT -> {
+                        leftPressed = false;
+                        if (!rightPressed) {
+                            player.setVelocityX(0);  // Stop X velocity if no other horizontal key is pressed
+                        }
+                        if (!upPressed && !downPressed) {
+                            player.setAnimation("player-idle");  // Only reset animation if no direction is pressed
+                        }
+                    }
+                    case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> {
+                        rightPressed = false;
+                        if (!leftPressed) {
+                            player.setVelocityX(0);  // Stop X velocity if no other horizontal key is pressed
+                        }
+                        if (!upPressed && !downPressed) {
+                            player.setAnimation("player-idle");  // Only reset animation if no direction is pressed
+                        }
                     }
                     case KeyEvent.VK_SPACE -> {
                         player.getBulletSpawner().setIsSpawning(false);
                     }
                     default -> {
-                        System.out.println("Unexpected key: " + keyCode);
+                        // Doesn't do anything/ignore all other keys
+                        break;
                     }
                 }
             }
         });
+
     }
 
     // ----- GETTERS -----
