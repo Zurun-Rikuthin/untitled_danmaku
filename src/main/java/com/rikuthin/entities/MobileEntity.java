@@ -12,17 +12,24 @@ public abstract class MobileEntity extends Entity {
 
     // ----- INSTANCE VARIABLES -----
     /**
-     * The movement speed of the entity along the x-axis in pixels per frame.
+     * The movement speed of the entity along the x-axis, in pixels per frame.
      * <p>
-     * Uses the Cartesian coordinate system (i.e., -x moves left, +x moves
-     * left).
+     * Uses the Cartesian coordinate system:
+     * <ul>
+     * <li>A negative value moves the entity to the left.</li>
+     * <li>A positive value moves the entity to the right.</li>
+     * </ul>
      */
     protected double velocityX;
 
     /**
-     * The movement speed of the entity along the y-axis in pixels per frame.
+     * The movement speed of the entity along the y-axis, in pixels per frame.
      * <p>
-     * Uses the Cartesian coordinate system (i.e., -y moves down, +y moves up).
+     * Uses the Cartesian coordinate system:
+     * <ul>
+     * <li>A negative value moves the entity upwards.</li>
+     * <li>A positive value moves the entity downwards.</li>
+     * </ul>
      */
     protected double velocityY;
 
@@ -94,10 +101,8 @@ public abstract class MobileEntity extends Entity {
      * Updates the enntity's current position using their current movement speed
      * values for the x and y axes.
      * <p>
-     * Automatically converts the Cartesian speed modifiers to be compatible
+     * Automatically converts the Cartesian velocity modifiers to be compatible
      * with screen-coordinates.
-     *
-     * @return The speed.
      */
     public void move() {
         position.x += velocityX;

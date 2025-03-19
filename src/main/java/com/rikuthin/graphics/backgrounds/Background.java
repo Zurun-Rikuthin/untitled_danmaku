@@ -1,4 +1,4 @@
-package com.rikuthin.entities.backgrounds;
+package com.rikuthin.graphics.backgrounds;
 
 import java.awt.Graphics2D;
 import java.awt.Image;

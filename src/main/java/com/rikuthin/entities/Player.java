@@ -113,16 +113,6 @@ public class Player extends MobileEntity {
         correctPosition();
     }
 
-    // ----- HELPER METHODS -----
-    /**
-     * Ensures the player remains within the visible screen boundaries.
-     */
-    private void correctPosition() {
-        // Trying to use Math.clamp gave out of bounds issues or something. This is simpler.
-        position.x = Math.max(0, Math.min(position.x, panel.getWidth() - getSpriteWidth()));
-        position.y = Math.max(0, Math.min(position.y, panel.getHeight() - getSpriteHeight()));
-    }
-
     // ----- STATIC BUILDER FOR PLAYER -----
     public static class PlayerBuilder extends MobileEntityBuilder<PlayerBuilder> {
 

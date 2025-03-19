@@ -560,6 +560,16 @@ public abstract class Entity implements Updateable, Renderable {
         }
     }
 
+    // ----- HELPER METHODS -----
+    /**
+     * Ensures the entity remains within the visible screen boundaries.
+     */
+    protected void correctPosition() {
+        // Trying to use Math.clamp gave out of bounds issues or something. This is simpler.
+        position.x = Math.max(0, Math.min(position.x, panel.getWidth() - getSpriteWidth()));
+        position.y = Math.max(0, Math.min(position.y, panel.getHeight() - getSpriteHeight()));
+    }
+
     // ----- BUILDER PATTERN -----
     /**
      * The EntityBuilder class provides a fluent API for constructing an Entity

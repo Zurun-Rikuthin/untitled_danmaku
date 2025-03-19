@@ -12,7 +12,6 @@ import com.rikuthin.core.GameManager;
 import com.rikuthin.graphics.animations.AnimationInstance;
 import com.rikuthin.graphics.animations.AnimationManager;
 import com.rikuthin.graphics.animations.AnimationTemplate;
-import com.rikuthin.interfaces.Updateable;
 
 /**
  * Represents an invisible {@link Bullet} spawner controlled by a game
@@ -49,13 +48,9 @@ public class BulletSpawner extends Entity {
      */
     protected HashSet<String> bulletAnimationKeys;
     /**
-     * The key of the spawned bullet's initial active animation.
+     * The current key of the animation used for spawned bullets.
      */
     protected String currentBulletAnimationKey;
-    /**
-     * The key of the animation used for spawned bullets.
-     */
-    protected String currentAnimationKey;
     /**
      * How many milliseconds to wait before spawning more bullets.
      */
@@ -134,7 +129,7 @@ public class BulletSpawner extends Entity {
      *
      * @return The elasped time.
      */
-    private long getElapsedDelayTime() {
+    public long getElapsedDelayTime() {
         return elapsedDelayTime;
     }
 
@@ -143,7 +138,7 @@ public class BulletSpawner extends Entity {
      *
      * @return The last update time.
      */
-    private long getLastUpdateTime() {
+    public long getLastUpdateTime() {
         return lastUpdateTime;
     }
 
@@ -381,7 +376,10 @@ public class BulletSpawner extends Entity {
                 && Double.compare(bulletVelocityX, other.getBulletVelocityX()) == 0
                 && Double.compare(bulletVelocityY, other.getBulletVelocityY()) == 0
                 && Objects.equals(bulletAnimationKeys, other.getBulletAnimationKeys())
-                && Objects.equals(currentBulletAnimationKey, other.getCurrentBulletAnimatioKey());
+                && Objects.equals(currentBulletAnimationKey, other.getCurrentBulletAnimatioKey())
+                && spawnDelayMs == other.getSpawnDelayMs()
+                && elapsedDelayTime == getElapsedDelayTime()
+                && lastUpdateTime == getLastUpdateTime();
     }
 
     /**
@@ -397,7 +395,10 @@ public class BulletSpawner extends Entity {
                 bulletVelocityX,
                 bulletVelocityY,
                 bulletAnimationKeys,
-                currentBulletAnimationKey
+                currentBulletAnimationKey,
+                spawnDelayMs,
+                elapsedDelayTime,
+                lastUpdateTime
         );
     }
 

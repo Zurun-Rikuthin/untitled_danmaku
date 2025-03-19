@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.lang.StackWalker.StackFrame;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -13,11 +14,10 @@ import javax.swing.Timer;
 
 import com.rikuthin.entities.Bullet;
 import com.rikuthin.entities.BulletSpawner;
-import com.rikuthin.entities.Enemy;
 import com.rikuthin.entities.Player;
+import com.rikuthin.entities.enemies.Enemy;
 import com.rikuthin.graphics.GameFrame;
 import com.rikuthin.graphics.dialogue.PauseMenuDialogue;
-import com.rikuthin.graphics.screens.GameplayScreen;
 import com.rikuthin.graphics.screens.subpanels.GamePanel;
 import com.rikuthin.graphics.screens.subpanels.InfoPanel;
 import com.rikuthin.interfaces.Updateable;
@@ -68,6 +68,7 @@ public class GameManager implements Updateable {
     }
 
     // ----- STATIC VARIABLES -----
+    private static final int ENEMY_LIMIT = 20;
     private static GameManager instance;
 
     // ----- INSTANCE VARIABLES -----
@@ -193,13 +194,14 @@ public class GameManager implements Updateable {
         // Transition to initializing state during setup
         currentState = GameState.INITIALIZING;
 
-        initialisePlayer(gamePanel);
+        initialisePlayer();
         enemies = new HashSet<>();
         bullets = new HashSet<>();
         setGamePaused(false);
 
         // Initialization complete. Begin running.
         currentState = GameState.RUNNING;
+        createRandomEnemy();
     }
 
     /**
@@ -218,40 +220,33 @@ public class GameManager implements Updateable {
 
     /**
      * Adds a new {@link Enemy} instance to the managed list.
-     * <p>
-     * Only works if the {@link GameplayScreen} is currently active.
      *
      * @param enemy The new enemy.
      */
     public void addEnemy(final Enemy enemy) {
         ensureInitialized("addEnemy");
-        enemies.add(enemy);
+
+        if (enemy != null){
+            enemies.add(enemy);
+        }
     }
 
-    // /**
-    //  * Creates a new mage enemy.
-    //  */
-    // public Enemy createMage(final String colour) {
-    //     ensureInitialized("createMage");
-    //     Enemy newMage = Enemy.EnemyBuilder(gamePanel).build();
-    // }
     /**
      * Adds a new bullet to the managed list.
-     * <p>
-     * Only works if the {@link GameplayScreen} is currently active.
      *
      * @param bullet The new bullet
      */
     public void addBullet(final Bullet bullet) {
         ensureInitialized("addBullet");
-        bullets.add(bullet);
+
+        if (bullet != null) {
+            bullets.add(bullet);
+        }
     }
 
     /**
      * Removes the first occurance of a specific bullet instance from the
      * managed list.
-     * <p>
-     * Only works if the {@link GameplayScreen} is currently active.
      *
      * @param bullet
      */
@@ -273,8 +268,6 @@ public class GameManager implements Updateable {
     // ----- OVERRIDDEN METHODS -----
     /**
      * Updates all managed objects and the current game state.
-     * <p>
-     * Only works if the {@link GameplayScreen} is currently active.
      */
     @Override
     public void update() {
@@ -304,10 +297,8 @@ public class GameManager implements Updateable {
 
     /**
      * Initialises the {@link Player} character.
-     * <p>
-     * Only works if the {@link GameplayScreen} is the current screen.
      */
-    private void initialisePlayer(final GamePanel gamePanel) {
+    private void initialisePlayer() {
         if (currentState != GameState.INITIALIZING) {
             throw new IllegalStateException(
                     "Cannot initialise player without being in the INITIALIZING state."
@@ -347,6 +338,51 @@ public class GameManager implements Updateable {
                 .build();
 
         player.setBulletSpawner(spawner);
+    }
+
+    /**
+     * Creates a random {@link Enemy} and adds it to the managed list.
+     */
+    private void createRandomEnemy() {
+        if (currentState != GameState.RUNNING) {
+            throw new IllegalStateException(
+                    "Cannot create enemies without being in the RUNNING state."
+            );
+        }
+
+        Random random = new Random();
+
+        HashSet<String> enemyAnimationKeys = Stream.of(
+                "mage-guardian-magenta"
+        ).collect(Collectors.toCollection(HashSet::new));
+
+        Enemy newEnemy = new Enemy.EnemyBuilder(gamePanel)
+                .invisibility(false)
+                .collidability(true)
+                .animationKeys(enemyAnimationKeys)
+                .currentAnimationKey("mage-guardian-magenta")
+                .maxHitPoints(20)
+                .currentHitPoints(20)
+                .build();
+
+        
+        // Trying to do this dynamically wasn't working, so hard-coding for now
+        int x = 300;
+        int y = 200;
+
+        newEnemy.setPosition(new Point(x, y));
+
+        HashSet<String> playerBulletAnimationKeys = Stream.of("enemy-bullet").collect(Collectors.toCollection(HashSet::new));
+
+        BulletSpawner spawner = new BulletSpawner.BulletSpawnerBuilder(gamePanel, player)
+                .bulletDamage(1)
+                .bulletVelocityY(20)
+                .bulletAnimationKeys(playerBulletAnimationKeys)
+                .currentBulletAnimationKey("enemy-bullet")
+                .build();
+
+        newEnemy.setBulletSpawner(spawner);
+        addEnemy(newEnemy);
     }
 
     /**
