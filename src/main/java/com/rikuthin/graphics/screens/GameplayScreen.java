@@ -13,6 +13,7 @@ import com.rikuthin.graphics.screens.subpanels.GamePanel;
 import com.rikuthin.graphics.screens.subpanels.InfoPanel;
 
 import managers.GameManager;
+import managers.SoundManager;
 
 /**
  * The main gameplay screen where the game logic and rendering occur. Handles
@@ -53,6 +54,10 @@ public final class GameplayScreen extends Screen {
 
         keyStates = new HashMap<>();
         addKeyListener(createKeyListener());
+
+        SoundManager soundManager = SoundManager.getInstance();
+        soundManager.stopAll();
+        soundManager.playClip("goblinsDance", true);
     }
 
     // ----- GETTERS -----

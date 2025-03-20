@@ -21,7 +21,6 @@ C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\com
 C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\com\rikuthin\graphics\backgrounds\Background.java
 C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\com\rikuthin\graphics\UIConstants.java
 C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\com\rikuthin\entities\enemies\RedMage.java
-C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\com\rikuthin\graphics\screens\subpanels\BlasterPanel.java
 C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\com\rikuthin\interfaces\Updateable.java
 C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\com\rikuthin\entities\Player.java
 C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\com\rikuthin\graphics\screens\GameplayScreen.java
@@ -29,7 +28,7 @@ C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\com
 C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\com\rikuthin\graphics\animations\AnimationInstance.java
 C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\com\rikuthin\graphics\backgrounds\OldBackground.java
 C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\managers\AnimationManager.java
-C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\com\rikuthin\audio\SoundManager.java
+C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\managers\SoundManager.java
 C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\com\rikuthin\effects\GrayScaleFX.java
 C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\com\rikuthin\effects\ImageFX.java
 C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\com\rikuthin\graphics\animations\AnimationLoader.java
@@ -43,5 +42,4 @@ C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\man
 C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\com\rikuthin\utility\Bearing2D.java
 C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\com\rikuthin\entities\bullets\BulletSpawner.java
 C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\com\rikuthin\graphics\screens\subpanels\InfoPanel.java
-C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\com\rikuthin\graphics\screens\subpanels\BubblePanel.java
-C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\com\rikuthin\core\App.java
+C:\Users\STMPW\Documents\Program Scripts\Java\untitled_danmaku\src\main\java\com\rikuthin\App.java

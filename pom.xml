@@ -52,7 +52,7 @@
 				<configuration>
 					<archive>
 						<manifestEntries>
-							<Main-Class>com.rikuthin.core.App</Main-Class> <!-- Specify your main class here -->
+							<Main-Class>com.rikuthin.App</Main-Class> <!-- Specify your main class here -->
 						</manifestEntries>
 					</archive>
 				</configuration>

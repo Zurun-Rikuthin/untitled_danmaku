@@ -7,7 +7,7 @@ import javax.swing.JFrame;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
 
-import static com.rikuthin.core.App.FRAME_RATE_MS;
+import static com.rikuthin.App.FRAME_RATE_MS;
 import com.rikuthin.graphics.animations.AnimationLoader;
 import com.rikuthin.graphics.screens.MainMenuScreen;
 import com.rikuthin.graphics.screens.Screen;
@@ -37,7 +37,7 @@ public final class GameFrame extends JFrame {
      * instance and sets the blaster and bubble panels.
      */
     public GameFrame() {
-        AnimationLoader.loadAllAnimations();
+        AnimationLoader.loadDefaultAnimations();
 
         setTitle("<Untitled Danmaku>");
         setSize(FRAME_WIDTH, FRAME_HEIGHT);

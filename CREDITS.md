@@ -1,6 +1,6 @@
 # 🎮 Game Project Credits
 
-This project includes assets created by various artists and developers. Below is a list of attributions for graphics, sound, fonts, and other resources used in the game.
+This project includes assets created by various artists and developers. Below is a list of attributions for externally sourced graphics, sound, fonts, and other resources used in the game.
 
 ---
 
@@ -16,11 +16,7 @@ This project includes assets created by various artists and developers. Below is
 
 ## 🎨 Art & Graphics  
 
-- **Main Menu Background** generated using [Pixel Space Background Generator](https://deep-fold.itch.io/space-background-generator) by [Deep-Fold](https://deep-fold.itch.io).
-
-  - **License Notes:**
-    - "Feel free [to] use any images generated in your games or other projects. Do not distribute any images generated on their own, or in an asset pack."
-    - Licensed under the [MIT License](https://mit-license.org/).
+- **Main Menu, GamePanel, and InfoPanel backgrounds** generated using [Pixel Space Background Generator](https://deep-fold.itch.io/space-background-generator) by [Deep-Fold](https://deep-fold.itch.io).
 
 - **"[Free] Agis"** [animation](https://papoycore.itch.io/free-agis) by [Papoy Core](https://papoycore.itch.io).
 
@@ -60,21 +56,38 @@ This project includes assets created by various artists and developers. Below is
 
 ## 🎵 Music & Sound Effects
 
+- **"Minifantasy Dungeon Music" (Base/Free Version)** [background music](https://leohpaz.itch.io/minifantasy-dungeon-sfx-pack) by [Leohpaz](https://leohpaz.itch.io/)
+  - **License Notes:**
+    - You can use both the base pack and the exclusive content in your personal or commercial projects;
+    - You may not sell it or distribute the asset pack for free, please redirect people to my page in case someone else shows interest in my work;
+    - Credits are not mandatory, but much appreciated!
+  - **Tracks Used:**
+    - "Goblin's Den" - Main Menu
+    - "Goblin's Dance" - Gameplay Screen
+
 ---
 
 ## 📚 Libraries & Frameworks  
 
-- **Swing & Java AWT** - Part of Java SE.
+- **Swing & Java AWT** - Part of Java Platform, Standard Edition.
 
-- **BatAlienGame-ScrollingBackground-Vert** - Original codebase.
+- **BatAlienGame-ScrollingBackground-Vert** - Original codebase from course labs.
 
-- **Untitled Bubble Shooter** - Reused/modified classes from a previous project.
+- **Untitled Bubble Shooter** - Reused/modified classes from a previous assignment (mine).
 
 ---
 
 ## 📝 Tools Used  
 
 - [**Pixel Space Background Generator**](https://deep-fold.itch.io/space-background-generator) by [Deep-Fold](https://deep-fold.itch.io)
+  - **License Notes:**
+    - Feel free [to] use any images generated in your games or other projects. Do not distribute any images generated on their own, or in an asset pack.
+    - Licensed under the [MIT License](https://mit-license.org/).
+  - (Used to generate background images for the main menu, game panel, and info panel.)
+
+- [**"Online-Convert.com - Convert audio to WAV"**](https://audio.online-convert.com/convert-to-wav)
+  
+  - (Used to convert audio files to a supported format.)
 
 ---
 
@@ -98,4 +111,4 @@ For more information, refer to the individual asset license pages.
 
 ---
 
-*Last Updated: [2025-03-18 20:54 UTC-04:00]*
+*Last Updated: [2025-03-20 00:44 UTC-04:00]*

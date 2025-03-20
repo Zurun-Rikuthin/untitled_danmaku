@@ -122,7 +122,7 @@ public class GameManager implements Updateable {
 
     // ----- GETTERS -----
     /**
-     * Returns the singleton instance of the GameManager.
+     * Returns the singleton instance of the {@link GameManager}.
      *
      * @return The single instance of GameManager.
      */

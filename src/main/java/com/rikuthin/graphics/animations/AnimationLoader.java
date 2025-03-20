@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.rikuthin.core.App;
+import com.rikuthin.App;
 
 import managers.AnimationManager;
 import managers.ImageManager;
@@ -41,11 +41,12 @@ public class AnimationLoader {
      * @param numRows The number of rows in the sprite sheet. (Minimum value: 1)
      * @param numColumns The number of columns in the sprite sheet. (Minimum value: 1)
      * @return List of AnimationFrame objects extracted from the sprite sheet.
+     * @throws IllegalArgumentException If the file path is empty or {@code null}.
      * @throws IOException If the image file cannot be loaded.
      */
     public static List<AnimationFrame> loadFromSpriteSheet(final String filePath, long frameDurationMs, int numRows, int numColumns) throws IllegalArgumentException, IOException {
         if (filePath == null || filePath.isEmpty()) {
-            throw new IllegalArgumentException("AnimationLoader: Must provide the file path of the sprite sheet to be loaded.");
+            throw new IllegalArgumentException("AnimationLoader: Must provide a valid file path for the sprite sheet.");
         }
         
         frameDurationMs = Math.max(frameDurationMs, 1);        
@@ -78,7 +79,7 @@ public class AnimationLoader {
      * <p>
      * Hard-coding this for now. Might try to make it more dynamic later.
      */
-    public static void loadAllAnimations() {
+    public static void loadDefaultAnimations() {
         AnimationMetadata[] animationMetadata = {
             new AnimationMetadata("enemy-bullet.png", 1, 8, App.FRAME_RATE_MS * 4, true),
             new AnimationMetadata("mage-guardian-blue.png", 1, 14, App.FRAME_RATE_MS * 2, true),
@@ -178,7 +179,7 @@ public class AnimationLoader {
          * @param isLooping Whether the animation should loop.
          */
         public AnimationMetadata(final String fileName, final int numGridRows, final int numGridColumns, final long frameDurationMs, final boolean isLooping) throws IllegalArgumentException {
-            if (fileName == null || fileName.isBlank()) {
+            if (fileName == null || fileName.trim().isBlank()) {
                 throw new IllegalArgumentException(String.format(
                         "%s: File namme cannot be null nor blank.",
                         this.getClass().getName()

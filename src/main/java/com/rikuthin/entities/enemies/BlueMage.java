@@ -6,7 +6,6 @@ import java.util.stream.Stream;
 
 import javax.swing.JPanel;
 
-import com.rikuthin.entities.MobileEntity;
 import com.rikuthin.entities.bullets.BulletSpawner;
 import com.rikuthin.graphics.GameFrame;
 

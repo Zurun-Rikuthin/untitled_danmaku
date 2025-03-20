@@ -9,7 +9,6 @@ import java.util.Set;
 import javax.swing.JPanel;
 
 import com.rikuthin.entities.Entity;
-import com.rikuthin.entities.Entity.EntityBuilder;
 import com.rikuthin.graphics.animations.AnimationInstance;
 import com.rikuthin.graphics.animations.AnimationTemplate;
 

@@ -17,10 +17,10 @@ import javax.swing.SwingConstants;
 
 import com.rikuthin.graphics.GameFrame;
 import com.rikuthin.graphics.UIConstants;
+import static com.rikuthin.utility.ButtonUtil.createButtonWithText;
 
 import managers.ImageManager;
-
-import static com.rikuthin.utility.ButtonUtil.createButtonWithText;
+import managers.SoundManager;
 
 /**
  * Main menu screen of the game. Provides options to start a new game, view
@@ -89,6 +89,10 @@ public class MainMenuScreen extends Screen {
         centreWrapper.add(buttonPanel);
 
         add(centreWrapper, BorderLayout.CENTER);
+
+        SoundManager soundManager = SoundManager.getInstance();
+        soundManager.stopAll();
+        soundManager.playClip("goblinsDen", true);
     }
 
     @Override

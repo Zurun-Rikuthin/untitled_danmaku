@@ -60,7 +60,7 @@ public class ImageManager {
                 }
             }
         } catch (IOException e) {
-            System.out.println("Error opening file " + filepath + ": " + e.getMessage());
+            System.err.println("Error opening file " + filepath + ": " + e.getMessage());
         }
 
         return bufferedImage;

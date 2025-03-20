@@ -6,7 +6,6 @@ import javax.swing.JPanel;
 
 import com.rikuthin.entities.Entity;
 import com.rikuthin.entities.MobileEntity;
-import com.rikuthin.entities.MobileEntity.MobileEntityBuilder;
 
 /**
  * Represents a generic bullet that moves within a JPanel.

@@ -10,7 +10,6 @@ import java.util.Set;
 
 import javax.swing.JPanel;
 
-import com.rikuthin.graphics.GameFrame;
 import com.rikuthin.graphics.animations.AnimationInstance;
 import com.rikuthin.graphics.animations.AnimationTemplate;
 import com.rikuthin.interfaces.Renderable;
