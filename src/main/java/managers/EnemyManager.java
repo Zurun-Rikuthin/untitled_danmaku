@@ -3,7 +3,6 @@ package managers;
 import java.awt.Point;
 import java.lang.StackWalker.StackFrame;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 
@@ -17,7 +16,16 @@ import com.rikuthin.graphics.screens.subpanels.GamePanel;
 import com.rikuthin.interfaces.Updateable;
 
 public class EnemyManager implements Updateable {
-    private static final int ENEMY_LIMIT = 20;
+
+    /**
+     * The maximum number of enemies that can exist simultaneously.
+     */
+    private static final int MAX_ENEMY_COUNT = 10;
+    /**
+     * The cooldown duration (in milliseconds) before another {@link Enemy} can
+     * be created.
+     */
+    private static final long ENEMY_CREATION_COOLDOWN_MS = 5000; // 5 seconds
 
     // ----- INSTANCE VARIABLES -----
     /**
@@ -25,9 +33,22 @@ public class EnemyManager implements Updateable {
      */
     private HashSet<Enemy> enemies;
     /**
-     * Random number generator.
+     * Random generator used by various methods.
      */
     private Random random;
+    /**
+     * Tracks whether the cooldown timer is active.
+     */
+    private boolean isOnCreationCooldown;
+    /**
+     * The elapsed time (in milliseconds) since the enemy creation cooldown
+     * began.
+     */
+    private long elapsedCreationCooldownMs;
+    /**
+     * The timestamp (in milliseconds) of the last update call.
+     */
+    private long lastUpdateTime;
 
     // ----- CONSTRUCTORS -----
     public EnemyManager() {
@@ -45,6 +66,43 @@ public class EnemyManager implements Updateable {
         return enemies;
     }
 
+    /**
+     * Checks if the enemy creation cooldown is currently active.
+     *
+     * @return {@code true} if the cooldown is active, otherwise {@code false}.
+     */
+    public boolean isOnCreationCooldown() {
+        return isOnCreationCooldown;
+    }
+
+    /**
+     * Gets the cooldown time in milliseconds before another enemy can be
+     * created.
+     *
+     * @return The cooldown time.
+     */
+    public long getEnemyCreationCooldownMs() {
+        return ENEMY_CREATION_COOLDOWN_MS;
+    }
+
+    /**
+     * Returns how many milliseconds of the enemy creation cooldown have passed.
+     *
+     * @return The elasped time.
+     */
+    public long getElapsedCreationCooldownMs() {
+        return elapsedCreationCooldownMs;
+    }
+
+    /**
+     * Returns the last time the manager was updated in milliseconds.
+     *
+     * @return The last update time.
+     */
+    public long getLastUpdateTime() {
+        return lastUpdateTime;
+    }
+
     // ----- BUSINESS LOGIC METHODS -----
     /**
      * Initializes the EnemyManager for a new game. This method sets up all the
@@ -53,6 +111,9 @@ public class EnemyManager implements Updateable {
     public final void init() {
         random = new Random();
         clear();
+        isOnCreationCooldown = false;
+        elapsedCreationCooldownMs = 0;
+        lastUpdateTime = 0;
     }
 
     /**
@@ -63,44 +124,74 @@ public class EnemyManager implements Updateable {
     }
 
     /**
+     * Checks if a new enemy can be created.
+     *
+     * @return {@code true} if a new {@link Enemy} can be created, otherwise
+     * {@code false}.
+     */
+    public boolean canCreateEnemy() {
+        ensureRunning("canCreateEnemy");
+
+        System.out.println("Enemies: " + enemies.size()
+                + " | Elapsed Cooldown Time: " + elapsedCreationCooldownMs
+                + " | On Cooldown: " + isOnCreationCooldown());
+
+        return enemies.size() < MAX_ENEMY_COUNT && !isOnCreationCooldown();
+    }
+
+    /**
      * Adds a new {@link Enemy} instance to the managed list.
      *
      * @param enemy The new enemy.
      */
     public void addEnemy(final Enemy enemy) {
         ensureRunning("addEnemy");
+        updateEnemyCreationCooldownTimer();
 
-        if (enemy != null) {
+        if (canCreateEnemy()) {
             enemies.add(enemy);
         }
     }
 
     /**
-     * Creates a random {@link Enemy} and adds it to the managed list.
+     * Creates a random {@link Enemy} (if allowed) and adds it to the managed
+     * list.
      *
      * @param player The {@link Player} the {@link Enemy} will target.
      */
     public void createRandomEnemy(final Player player) {
         ensureRunning("createRandomEnemy");
+        updateEnemyCreationCooldownTimer();
 
-        GamePanel gamePanel = GameManager.getInstance().getGamePanel();
-        Enemy newEnemy;
-        int enemyType = random.nextInt(3);
+        if (canCreateEnemy()) {
+            GamePanel gamePanel = GameManager.getInstance().getGamePanel();
+            Enemy newEnemy;
+            int enemyType = random.nextInt(3);
 
-        switch (enemyType) {
-            case 0 ->
-                newEnemy = new RedMage.RedMageBuilder(gamePanel).build();
-            case 1 ->
-                newEnemy = new BlueMage.BlueMageBuilder(gamePanel).build();
-            case 2 ->
-                newEnemy = new MagentaMage.MagentaMageBuilder(gamePanel).build();
-            default ->
-                throw new IllegalStateException("Switch-case recieved unexpected value: " + enemyType);
+            switch (enemyType) {
+                case 0 ->
+                    newEnemy = new RedMage.RedMageBuilder(gamePanel).build();
+                case 1 ->
+                    newEnemy = new BlueMage.BlueMageBuilder(gamePanel).build();
+                case 2 ->
+                    newEnemy = new MagentaMage.MagentaMageBuilder(gamePanel).build();
+                default ->
+                    throw new IllegalStateException("Switch-case recieved unexpected value: " + enemyType);
+            }
+
+            newEnemy.setPosition(getRandomSpawnPoint());
+            newEnemy.setTarget(player.getPosition());
+
+            int xMoveSpeed = random.nextInt(5);
+            boolean moveLeft = random.nextBoolean();
+
+            newEnemy.setVelocityX(moveLeft ? -xMoveSpeed : xMoveSpeed);
+
+            enemies.add(newEnemy);
+
+            isOnCreationCooldown = true;
+            elapsedCreationCooldownMs = 0;
         }
-
-        newEnemy.setPosition(getRandomSpawnPoint());
-        newEnemy.setTarget(player.getPosition());
-        addEnemy(newEnemy);
     }
 
     // ----- OVERRIDDEN METHODS -----
@@ -110,6 +201,9 @@ public class EnemyManager implements Updateable {
     @Override
     public void update() {
         ensureRunning("update");
+
+        lastUpdateTime = System.currentTimeMillis();
+
         createRandomEnemy(GameManager.getInstance().getPlayer());
         updateEnemies();
     }
@@ -130,6 +224,26 @@ public class EnemyManager implements Updateable {
     }
 
     /**
+     * Updates the attack cooldown timer. This tracks how much time has passed
+     * since the last enemy was created.
+     */
+    private void updateEnemyCreationCooldownTimer() {
+        if (isOnCreationCooldown) {
+            long currentTime = System.currentTimeMillis();
+            long deltaTime = currentTime - lastUpdateTime;
+
+            // Increment the cooldown timer
+            elapsedCreationCooldownMs += deltaTime;
+
+            // If the cooldown time is passed, reset the flag and elapsed time
+            if (elapsedCreationCooldownMs >= ENEMY_CREATION_COOLDOWN_MS) {
+                isOnCreationCooldown = false;
+                elapsedCreationCooldownMs = 0;
+            }
+        }
+    }
+
+    /**
      * Updates the list of managed enemies and removes any defeated enemies.
      */
     private void updateEnemies() {
@@ -139,22 +253,15 @@ public class EnemyManager implements Updateable {
             return;
         }
 
-        Iterator<Enemy> it = enemies.iterator();
-        while (it.hasNext()) {
-            Enemy e = it.next();
-            if (e != null) {
-                e.update();
-
-                if (e.getCurrentHitPoints() <= 0) {
-                    it.remove();
-                }
-            }
-        }
+        enemies.removeIf(enemy -> {
+            enemy.update();
+            return enemy.getCurrentHitPoints() <= 0;
+        });
     }
 
     private Point getRandomSpawnPoint() {
-        int x = random.nextInt(GameFrame.FRAME_WIDTH - GameFrame.FRAME_HEIGHT);
-        int y = random.nextInt(500);
+        int x = random.nextInt(GameFrame.FRAME_HEIGHT);
+        int y = random.nextInt(GameFrame.FRAME_HEIGHT * 1 / 5, GameFrame.FRAME_HEIGHT * 3 / 5);
         return new Point(x, y);
     }
 }

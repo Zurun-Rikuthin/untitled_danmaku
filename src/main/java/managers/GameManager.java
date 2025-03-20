@@ -4,18 +4,13 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.lang.StackWalker.StackFrame;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Random;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.swing.Timer;
 
 import com.rikuthin.entities.Player;
-import com.rikuthin.entities.bullets.Bullet;
 import com.rikuthin.entities.bullets.BulletSpawner;
-import com.rikuthin.entities.enemies.Enemy;
 import com.rikuthin.graphics.GameFrame;
 import com.rikuthin.graphics.dialogue.PauseMenuDialogue;
 import com.rikuthin.graphics.screens.subpanels.GamePanel;
@@ -64,6 +59,7 @@ public class GameManager implements Updateable {
             }
         };
 
+        // Planned more for, currently unused.
         public abstract void handleState(GameManager gameManager);
     }
 
@@ -79,6 +75,23 @@ public class GameManager implements Updateable {
     private static GameManager instance;
 
     // ----- INSTANCE VARIABLES -----
+    /**
+     * Manages all enemy-related logic, including spawning, tracking, and updating enemies.
+     * This instance is responsible for handling enemy creation cooldowns, updating enemy states,
+     * and ensuring that the maximum enemy limit is enforced.
+     */
+    private final EnemyManager enemyManager;
+    /**
+     * Manages all bullet-related logic, including creation, tracking, and updating bullets.
+     * This instance is responsible for handling bullet collisions, removing expired bullets,
+     * and updating their movement over time.
+     */
+    private final BulletManager bulletManager;
+    /**
+     * Represents the current state of the game. This determines what actions  
+     * can be performed at any given time and helps enforce state-based logic.  
+     * Initialized to {@code GameState.NOT_INITIALIZED} by default.
+     */
     private GameState currentState = GameState.NOT_INITIALIZED;
     /**
      * Measures how long the current game has been active.
@@ -97,15 +110,14 @@ public class GameManager implements Updateable {
      */
     private InfoPanel infoPanel;
 
-    private EnemyManager enemyManager;
-    private BulletManager bulletManager;
-
     // ----- CONSTRUCTORS -----
     /**
      * Private constructor to prevent direct instantiation. Singleton pattern.
      */
     private GameManager() {
         currentState = GameState.NOT_INITIALIZED;
+        enemyManager = new EnemyManager();
+        bulletManager = new BulletManager();
     }
 
     // ----- GETTERS -----
@@ -200,8 +212,6 @@ public class GameManager implements Updateable {
 
         this.gamePanel = gamePanel;
         this.infoPanel = infoPanel;
-        enemyManager = new EnemyManager();
-        bulletManager = new BulletManager();
 
         // Transition to initializing state during setup
         currentState = GameState.INITIALIZING;
@@ -213,7 +223,6 @@ public class GameManager implements Updateable {
 
         // Initialization complete. Begin running.
         currentState = GameState.RUNNING;
-        // EnemyManager.getInstance().createRandomEnemy(player);
     }
 
     /**
@@ -312,8 +321,8 @@ public class GameManager implements Updateable {
                 .build();
 
         // Trying to do this dynamically wasn't working, so hard-coding for now
-        int x = GameFrame.FRAME_WIDTH - GameFrame.FRAME_HEIGHT - (player.getSpriteWidth() / 2);
-        int y = GameFrame.FRAME_HEIGHT - (player.getSpriteHeight() / 2);
+        int x = (GameFrame.FRAME_HEIGHT / 2) - (player.getSpriteWidth() / 2);
+        int y = GameFrame.FRAME_HEIGHT - (2 * player.getSpriteHeight());
 
         player.setPosition(new Point(x, y));
 

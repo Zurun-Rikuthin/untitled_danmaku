@@ -2,7 +2,6 @@ package managers;
 
 import java.lang.StackWalker.StackFrame;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import com.rikuthin.entities.bullets.Bullet;
@@ -77,7 +76,7 @@ public class BulletManager implements Updateable {
             StackFrame caller = walker.walk(frames -> frames.skip(1).findFirst().orElse(null));
 
             throw new IllegalStateException(String.format(
-                    "%s.%s: Cannot call %s() when GameMaager is not in the RUNNING state.",
+                    "%s.%s: Cannot call %s() when GameManager is not in the RUNNING state.",
                     caller != null ? caller.getClassName() : "UnknownClass",
                     caller != null ? caller.getMethodName() : "UnknownMethod",
                     methodName
@@ -95,16 +94,9 @@ public class BulletManager implements Updateable {
             return;
         }
 
-        Iterator<Bullet> it = bullets.iterator();
-        while (it.hasNext()) {
-            Bullet b = it.next();
-            if (b != null) {
-                b.update();
-
-                if (b.isFullyOutsidePanel()) {
-                    it.remove();
-                }
-            }
-        }
+        bullets.removeIf(bullet -> {
+            bullet.update();
+            return bullet.isFullyOutsidePanel();
+        });
     }
 }

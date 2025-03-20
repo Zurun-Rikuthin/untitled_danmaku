@@ -41,6 +41,8 @@ public class MagentaMage extends Enemy {
 
         setAnimationKeys(magentaMageAnimationKeys);
         setAnimation("mage-guardian-magenta");
+        setMaxHitPoints(20);
+        setCurrentHitPoints(20);
     }
 
     /**

@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import com.rikuthin.entities.MobileEntity;
 import com.rikuthin.entities.bullets.Bullet;
 import com.rikuthin.entities.bullets.BulletSpawner;
+import com.rikuthin.graphics.GameFrame;
 import com.rikuthin.utility.Bearing2D;
 
 /**
@@ -265,8 +266,6 @@ public class Enemy extends MobileEntity {
      * <p>
      * Extends {@link MobileEntity#move()} by ensuring the enemy still within
      * screen boundaries.
-     *
-     * @return The speed.
      */
     @Override
     public void move() {
@@ -280,8 +279,8 @@ public class Enemy extends MobileEntity {
     @Override
     public void update() {
         super.update();
-        attack();
         lastUpdateTime = System.currentTimeMillis();
+        attack();
     }
 
     /**
@@ -304,7 +303,7 @@ public class Enemy extends MobileEntity {
     private void horizontalScreenBounce() {
         if (position.x <= 0 || position.x >= panel.getWidth() - getSpriteWidth()) {
             velocityX = -velocityX; // Reverse direction
-            position.x = Math.max(0, Math.min(position.x, panel.getWidth() - getSpriteWidth())); // Keep within bounds
+            position.x = Math.max(Math.min(position.x, 0), GameFrame.FRAME_HEIGHT - getSpriteWidth()); // Keep within bounds
         }
     }
 
@@ -315,6 +314,11 @@ public class Enemy extends MobileEntity {
     private void updateAttackCooldownTimer() {
         long currentTime = System.currentTimeMillis();
         elapsedAttackCooldownMs += currentTime - lastUpdateTime;
+
+        // Reset if cooldown has passed
+        if (elapsedAttackCooldownMs >= attackCooldownMs) {
+            elapsedAttackCooldownMs = 0;
+        }
     }
 
     /**

@@ -14,7 +14,6 @@ import com.rikuthin.graphics.animations.AnimationInstance;
 import com.rikuthin.graphics.animations.AnimationTemplate;
 
 import managers.AnimationManager;
-import managers.BulletManager;
 import managers.GameManager;
 
 /**

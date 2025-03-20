@@ -10,6 +10,7 @@ import java.util.Set;
 
 import javax.swing.JPanel;
 
+import com.rikuthin.graphics.GameFrame;
 import com.rikuthin.graphics.animations.AnimationInstance;
 import com.rikuthin.graphics.animations.AnimationTemplate;
 import com.rikuthin.interfaces.Renderable;
@@ -457,11 +458,12 @@ public abstract class Entity implements Updateable, Renderable {
     }
 
     /**
-     * Adds a new key to the set of keys this entity can query {@link AnimationManager} with.
+     * Adds a new key to the set of keys this entity can query
+     * {@link AnimationManager} with.
      *
      * @param key The new animation key.
-     * @throws IllegalArgumentException if a {@code null} or blank key is passed, or the key
-     * doesn't exist in {@link AnimationManager}'s key set.
+     * @throws IllegalArgumentException if a {@code null} or blank key is
+     * passed, or the key doesn't exist in {@link AnimationManager}'s key set.
      */
     public void addAnimationKey(final String key) throws IllegalArgumentException {
         if (key == null || key.isBlank()) {
@@ -484,8 +486,8 @@ public abstract class Entity implements Updateable, Renderable {
      */
     public Point getCentreCoordinates() {
         return new Point(
-            (position.x + getSpriteWidth()) / 2,
-            (position.y + getSpriteHeight()) / 2
+                (position.x + getSpriteWidth()) / 2,
+                (position.y + getSpriteHeight()) / 2
         );
     }
 

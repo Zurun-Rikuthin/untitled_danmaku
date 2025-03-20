@@ -6,7 +6,9 @@ import java.util.stream.Stream;
 
 import javax.swing.JPanel;
 
+import com.rikuthin.entities.MobileEntity;
 import com.rikuthin.entities.bullets.BulletSpawner;
+import com.rikuthin.graphics.GameFrame;
 
 /**
  * Represents a Blue Mage enemy in the game.
@@ -29,6 +31,36 @@ public class BlueMage extends Enemy {
         setUpBlueMageBulletSpawner();
     }
 
+    // ----- OVERRIDDEN METHODS -----
+    /**
+     * Extends {@link Enemy#move()} by applying a cosine function to oscillate
+     * the y-coordinate with a given amplitude.
+     * <p>
+     * The final y-coordinate is clamped to stay within the desired range of 1/5
+     * to 3/5 of the screen height.
+     */
+    @Override
+    public void move() {
+        super.move();
+
+        // Get the normalized cosine value in the range [-1, 1]
+        double normalizedCos = Math.cos(position.y);
+
+        double amplitude = 50;
+
+        // Oscillate within the range, using the amplitude to determine the oscillation
+        double oscillatedY = amplitude * GameFrame.FRAME_HEIGHT * normalizedCos;
+
+        // Clamp the result to stay within the limits [1/5 * GameFrame.FRAME_HEIGHT, 3/5 * GameFrame.FRAME_HEIGHT]
+        position.y = (int) Math.max(
+                Math.min(
+                        oscillatedY + (1.0 / 5.0) * GameFrame.FRAME_HEIGHT,
+                        (1.0 / 5.0) * GameFrame.FRAME_HEIGHT
+                ),
+                (3.0 / 5.0) * GameFrame.FRAME_HEIGHT
+        );
+    }
+
     // ----- HELPER METHODS -----
     /**
      * Set up the animations for the Blue Mage, including animation keys and
@@ -36,11 +68,13 @@ public class BlueMage extends Enemy {
      */
     private void setUpBlueMageAnimations() {
         HashSet<String> blueMageAnimationKeys = Stream.of(
-                "mage-guardian-magenta"
+                "mage-guardian-blue"
         ).collect(Collectors.toCollection(HashSet::new));
 
         setAnimationKeys(blueMageAnimationKeys);
-        setAnimation("mage-guardian-magenta");
+        setAnimation("mage-guardian-blue");
+        setMaxHitPoints(20);
+        setCurrentHitPoints(20);
     }
 
     /**
@@ -49,8 +83,8 @@ public class BlueMage extends Enemy {
      */
     private void setUpBlueMageBulletSpawner() {
         HashSet<String> blueMageBulletAnimationKeys = Stream.of(
-            "enemy-bullet"
-            ).collect(Collectors.toCollection(HashSet::new));
+                "enemy-bullet"
+        ).collect(Collectors.toCollection(HashSet::new));
 
         BulletSpawner spawner = new BulletSpawner.BulletSpawnerBuilder(panel, this)
                 .bulletDamage(1)
@@ -61,7 +95,6 @@ public class BlueMage extends Enemy {
 
         setBulletSpawner(spawner);
     }
-
 
     // ----- STATIC BUILDER FOR ENEMY -----
     public static class BlueMageBuilder extends EnemyBuilder {
